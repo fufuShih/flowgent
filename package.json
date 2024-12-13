@@ -1,12 +1,13 @@
 {
   "name": "flowgent",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Flowgent - AI Agent Workflow System",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "pnpm -r run dev",
+    "build": "pnpm -r run build",
+    "start": "pnpm --filter backend start"
   },
-  "keywords": [],
+  "keywords": ["workflow", "ai", "agent"],
   "author": "",
   "license": "ISC"
 }
