@@ -77,7 +77,7 @@ export const FlowEditor = () => {
   };
 
   return (
-    <div className="h-screen w-full p-4">
+    <div className="h-[calc(100vh-3.5rem)] w-full p-4">
       <Card className="h-full w-full">
         <div className="flex items-center justify-between px-6 py-4 border-b">
           <h2 className="text-2xl font-semibold tracking-tight">Flow Editor</h2>
