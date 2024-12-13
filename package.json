@@ -1,13 +1,38 @@
 {
   "name": "flowgent",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Flowgent - AI Agent Workflow System",
   "scripts": {
     "dev": "pnpm -r run dev",
     "build": "pnpm -r run build",
-    "start": "pnpm --filter backend start"
+    "start": "pnpm --filter backend start",
+    "type-check": "pnpm -r run type-check",
+    "lint": "pnpm -r run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
+    "clean": "pnpm -r run clean"
   },
-  "keywords": ["workflow", "ai", "agent"],
+  "keywords": [
+    "workflow",
+    "ai",
+    "agent"
+  ],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.11.24",
+    "@typescript-eslint/eslint-plugin": "^7.1.1",
+    "@typescript-eslint/parser": "^7.1.1",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "prettier": "^3.2.5",
+    "typescript": "^5.3.3",
+    "rimraf": "^5.0.5"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  }
 }
