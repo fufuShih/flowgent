@@ -1,11 +1,32 @@
-# React + TypeScript + Vite
+# Flowgent Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React-based frontend for the Flowgent application, built with Vite, TypeScript, and TailwindCSS.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React 18.3 with TypeScript
+- Vite 6.0 for build tooling
+- TailwindCSS for styling
+- @xyflow/react for flow diagram editing
+- Shadcn UI components
+- Lucide React icons
+
+## Project Structure
+
+- `/src/components` - Reusable UI components
+
+  - `/ui` - Shadcn UI base components
+  - `FlowEditor.tsx` - Flow diagram editor component
+  - `Navbar.tsx` - Main navigation component
+  - `Sidebar.tsx` - Side navigation panel
+
+- `/src/pages` - Application routes
+  - `ProjectsPage.tsx` - Projects listing
+  - `ProjectDetail.tsx` - Project details with matrix management
+  - `MatrixEditor.tsx` - Matrix flow editor interface
+  - `MatrixList.tsx` - List of matrices in a project
+
+## Development
 
 ## Expanding the ESLint configuration
 
@@ -22,7 +43,7 @@ export default tseslint.config({
       tsconfigRootDir: import.meta.dirname,
     },
   },
-})
+});
 ```
 
 - Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
@@ -31,7 +52,7 @@ export default tseslint.config({
 
 ```js
 // eslint.config.js
-import react from 'eslint-plugin-react'
+import react from 'eslint-plugin-react';
 
 export default tseslint.config({
   // Set the react version
@@ -46,5 +67,5 @@ export default tseslint.config({
     ...react.configs.recommended.rules,
     ...react.configs['jsx-runtime'].rules,
   },
-})
+});
 ```
