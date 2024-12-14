@@ -1,4 +1,4 @@
-import { Matrix } from "@/types/flow";
+import { Matrix } from "@/types";
 
 export const mockMatrix: Matrix = {
   id: 'matrix-1',
