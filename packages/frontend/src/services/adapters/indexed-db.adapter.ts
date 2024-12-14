@@ -132,12 +132,13 @@ class IndexedDBAdapter implements IStorageAdapter {
 
     const newMatrix: Matrix = {
       id: crypto.randomUUID(),
+      projectId,
       name: data.name,
       description: data.description,
       nodes: data.nodes || [],
       edges: data.edges || [],
-      created: new Date(),
-      updated: new Date(),
+      created: new Date().toISOString(),
+      updated: new Date().toISOString(),
     };
 
     project.matrices.push(newMatrix);
@@ -159,7 +160,8 @@ class IndexedDBAdapter implements IStorageAdapter {
     const updatedMatrix = {
       ...project.matrices[index],
       ...data,
-      updated: new Date(),
+      projectId,
+      updated: new Date().toISOString(),
     };
 
     project.matrices[index] = updatedMatrix;
