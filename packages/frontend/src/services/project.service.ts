@@ -1,5 +1,5 @@
 import { config } from './config';
-import type { Project, CreateProjectDto, UpdateProjectDto } from './project.type';
+import type { CreateProjectDto, UpdateProjectDto } from './project.type';
 
 export const ProjectService = {
   getAll: () => config.adapter.getAllProjects(),

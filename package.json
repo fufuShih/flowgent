@@ -6,6 +6,9 @@
     "dev": "pnpm -r run dev",
     "build": "tsx scripts/build.ts",
     "start": "pnpm --filter backend start",
+    "start:prod": "pm2 start ecosystem.config.js --env production",
+    "stop:prod": "pm2 stop ecosystem.config.js",
+    "restart:prod": "pm2 restart ecosystem.config.js",
     "type-check": "pnpm -r run type-check",
     "lint": "pnpm -r run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
@@ -30,7 +33,8 @@
     "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
     "tsx": "^4.7.1",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "pm2": "^5.3.1"
   },
   "engines": {
     "node": ">=20.0.0",

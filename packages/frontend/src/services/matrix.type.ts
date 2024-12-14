@@ -1,11 +1,5 @@
 import { Edge } from '@xyflow/react';
-import {
-  matrixSchema,
-  matrixResponseSchema,
-  createMatrixSchema,
-  updateMatrixSchema,
-  flowEdgeSchema,
-} from './schema';
+import { flowEdgeSchema } from './schema';
 import type { z } from 'zod';
 
 export type FlowEdge = z.infer<typeof flowEdgeSchema> & Edge;
