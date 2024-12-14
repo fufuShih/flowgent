@@ -1,12 +1,10 @@
 'use client';
 
-import MatrixEditorPage from "@/components/MatrixEditor";
-
 const HomePage = () => {
   return (
-    <>
-      <MatrixEditorPage />
-    </>
+    <div className="space-y-4 w-full p-4">
+      <h1 className="text-2xl font-bold">HomePage</h1>
+    </div>
   )
 }
 
