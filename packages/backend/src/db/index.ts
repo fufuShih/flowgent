@@ -1,6 +1,7 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import * as schema from './schema';
+import { migrate } from 'drizzle-orm/node-postgres/migrator';
 
 const pool = new Pool({
   host: process.env.DB_HOST || 'localhost',
@@ -16,7 +17,44 @@ pool.on('error', (err) => {
   process.exit(-1);
 });
 
-// Export a function to test the database connection
+export const db = drizzle(pool, { schema });
+
+// Export a function to test and initialize the database
+export const initDatabase = async () => {
+  try {
+    const client = await pool.connect();
+
+    // Create tables if they don't exist
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS projects (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS matrices (
+        id SERIAL PRIMARY KEY,
+        project_id INTEGER REFERENCES projects(id),
+        name TEXT NOT NULL,
+        description TEXT NOT NULL,
+        nodes TEXT NOT NULL,
+        edges TEXT NOT NULL,
+        created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log('Database tables created successfully');
+    client.release();
+    return true;
+  } catch (error) {
+    console.error('Database initialization failed:', error);
+    return false;
+  }
+};
+
+// Export the test connection function
 export const testConnection = async () => {
   try {
     const client = await pool.connect();
@@ -28,5 +66,3 @@ export const testConnection = async () => {
     return false;
   }
 };
-
-export const db = drizzle(pool, { schema });
