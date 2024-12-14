@@ -10,8 +10,11 @@ export interface Project {
 export interface Matrix {
   id: string;
   name: string;
+  description: string;
   nodes: FlowNode[];
   edges: FlowEdge[];
+  created: Date;
+  updated: Date;
 }
 
 export interface InputOutput {
@@ -49,4 +52,18 @@ export interface NodeState {
   input?: unknown;
   output?: unknown;
   error?: Error;
+}
+
+export interface CreateMatrixDto {
+  name: string;
+  description: string;
+  nodes?: FlowNode[];
+  edges?: FlowEdge[];
+}
+
+export interface UpdateMatrixDto {
+  name?: string;
+  description?: string;
+  nodes?: FlowNode[];
+  edges?: FlowEdge[];
 }

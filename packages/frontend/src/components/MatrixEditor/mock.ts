@@ -3,6 +3,9 @@ import { Matrix } from "@/types";
 export const mockMatrix: Matrix = {
   id: 'matrix-1',
   name: 'Test Matrix',
+  description: 'A test matrix for development and testing purposes',
+  created: new Date('2024-01-01T00:00:00Z'),
+  updated: new Date('2024-01-01T00:00:00Z'),
   nodes: [
     {
       id: 'trigger-1',
@@ -57,12 +60,16 @@ export const mockMatrix: Matrix = {
       id: 'e1-2',
       source: 'trigger-1',
       target: 'ai-1',
+      sourceHandle: 'out-1',
+      targetHandle: 'in-1',
       animated: true
     },
     {
       id: 'e2-3',
       source: 'ai-1',
       target: 'action-1',
+      sourceHandle: 'out-1',
+      targetHandle: 'in-1',
       animated: true
     }
   ]
