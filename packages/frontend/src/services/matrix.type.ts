@@ -1,8 +1,18 @@
-import { Node as ReactFlowNode, Edge as ReactFlowEdge } from '@xyflow/react';
-import { NodeDataType } from './node.type';
+import { Edge, MarkerType } from '@xyflow/react';
+import { FlowNodeType } from './node.type';
 
-export type FlowNode = ReactFlowNode<NodeDataType>;
-export type FlowEdge = ReactFlowEdge;
+// Add more specific edge type
+export interface FlowEdge extends Edge {
+  animated?: boolean;
+  style?: {
+    strokeWidth: number;
+  };
+  markerEnd?: {
+    type: MarkerType;
+    width: number;
+    height: number;
+  };
+}
 
 export interface MatrixResponse {
   success: boolean;
@@ -14,7 +24,7 @@ export interface Matrix {
   id: string;
   name: string;
   description: string;
-  nodes: FlowNode[];
+  nodes: FlowNodeType[];
   edges: FlowEdge[];
   created: Date;
   updated: Date;
@@ -23,13 +33,13 @@ export interface Matrix {
 export interface CreateMatrixDto {
   name: string;
   description: string;
-  nodes?: FlowNode[];
+  nodes?: FlowNodeType[];
   edges?: FlowEdge[];
 }
 
 export interface UpdateMatrixDto {
   name?: string;
   description?: string;
-  nodes?: FlowNode[];
+  nodes?: FlowNodeType[];
   edges?: FlowEdge[];
 }

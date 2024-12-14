@@ -1,14 +1,14 @@
 import { useState, useCallback, useEffect } from 'react';
 import { ReactFlow, Controls, Background, Panel,
-  type Node as FlowNode,
-  Edge,
   applyEdgeChanges,
   applyNodeChanges,
   NodeChange,
   EdgeChange,
-  Connection as FlowConnection,
+  Connection,
   Handle,
   Position,
+  MarkerType,
+  ConnectionMode,  // Add this import
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,9 +18,16 @@ import { PlusCircle, Save, Trash2, ZoomIn, ZoomOut } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { MatrixService } from '@/services/matrix.service';
 import { nodeTemplates } from './nodeTemplates';
-import { NodeDataType } from '@/services/node.type';
+import { FlowNodeType, NodeDataType } from '@/services/node.type';
+import { FlowEdge } from '@/services/matrix.type';
 
-const CustomNode = ({ data, type }: { data: NodeDataType; type: string }) => {
+// CustomNode component props type
+interface CustomNodeProps {
+  data: NodeDataType;
+  type: string;
+}
+
+const CustomNode = ({ data, type }: CustomNodeProps) => {
   const bgColors = {
     trigger: 'bg-orange-500',
     action: 'bg-emerald-500',
@@ -86,13 +93,13 @@ const isValidTemplateId = (id: string): id is keyof typeof nodeTemplates => {
 };
 
 export const MatrixEditor = ({ projectId, matrixId }: { projectId: string; matrixId: string }) => {
-  const [nodes, setNodes] = useState<FlowNode[]>([]);
-  const [edges, setEdges] = useState<Edge[]>([]);
+  const [nodes, setNodes] = useState<FlowNodeType[]>([]);
+  const [edges, setEdges] = useState<FlowEdge[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [selectedNode, setSelectedNode] = useState<FlowNode | null>(null);
+  const [selectedNode, setSelectedNode] = useState<FlowNodeType | null>(null);
 
   useEffect(() => {
     const loadMatrix = async () => {
@@ -117,16 +124,31 @@ export const MatrixEditor = ({ projectId, matrixId }: { projectId: string; matri
   }, [projectId, matrixId]);
 
   const onNodesChange = useCallback(
-    (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
+    (changes: NodeChange[]) =>
+      setNodes((nds) => applyNodeChanges(changes, nds) as FlowNodeType[]),
     []
   );
 
   const onEdgesChange = useCallback(
-    (changes: EdgeChange[]) => setEdges((eds) => applyEdgeChanges(changes, eds)),
+    (changes: EdgeChange[]) =>
+      setEdges((eds) => applyEdgeChanges(changes, eds) as FlowEdge[]),
     []
   );
 
-  const onConnect = useCallback((params: FlowConnection) => {
+  const defaultEdgeOptions = {
+    animated: true,
+    type: 'smoothstep',
+    markerEnd: {
+      type: MarkerType.ArrowClosed,
+      width: 20,
+      height: 20,
+    },
+    style: {
+      strokeWidth: 2,
+    },
+  };
+
+  const onConnect = useCallback((params: Connection) => {
     const sourceNode = nodes.find(n => n.id === params.source);
     const targetNode = nodes.find(n => n.id === params.target);
 
@@ -144,14 +166,22 @@ export const MatrixEditor = ({ projectId, matrixId }: { projectId: string; matri
 
     if (existingConnection) return;
 
-    setEdges(eds => [
-      ...eds,
-      {
-        ...params,
-        animated: true,
-        id: `e${params.source}-${params.target}-${Date.now()}`
-      }
-    ]);
+    const newEdge: FlowEdge = {
+      ...params,
+      id: `e${params.source}-${params.target}-${Date.now()}`,
+      type: 'smoothstep',
+      animated: true,
+      markerEnd: {
+        type: MarkerType.ArrowClosed,
+        width: 20,
+        height: 20,
+      },
+      style: {
+        strokeWidth: 2,
+      },
+    };
+
+    setEdges(eds => [...eds, newEdge]);
   }, [nodes, edges]);
 
   const calculateNewNodePosition = useCallback(() => {
@@ -175,7 +205,7 @@ export const MatrixEditor = ({ projectId, matrixId }: { projectId: string; matri
     if (!template) return;
 
     const position = calculateNewNodePosition();
-    const newNode = {
+    const newNode: FlowNodeType = {
       ...template,
       id: `${template.type}-${Date.now()}`,
       position,
@@ -283,8 +313,12 @@ export const MatrixEditor = ({ projectId, matrixId }: { projectId: string; matri
               onNodeClick={(_, node) => setSelectedNode(node)}
               onPaneClick={() => setSelectedNode(null)}
               fitView
+              defaultEdgeOptions={defaultEdgeOptions}
               className="bg-slate-50 dark:bg-slate-900"
               nodeTypes={nodeTypes}
+              snapToGrid={true}
+              snapGrid={[15, 15]}
+              connectionMode={ConnectionMode.Loose}
             >
               <Background />
               <Controls />

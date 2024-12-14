@@ -1,7 +1,13 @@
-export const nodeTemplates = {
+import type { Node } from '@xyflow/react';
+import type { NodeDataType } from '@/services/node.type';
+
+type NodeTemplate = Omit<Node<NodeDataType>, 'id' | 'position'>;
+
+export const nodeTemplates: Record<string, NodeTemplate> = {
   'trigger': {
     type: 'trigger',
     data: {
+      type: 'trigger',
       label: 'Start Trigger',
       params: {},
       inputs: [],
@@ -13,6 +19,7 @@ export const nodeTemplates = {
   'ai': {
     type: 'ai',
     data: {
+      type: 'ai',
       label: 'AI Processing',
       params: {
         prompt: "Enter your prompt"
@@ -28,6 +35,7 @@ export const nodeTemplates = {
   'action': {
     type: 'action',
     data: {
+      type: 'action',
       label: 'Action',
       params: {
         action: "Select action"
@@ -43,6 +51,7 @@ export const nodeTemplates = {
   'flow': {
     type: 'flow',
     data: {
+      type: 'flow',
       label: 'Flow Control',
       params: {
         condition: "Set condition"
