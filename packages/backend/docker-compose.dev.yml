@@ -1,18 +1,17 @@
 version: '3.8'
 
 services:
-  flowgent-postgres:
-    container_name: flowgent-postgres-dev
-    image: postgres:15
-    ports:
-      - "5432:5432"
+  postgres:
+    image: postgres:14
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: flowgent
+      POSTGRES_DB: flowmatrix
+    ports:
+      - '5432:5432'
     volumes:
-      - flowgent-postgres-data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
 
 volumes:
-  flowgent-postgres-data:
-    name: flowgent-postgres-dev-data 
+  postgres_data:
+    name: postgres_data
