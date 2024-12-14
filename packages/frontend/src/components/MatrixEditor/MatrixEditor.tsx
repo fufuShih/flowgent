@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { ReactFlow,
-  Node as FlowNode,
+  type Node as FlowNode,
   Edge,
   Controls,
   Background,
@@ -9,44 +9,84 @@ import { ReactFlow,
   NodeChange,
   EdgeChange,
   Connection as FlowConnection,
+  Handle,
+  Position,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Save } from 'lucide-react';
+import { mockMatrix } from './mock';
 
-const initialNodes: FlowNode[] = [
-  {
-    id: '1',
-    type: 'input',
-    data: {
-      label: 'Input Node',
-      parameters: {},
-      inputParameters: [],
-      outputParameters: [{ name: 'output', type: 'string' }]
-    },
-    position: { x: 250, y: 25 },
-  },
-  {
-    id: '2',
-    type: 'default',
-    data: {
-      label: 'Processing Node',
-      parameters: {},
-      inputParameters: [{ name: 'input', type: 'string', required: true }],
-      outputParameters: [{ name: 'output', type: 'string' }]
-    },
-    position: { x: 250, y: 125 },
-  },
-];
 
-const initialEdges: Edge[] = [
-  { id: 'e1-2', source: '1', target: '2', animated: true },
-];
+const CustomNode = ({ data, type }: any) => {
+  const bgColors = {
+    trigger: '#ff9900',
+    action: '#00b894',
+    ai: '#0984e3',
+    flow: '#6c5ce7',
+  };
 
-export const FlowEditor = () => {
-  const [nodes, setNodes] = useState<FlowNode[]>(initialNodes);
-  const [edges, setEdges] = useState<Edge[]>(initialEdges);
+  return (
+    <div className="px-4 py-2 shadow-md rounded-md border"
+         style={{ background: bgColors[type as keyof typeof bgColors] }}>
+      {/* Input Handles */}
+      {data.inputs.map((input: any, index: number) => (
+        <Handle
+          key={input.id}
+          type="target"
+          position={Position.Top}
+          id={input.id}
+          style={{
+            left: `${((index + 1) / (data.inputs.length + 1)) * 100}%`,
+            background: '#fff',
+            width: 8,
+            height: 8,
+          }}
+        />
+      ))}
+
+      {/* Node Label */}
+      <div className="text-white font-bold">{data.label}</div>
+
+      {/* Parameters Display */}
+      {Object.keys(data.params).length > 0 && (
+        <div className="text-white text-xs mt-1">
+          {Object.entries(data.params).map(([key, value]) => (
+            <div key={key}>{key}: {String(value)}</div>
+          ))}
+        </div>
+      )}
+
+      {/* Output Handles */}
+      {data.outputs.map((output: any, index: number) => (
+        <Handle
+          key={output.id}
+          type="source"
+          position={Position.Bottom}
+          id={output.id}
+          style={{
+            left: `${((index + 1) / (data.outputs.length + 1)) * 100}%`,
+            background: '#fff',
+            width: 8,
+            height: 8,
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
+const nodeTypes = {
+  trigger: (props: any) => <CustomNode {...props} type="trigger" />,
+  action: (props: any) => <CustomNode {...props} type="action" />,
+  ai: (props: any) => <CustomNode {...props} type="ai" />,
+  flow: (props: any) => <CustomNode {...props} type="flow" />,
+};
+
+export const MatrixEditor = () => {
+  const [nodes, setNodes] = useState<FlowNode[]>(mockMatrix.nodes);
+  const [edges, setEdges] = useState<Edge[]>(mockMatrix.edges);
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
@@ -102,6 +142,7 @@ export const FlowEditor = () => {
               onConnect={onConnect}
               fitView
               className="bg-slate-50 dark:bg-slate-900"
+              nodeTypes={nodeTypes}
             >
               <Background />
               <Controls />

@@ -1,11 +1,11 @@
 'use client';
 
-import { FlowEditor } from "@/components/FlowEditor";
+import MatrixEditorPage from "@/components/MatrixEditor";
 
 const HomePage = () => {
   return (
     <>
-      <FlowEditor />
+      <MatrixEditorPage />
     </>
   )
 }

@@ -1,7 +1,7 @@
+import { MatrixEditor } from '@/components/MatrixEditor/MatrixEditor';
 import { useParams } from 'react-router';
-import { FlowEditor } from "@/components/FlowEditor";
 
-const MatrixEditor = () => {
+const MatrixEditorPage = () => {
   const { matrixId } = useParams();
 
   return (
@@ -11,10 +11,10 @@ const MatrixEditor = () => {
         <p className="text-sm text-gray-500">Matrix ID: {matrixId}</p>
       </div>
       <div className="h-[calc(100vh-200px)]">
-        <FlowEditor />
+        <MatrixEditor />
       </div>
     </div>
   );
 };
 
-export default MatrixEditor;
+export default MatrixEditorPage;
