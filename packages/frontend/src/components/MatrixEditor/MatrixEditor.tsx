@@ -91,6 +91,7 @@ export const MatrixEditor = ({ projectId, matrixId }: { projectId: string; matri
   const [nodes, setNodes] = useState<FlowNode[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Load matrix data
   useEffect(() => {
@@ -166,6 +167,7 @@ export const MatrixEditor = ({ projectId, matrixId }: { projectId: string; matri
     };
 
     setNodes((nds) => [...nds, newNode]);
+    setIsDialogOpen(false); // Close dialog after adding node
   };
 
   const handleSave = useCallback(async () => {
@@ -190,7 +192,7 @@ export const MatrixEditor = ({ projectId, matrixId }: { projectId: string; matri
           <div className="flex items-center justify-between px-6 py-4 border-b">
             <h2 className="text-2xl font-semibold tracking-tight">Flow Editor</h2>
             <div className="flex gap-2">
-              <Dialog>
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
                   <Button variant="outline" size="sm" className="flex items-center">
                     <PlusCircle className="mr-2 h-4 w-4" />
