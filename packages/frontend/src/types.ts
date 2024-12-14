@@ -1,18 +1,9 @@
-import { Node as ReactFlowNode, Edge as ReactFlowEdge } from '@xyflow/react';
+import { Matrix, FlowNode, FlowEdge } from './services/matrix.type';
+
 export interface Project {
   id: string;
   name: string;
   matrices: Matrix[];
-  created: Date;
-  updated: Date;
-}
-
-export interface Matrix {
-  id: string;
-  name: string;
-  description: string;
-  nodes: FlowNode[];
-  edges: FlowEdge[];
   created: Date;
   updated: Date;
 }
@@ -30,9 +21,6 @@ export interface NodeDataType {
   outputs: InputOutput[];
   [key: string]: unknown;
 }
-
-export type FlowNode = ReactFlowNode<NodeDataType>;
-export type FlowEdge = ReactFlowEdge;
 
 export type NodeType =
   | 'trigger'
@@ -54,16 +42,4 @@ export interface NodeState {
   error?: Error;
 }
 
-export interface CreateMatrixDto {
-  name: string;
-  description: string;
-  nodes?: FlowNode[];
-  edges?: FlowEdge[];
-}
-
-export interface UpdateMatrixDto {
-  name?: string;
-  description?: string;
-  nodes?: FlowNode[];
-  edges?: FlowEdge[];
-}
+export type { Matrix, FlowNode, FlowEdge };

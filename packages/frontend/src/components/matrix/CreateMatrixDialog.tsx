@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { CreateMatrixDto } from '@/types';
+import { CreateMatrixDto } from '@/services/matrix.type';
 
 interface CreateMatrixDialogProps {
   onSubmit: (data: CreateMatrixDto) => Promise<void>;

@@ -1,4 +1,4 @@
-import { Matrix, CreateMatrixDto, UpdateMatrixDto } from '@/types';
+import { Matrix, CreateMatrixDto, UpdateMatrixDto } from './matrix.type';
 import { ProjectService } from './project.service';
 
 export const MatrixService = {
