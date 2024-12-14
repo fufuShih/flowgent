@@ -1,39 +1,52 @@
-export interface Node {
+import { Node as ReactFlowNode, Edge as ReactFlowEdge } from '@xyflow/react';
+export interface Project {
   id: string;
-  type: string;
-  position: { x: number; y: number };
-  data: {
-    label: string;
-    parameters?: Record<string, any>;
-    inputParameters?: Array<{
-      name: string;
-      type: string;
-      required: boolean;
-    }>;
-    outputParameters?: Array<{
-      name: string;
-      type: string;
-    }>;
-  };
+  name: string;
+  matrices: Matrix[];
+  created: Date;
+  updated: Date;
 }
 
-export interface Connection {
+export interface Matrix {
   id: string;
-  sourceNode: string;
-  sourceOutput: string;
-  targetNode: string;
-  targetInput: string;
+  name: string;
+  nodes: FlowNode[];
+  edges: FlowEdge[];
 }
 
-export interface FlowTemplate {
+export interface InputOutput {
   id: string;
   name: string;
   type: string;
-  description: string;
-  nodes: Node[];
-  connections: Connection[];
-  settings?: {
-    errorHandler?: Record<string, any>;
-    timezone?: string;
-  };
+}
+
+export interface NodeDataType {
+  label: string;
+  params: Record<string, unknown>;
+  inputs: InputOutput[];
+  outputs: InputOutput[];
+  [key: string]: unknown;
+}
+
+export type FlowNode = ReactFlowNode<NodeDataType>;
+export type FlowEdge = ReactFlowEdge;
+
+export type NodeType =
+  | 'trigger'
+  | 'action'
+  | 'flow'
+  | 'ai';
+
+export interface ExecutionState {
+  id: string;
+  matrixId: string;
+  status: 'pending' | 'running' | 'completed' | 'error';
+  nodeStates: Record<string, NodeState>;
+}
+
+export interface NodeState {
+  status: 'pending' | 'running' | 'completed' | 'error';
+  input?: unknown;
+  output?: unknown;
+  error?: Error;
 }

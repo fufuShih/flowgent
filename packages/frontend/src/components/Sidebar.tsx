@@ -1,4 +1,4 @@
-import { Github, X } from 'lucide-react';
+import { X, LucideIcon, HomeIcon, FolderIcon, FileClockIcon } from 'lucide-react';
 import { Button } from './ui/button';
 import { useEffect } from 'react';
 
@@ -6,6 +6,31 @@ type SidebarProps = {
   isOpen: boolean;
   onClose: () => void;
 };
+
+type NavItem = {
+  title: string;
+  href: string;
+  icon: LucideIcon;
+  external?: boolean;
+};
+
+const navItems: NavItem[] = [
+  {
+    title: 'Home',
+    href: '/',
+    icon: HomeIcon,
+  },
+  {
+    title: 'Projects',
+    href: '/projects',
+    icon: FolderIcon
+  },
+  {
+    title: 'Logs',
+    href: '/logs',
+    icon: FileClockIcon
+  }
+];
 
 export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   // Prevent scrolling when mobile menu is open
@@ -51,17 +76,25 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
           </div>
 
           <div className="flex flex-col space-y-3">
-            <Button variant="ghost" size="sm" className="justify-start" asChild>
-              <a
-                href="https://github.com/flowgent"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center"
+            {navItems.map((item) => (
+              <Button
+                key={item.title}
+                variant="ghost"
+                size="sm"
+                className="justify-start"
+                asChild
               >
-                <Github className="h-5 w-5 mr-2" />
-                Github
-              </a>
-            </Button>
+                <a
+                  href={item.href}
+                  target={item.external ? "_blank" : undefined}
+                  rel={item.external ? "noopener noreferrer" : undefined}
+                  className="flex items-center"
+                >
+                  <item.icon className="h-5 w-5 mr-2" />
+                  {item.title}
+                </a>
+              </Button>
+            ))}
           </div>
         </div>
       </aside>
