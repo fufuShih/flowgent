@@ -16,10 +16,8 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { PlusCircle, Save, Trash2, ZoomIn, ZoomOut } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { MatrixService } from '@/services/matrix.service';
 import { nodeTemplates } from './nodeTemplates';
-import { FlowNodeType, NodeDataType } from '@/services/node.type';
-import { FlowEdge } from '@/services/matrix.type';
+import { FlowNodeType, NodeDataType, FlowEdge, MatrixService } from '@/services';
 
 // CustomNode component props type
 interface CustomNodeProps {

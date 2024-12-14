@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { MatrixService } from '@/services/matrix.service';
 import { CreateMatrixDialog } from '@/components/matrix/CreateMatrixDialog';
 
-import { CreateMatrixDto, Matrix } from '@/services/matrix.type';
+import { CreateMatrixDto, Matrix, MatrixService } from '@/services';
 
 const MatrixListPage = () => {
   const navigate = useNavigate();

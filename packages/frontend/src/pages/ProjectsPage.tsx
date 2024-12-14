@@ -2,9 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ProjectService } from '@/services/project.service';
 import { CreateProjectDialog } from '@/components/CreateProjectDialog';
-import { Project, CreateProjectDto } from '@/services/project.type';
+import { Project, ProjectService, CreateProjectDto } from '@/services';
 
 const ProjectsPage = () => {
   const navigate = useNavigate();
