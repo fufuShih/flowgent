@@ -88,12 +88,31 @@ const nodeTypes = {
 };
 
 export const MatrixEditor = ({ projectId, matrixId }: { projectId: string; matrixId: string }) => {
-  // Replace direct mockMatrix usage with proper matrix loading
-  const [nodes, setNodes] = useState<FlowNode[]>(() => {
-    const matrix = MatrixService.getById(projectId, matrixId);
-    return matrix?.nodes || mockMatrix.nodes;
-  });
-  const [edges, setEdges] = useState<Edge[]>(mockMatrix.edges);
+  const [nodes, setNodes] = useState<FlowNode[]>([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  // Load matrix data
+  useEffect(() => {
+    try {
+      const matrix = MatrixService.getById(projectId, matrixId);
+      if (matrix) {
+        setNodes(matrix.nodes || []);
+        setEdges(matrix.edges || []);
+        setError(null);
+      } else {
+        setError('Matrix not found');
+      }
+    } catch (error) {
+      setError('Failed to load matrix');
+      console.error(error);
+    }
+  }, [projectId, matrixId]);
+
+  if (error) {
+    return <div className="p-4 text-red-500">{error}</div>;
+  }
+
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
     []
@@ -126,15 +145,6 @@ export const MatrixEditor = ({ projectId, matrixId }: { projectId: string; matri
     ]);
   }, [nodes]);
 
-  // Add useEffect to reload nodes when projectId or matrixId changes
-  useEffect(() => {
-    const matrix = MatrixService.getById(projectId, matrixId);
-    if (matrix) {
-      setNodes(matrix.nodes);
-      setEdges(matrix.edges);
-    }
-  }, [projectId, matrixId]);
-
   // Add node position calculation helper
   const calculateNewNodePosition = () => {
     const existingNodes = nodes.length;
@@ -158,17 +168,20 @@ export const MatrixEditor = ({ projectId, matrixId }: { projectId: string; matri
     setNodes((nds) => [...nds, newNode]);
   };
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     try {
-      await MatrixService.update(projectId, matrixId, {
+      const result = await MatrixService.update(projectId, matrixId, {
         nodes,
-        edges,
-        updated: new Date()
+        edges
       });
+      if (!result) {
+        throw new Error('Failed to save matrix');
+      }
     } catch (error) {
       console.error('Failed to save matrix:', error);
+      setError('Failed to save matrix');
     }
-  };
+  }, [projectId, matrixId, nodes, edges]);
 
   return (
     <div className="h-[calc(100vh-3.5rem)] w-full p-4">

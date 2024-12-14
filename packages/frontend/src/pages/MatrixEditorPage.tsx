@@ -2,7 +2,11 @@ import { MatrixEditor } from '@/components/MatrixEditor/MatrixEditor';
 import { useParams } from 'react-router';
 
 const MatrixEditorPage = () => {
-  const { matrixId } = useParams();
+  const { projectId, matrixId } = useParams();
+
+  if (!projectId || !matrixId) {
+    return <div>Missing project or matrix ID</div>;
+  }
 
   return (
     <div className="h-full">
@@ -11,7 +15,7 @@ const MatrixEditorPage = () => {
         <p className="text-sm text-gray-500">Matrix ID: {matrixId}</p>
       </div>
       <div className="h-[calc(100vh-200px)]">
-        <MatrixEditor />
+        <MatrixEditor projectId={projectId} matrixId={matrixId} />
       </div>
     </div>
   );
