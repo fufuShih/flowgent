@@ -1,8 +1,12 @@
+'use client';
 
+import { FlowEditor } from "@/components/FlowEditor";
 
 const HomePage = () => {
   return (
-    <div>HomePage</div>
+    <>
+      <FlowEditor />
+    </>
   )
 }
 
