@@ -1,4 +1,4 @@
-import { Matrix, CreateMatrixDto, UpdateMatrixDto } from './matrix.type';
+import { Matrix, CreateMatrixDto, UpdateMatrixDto, MatrixResponse } from './matrix.type';
 import { ProjectService } from './project.service';
 
 export const MatrixService = {
@@ -32,21 +32,30 @@ export const MatrixService = {
     return newMatrix;
   },
 
-  update(projectId: string, matrixId: string, data: UpdateMatrixDto): Matrix | null {
-    const project = ProjectService.getById(projectId);
-    if (!project) throw new Error('Project not found');
+  async update(projectId: string, matrixId: string, data: UpdateMatrixDto): Promise<MatrixResponse> {
+    try {
+      const project = ProjectService.getById(projectId);
+      if (!project) throw new Error('Project not found');
 
-    const index = project.matrices.findIndex(m => m.id === matrixId);
-    if (index === -1) return null;
+      const index = project.matrices.findIndex(m => m.id === matrixId);
+      if (index === -1) throw new Error('Matrix not found');
 
-    project.matrices[index] = {
-      ...project.matrices[index],
-      ...data,
-      updated: new Date()
-    };
+      const updatedMatrix = {
+        ...project.matrices[index],
+        ...data,
+        updated: new Date()
+      };
 
-    ProjectService.update(projectId, { matrices: project.matrices });
-    return project.matrices[index];
+      project.matrices[index] = updatedMatrix;
+      await ProjectService.update(projectId, { matrices: project.matrices });
+
+      return { success: true, data: updatedMatrix };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to update matrix'
+      };
+    }
   },
 
   delete(projectId: string, matrixId: string): boolean {

@@ -4,6 +4,12 @@ import { NodeDataType } from './node.type';
 export type FlowNode = ReactFlowNode<NodeDataType>;
 export type FlowEdge = ReactFlowEdge;
 
+export interface MatrixResponse {
+  success: boolean;
+  data?: Matrix;
+  error?: string;
+}
+
 export interface Matrix {
   id: string;
   name: string;
