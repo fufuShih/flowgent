@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { ReactFlow,
   type Node as FlowNode,
   Edge,
@@ -17,6 +17,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Save } from 'lucide-react';
 import { mockMatrix } from './mock';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { MatrixService } from '@/services/matrix.service';
+import { nodeTemplates } from './nodeTemplates';
 
 
 const CustomNode = ({ data, type }: any) => {
@@ -84,10 +87,13 @@ const nodeTypes = {
   flow: (props: any) => <CustomNode {...props} type="flow" />,
 };
 
-export const MatrixEditor = () => {
-  const [nodes, setNodes] = useState<FlowNode[]>(mockMatrix.nodes);
+export const MatrixEditor = ({ projectId, matrixId }: { projectId: string; matrixId: string }) => {
+  // Replace direct mockMatrix usage with proper matrix loading
+  const [nodes, setNodes] = useState<FlowNode[]>(() => {
+    const matrix = MatrixService.getById(projectId, matrixId);
+    return matrix?.nodes || mockMatrix.nodes;
+  });
   const [edges, setEdges] = useState<Edge[]>(mockMatrix.edges);
-
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
     []
@@ -98,22 +104,70 @@ export const MatrixEditor = () => {
     []
   );
 
-  const onConnect = useCallback(
-    (params: FlowConnection) =>
-      setEdges((eds) => [...eds, { ...params, animated: true, id: `e${params.source}-${params.target}` }]),
-    []
-  );
+  const onConnect = useCallback((params: FlowConnection) => {
+    // Validate connection
+    const sourceNode = nodes.find(n => n.id === params.source);
+    const targetNode = nodes.find(n => n.id === params.target);
 
-  const handleSave = () => {
-    const flowData = {
-      nodes,
-      edges,
-      settings: {
-        timezone: 'UTC',
-      },
+    if (!sourceNode || !targetNode) return;
+
+    const sourceOutput = sourceNode.data.outputs.find((o: any) => o.id === params.sourceHandle);
+    const targetInput = targetNode.data.inputs.find((i: any) => i.id === params.targetHandle);
+
+    if (!sourceOutput || !targetInput) return;
+
+    setEdges((eds) => [
+      ...eds,
+      {
+        ...params,
+        animated: true,
+        id: `e${params.source}-${params.target}`
+      }
+    ]);
+  }, [nodes]);
+
+  // Add useEffect to reload nodes when projectId or matrixId changes
+  useEffect(() => {
+    const matrix = MatrixService.getById(projectId, matrixId);
+    if (matrix) {
+      setNodes(matrix.nodes);
+      setEdges(matrix.edges);
+    }
+  }, [projectId, matrixId]);
+
+  // Add node position calculation helper
+  const calculateNewNodePosition = () => {
+    const existingNodes = nodes.length;
+    return {
+      x: 250 + (existingNodes % 2) * 200,
+      y: 25 + Math.floor(existingNodes / 2) * 150
     };
-    console.log('Saving flow:', flowData);
-    // Here we would typically call an API to save the flow
+  };
+
+  const handleAddNode = (templateId: string) => {
+    const template = nodeTemplates[templateId];
+    if (!template) return;
+
+    const position = calculateNewNodePosition();
+    const newNode = {
+      ...template,
+      id: `${template.type}-${Date.now()}`,
+      position
+    };
+
+    setNodes((nds) => [...nds, newNode]);
+  };
+
+  const handleSave = async () => {
+    try {
+      await MatrixService.update(projectId, matrixId, {
+        nodes,
+        edges,
+        updated: new Date()
+      });
+    } catch (error) {
+      console.error('Failed to save matrix:', error);
+    }
   };
 
   return (
@@ -123,10 +177,30 @@ export const MatrixEditor = () => {
           <div className="flex items-center justify-between px-6 py-4 border-b">
             <h2 className="text-2xl font-semibold tracking-tight">Flow Editor</h2>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" className="flex items-center">
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Add Node
-              </Button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm" className="flex items-center">
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Add Node
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Select Node Type</DialogTitle>
+                  </DialogHeader>
+                  <div className="grid grid-cols-2 gap-4 py-4">
+                    {Object.entries(nodeTemplates).map(([id, template]) => (
+                      <Button
+                        key={id}
+                        variant="outline"
+                        onClick={() => handleAddNode(id)}
+                      >
+                        {template.data.label}
+                      </Button>
+                    ))}
+                  </div>
+                </DialogContent>
+              </Dialog>
               <Button onClick={handleSave} className="flex items-center">
                 <Save className="mr-2 h-4 w-4" />
                 Save Flow

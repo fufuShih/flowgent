@@ -1,4 +1,4 @@
-import { Matrix } from "@/types";
+import { Matrix } from "@/services/matrix.type";
 
 export const mockMatrix: Matrix = {
   id: 'matrix-1',
