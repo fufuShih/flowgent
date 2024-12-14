@@ -78,35 +78,37 @@ export const FlowEditor = () => {
 
   return (
     <div className="h-[calc(100vh-3.5rem)] w-full p-4">
-      <Card className="h-full w-full">
-        <div className="flex items-center justify-between px-6 py-4 border-b">
-          <h2 className="text-2xl font-semibold tracking-tight">Flow Editor</h2>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="flex items-center">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Add Node
-            </Button>
-            <Button onClick={handleSave} className="flex items-center">
-              <Save className="mr-2 h-4 w-4" />
-              Save Flow
-            </Button>
+      <div className="max-w-7xl mx-auto h-full">
+        <Card className="h-full w-full">
+          <div className="flex items-center justify-between px-6 py-4 border-b">
+            <h2 className="text-2xl font-semibold tracking-tight">Flow Editor</h2>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" className="flex items-center">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add Node
+              </Button>
+              <Button onClick={handleSave} className="flex items-center">
+                <Save className="mr-2 h-4 w-4" />
+                Save Flow
+              </Button>
+            </div>
           </div>
-        </div>
-        <CardContent className="p-0 h-[calc(100%-5rem)]">
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            fitView
-            className="bg-slate-50 dark:bg-slate-900"
-          >
-            <Background />
-            <Controls />
-          </ReactFlow>
-        </CardContent>
-      </Card>
+          <CardContent className="p-0 h-[calc(100%-5rem)]">
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onConnect={onConnect}
+              fitView
+              className="bg-slate-50 dark:bg-slate-900"
+            >
+              <Background />
+              <Controls />
+            </ReactFlow>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
