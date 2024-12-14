@@ -4,7 +4,7 @@
   "description": "Flowgent - AI Agent Workflow System",
   "scripts": {
     "dev": "pnpm -r run dev",
-    "build": "pnpm -r run build",
+    "build": "tsx scripts/build.ts",
     "start": "pnpm --filter backend start",
     "type-check": "pnpm -r run type-check",
     "lint": "pnpm -r run lint",
@@ -20,14 +20,17 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^20.11.24",
+    "@types/fs-extra": "^11.0.4",
     "@typescript-eslint/eslint-plugin": "^7.1.1",
     "@typescript-eslint/parser": "^7.1.1",
     "eslint": "^9.15.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.29.1",
+    "fs-extra": "^11.2.0",
     "prettier": "^3.2.5",
-    "typescript": "^5.3.3",
-    "rimraf": "^5.0.5"
+    "rimraf": "^5.0.5",
+    "tsx": "^4.7.1",
+    "typescript": "^5.3.3"
   },
   "engines": {
     "node": ">=20.0.0",
