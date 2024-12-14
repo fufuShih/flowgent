@@ -3,8 +3,8 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router';
 import { ProjectService } from '@/services/project.service';
-import { Project } from '@/types';
 import { CreateProjectDialog } from '@/components/CreateProjectDialog';
+import { Project } from '@/services/project.type';
 
 const ProjectsPage = () => {
   const [projects, setProjects] = useState<Project[]>([]);

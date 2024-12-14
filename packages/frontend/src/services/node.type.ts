@@ -1,13 +1,3 @@
-import { Matrix, FlowNode, FlowEdge } from './services/matrix.type';
-
-export interface Project {
-  id: string;
-  name: string;
-  matrices: Matrix[];
-  created: Date;
-  updated: Date;
-}
-
 export interface InputOutput {
   id: string;
   name: string;
@@ -41,5 +31,3 @@ export interface NodeState {
   output?: unknown;
   error?: Error;
 }
-
-export type { Matrix, FlowNode, FlowEdge };

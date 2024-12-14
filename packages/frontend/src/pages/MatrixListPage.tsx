@@ -3,8 +3,8 @@ import { Link, useParams } from 'react-router';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { MatrixService } from '@/services/matrix.service';
 import { CreateMatrixDialog } from '@/components/matrix/CreateMatrixDialog';
-import { Matrix } from '@/types';
-import { CreateMatrixDto } from '@/services/matrix.type';
+
+import { CreateMatrixDto, Matrix } from '@/services/matrix.type';
 
 const MatrixListPage = () => {
   const { projectId } = useParams();

@@ -1,5 +1,5 @@
 import { Node as ReactFlowNode, Edge as ReactFlowEdge } from '@xyflow/react';
-import { NodeDataType } from '../types';
+import { NodeDataType } from './node.type';
 
 export type FlowNode = ReactFlowNode<NodeDataType>;
 export type FlowEdge = ReactFlowEdge;
