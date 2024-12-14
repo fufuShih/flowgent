@@ -1,12 +1,19 @@
-import { paths, log, error } from './utils';
+import { paths, log, error, copyFile } from './utils';
 import { buildFrontend } from './tasks/frontend';
 import { buildBackend } from './tasks/backend';
 import { cleanDistDirectories } from './tasks/clean';
+import path from 'path';
 
 async function build() {
   try {
     // Clean all dist directories first
-    // await cleanDistDirectories();
+    await cleanDistDirectories();
+
+    // Copy environment files
+    const isProd = process.env.NODE_ENV === 'production';
+    const envFile = isProd ? '.env.production' : '.env';
+
+    await copyFile(path.join(paths.root, envFile), path.join(paths.dist, '.env'));
 
     // Build frontend and backend in parallel
     log('Starting parallel build...');

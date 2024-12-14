@@ -1,20 +1,13 @@
 module.exports = {
   apps: [
     {
-      name: 'flowgent',
-      script: './dist/backend/index.js',
-      instances: 'max',
-      exec_mode: 'cluster',
-      autorestart: true,
-      watch: false,
-      max_memory_restart: '1G',
+      name: 'flowgent-backend',
+      script: 'packages/backend/dist/index.js',
       env: {
-        NODE_ENV: 'production',
-        PORT: 3004,
+        NODE_ENV: 'development',
       },
       env_production: {
         NODE_ENV: 'production',
-        PORT: 3004,
       },
     },
   ],

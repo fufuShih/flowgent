@@ -62,3 +62,14 @@ Thumbs.db
 packages/**/dist
 packages/**/build
 packages/**/.turbo
+
+# Environment variables
+.env
+.env.*
+!.env.example
+!.env.production.example
+
+# Frontend specific
+packages/frontend/.env
+packages/frontend/.env.*
+!packages/frontend/.env.example

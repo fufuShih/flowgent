@@ -1,3 +1,14 @@
+import dotenv from 'dotenv';
+import path from 'path';
+
+// Load environment variables
+const envPath =
+  process.env.NODE_ENV === 'production'
+    ? path.resolve(process.cwd(), '.env.production')
+    : path.resolve(process.cwd(), '.env');
+
+dotenv.config({ path: envPath });
+
 import express from 'express';
 import cors from 'cors';
 import { projectRoutes } from './routes/project';

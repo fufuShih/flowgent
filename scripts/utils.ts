@@ -2,6 +2,7 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs/promises';
 
 export const execAsync = promisify(exec);
 
@@ -36,4 +37,16 @@ export function log(message: string) {
 
 export function error(message: string) {
   console.error(`\n❌ ${message}`);
+}
+
+export async function copyFile(src: string, dest: string) {
+  try {
+    // Ensure the destination directory exists
+    await fs.mkdir(path.dirname(dest), { recursive: true });
+    await fs.copyFile(src, dest);
+    log(`Copied ${src} to ${dest}`);
+  } catch (err) {
+    error(`Failed to copy ${src} to ${dest}`);
+    throw err;
+  }
 }
