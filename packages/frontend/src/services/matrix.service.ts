@@ -1,73 +1,32 @@
-import { Matrix, CreateMatrixDto, UpdateMatrixDto, MatrixResponse } from './matrix.type';
-import { ProjectService } from './project.service';
+import { config } from './config';
+import type { Matrix, CreateMatrixDto, UpdateMatrixDto, MatrixResponse } from './matrix.type';
 
 export const MatrixService = {
-  getAll(projectId: string): Matrix[] {
-    const project = ProjectService.getById(projectId);
-    return project?.matrices || [];
-  },
+  getAll: (projectId: string) => config.adapter.getAllMatrices(projectId),
 
-  getById(projectId: string, matrixId: string): Matrix | null {
-    const matrices = this.getAll(projectId);
-    return matrices.find(m => m.id === matrixId) || null;
-  },
+  getById: (projectId: string, matrixId: string) =>
+    config.adapter.getMatrixById(projectId, matrixId),
 
-  create(projectId: string, data: CreateMatrixDto): Matrix {
-    const project = ProjectService.getById(projectId);
-    if (!project) throw new Error('Project not found');
+  create: (projectId: string, data: CreateMatrixDto) =>
+    config.adapter.createMatrix(projectId, data),
 
-    const newMatrix: Matrix = {
-      id: crypto.randomUUID(),
-      name: data.name,
-      description: data.description,
-      nodes: data.nodes || [],
-      edges: data.edges || [],
-      created: new Date(),
-      updated: new Date()
-    };
-
-    project.matrices.push(newMatrix);
-    ProjectService.update(projectId, { matrices: project.matrices });
-
-    return newMatrix;
-  },
-
-  async update(projectId: string, matrixId: string, data: UpdateMatrixDto): Promise<MatrixResponse> {
+  async update(
+    projectId: string,
+    matrixId: string,
+    data: UpdateMatrixDto
+  ): Promise<MatrixResponse> {
     try {
-      const project = ProjectService.getById(projectId);
-      if (!project) throw new Error('Project not found');
+      const result = await config.adapter.updateMatrix(projectId, matrixId, data);
+      if (!result) throw new Error('Matrix not found');
 
-      const index = project.matrices.findIndex(m => m.id === matrixId);
-      if (index === -1) throw new Error('Matrix not found');
-
-      const updatedMatrix = {
-        ...project.matrices[index],
-        ...data,
-        updated: new Date()
-      };
-
-      project.matrices[index] = updatedMatrix;
-      await ProjectService.update(projectId, { matrices: project.matrices });
-
-      return { success: true, data: updatedMatrix };
+      return { success: true, data: result };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to update matrix'
+        error: error instanceof Error ? error.message : 'Failed to update matrix',
       };
     }
   },
 
-  delete(projectId: string, matrixId: string): boolean {
-    const project = ProjectService.getById(projectId);
-    if (!project) return false;
-
-    const originalLength = project.matrices.length;
-    project.matrices = project.matrices.filter(m => m.id !== matrixId);
-
-    if (project.matrices.length === originalLength) return false;
-
-    ProjectService.update(projectId, { matrices: project.matrices });
-    return true;
-  }
+  delete: (projectId: string, matrixId: string) => config.adapter.deleteMatrix(projectId, matrixId),
 };
