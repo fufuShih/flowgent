@@ -1,5 +1,9 @@
 import { useState, useCallback, useEffect } from 'react';
-import { ReactFlow, Controls, Background, Panel,
+import {
+  ReactFlow,
+  Controls,
+  Background,
+  Panel,
   applyEdgeChanges,
   applyNodeChanges,
   NodeChange,
@@ -8,14 +12,20 @@ import { ReactFlow, Controls, Background, Panel,
   Handle,
   Position,
   MarkerType,
-  ConnectionMode,  // Add this import
+  ConnectionMode, // Add this import
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { PlusCircle, Save, Trash2, ZoomIn, ZoomOut } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { nodeTemplates } from './nodeTemplates';
 import { FlowNodeType, NodeDataType, FlowEdge, MatrixService } from '@/services';
 
@@ -34,7 +44,9 @@ const CustomNode = ({ data, type }: CustomNodeProps) => {
   };
 
   return (
-    <div className={`px-4 py-2 shadow-md rounded-md border ${bgColors[type as keyof typeof bgColors]}`}>
+    <div
+      className={`px-4 py-2 shadow-md rounded-md border ${bgColors[type as keyof typeof bgColors]}`}
+    >
       {/* Input Handles */}
       {data.inputs.map((input, index) => (
         <Handle
@@ -103,7 +115,7 @@ export const MatrixEditor = ({ projectId, matrixId }: { projectId: string; matri
     const loadMatrix = async () => {
       setIsLoading(true);
       try {
-        const matrix = MatrixService.getById(projectId, matrixId);
+        const matrix = await MatrixService.getById(projectId, matrixId);
         if (matrix) {
           setNodes(matrix.nodes || []);
           setEdges(matrix.edges || []);
@@ -122,14 +134,12 @@ export const MatrixEditor = ({ projectId, matrixId }: { projectId: string; matri
   }, [projectId, matrixId]);
 
   const onNodesChange = useCallback(
-    (changes: NodeChange[]) =>
-      setNodes((nds) => applyNodeChanges(changes, nds) as FlowNodeType[]),
+    (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds) as FlowNodeType[]),
     []
   );
 
   const onEdgesChange = useCallback(
-    (changes: EdgeChange[]) =>
-      setEdges((eds) => applyEdgeChanges(changes, eds) as FlowEdge[]),
+    (changes: EdgeChange[]) => setEdges((eds) => applyEdgeChanges(changes, eds) as FlowEdge[]),
     []
   );
 
@@ -146,41 +156,44 @@ export const MatrixEditor = ({ projectId, matrixId }: { projectId: string; matri
     },
   };
 
-  const onConnect = useCallback((params: Connection) => {
-    const sourceNode = nodes.find(n => n.id === params.source);
-    const targetNode = nodes.find(n => n.id === params.target);
+  const onConnect = useCallback(
+    (params: Connection) => {
+      const sourceNode = nodes.find((n) => n.id === params.source);
+      const targetNode = nodes.find((n) => n.id === params.target);
 
-    if (!sourceNode || !targetNode) return;
+      if (!sourceNode || !targetNode) return;
 
-    const sourceOutput = sourceNode.data.outputs.find(o => o.id === params.sourceHandle);
-    const targetInput = targetNode.data.inputs.find(i => i.id === params.targetHandle);
+      const sourceOutput = sourceNode.data.outputs.find((o) => o.id === params.sourceHandle);
+      const targetInput = targetNode.data.inputs.find((i) => i.id === params.targetHandle);
 
-    if (!sourceOutput || !targetInput) return;
+      if (!sourceOutput || !targetInput) return;
 
-    // Prevent multiple connections to the same input
-    const existingConnection = edges.find(e =>
-      e.target === params.target && e.targetHandle === params.targetHandle
-    );
+      // Prevent multiple connections to the same input
+      const existingConnection = edges.find(
+        (e) => e.target === params.target && e.targetHandle === params.targetHandle
+      );
 
-    if (existingConnection) return;
+      if (existingConnection) return;
 
-    const newEdge: FlowEdge = {
-      ...params,
-      id: `e${params.source}-${params.target}-${Date.now()}`,
-      type: 'smoothstep',
-      animated: true,
-      markerEnd: {
-        type: MarkerType.ArrowClosed,
-        width: 20,
-        height: 20,
-      },
-      style: {
-        strokeWidth: 2,
-      },
-    };
+      const newEdge: FlowEdge = {
+        ...params,
+        id: `e${params.source}-${params.target}-${Date.now()}`,
+        type: 'smoothstep',
+        animated: true,
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          width: 20,
+          height: 20,
+        },
+        style: {
+          strokeWidth: 2,
+        },
+      };
 
-    setEdges(eds => [...eds, newEdge]);
-  }, [nodes, edges]);
+      setEdges((eds) => [...eds, newEdge]);
+    },
+    [nodes, edges]
+  );
 
   const calculateNewNodePosition = useCallback(() => {
     const padding = 50;
@@ -189,41 +202,44 @@ export const MatrixEditor = ({ projectId, matrixId }: { projectId: string; matri
 
     return {
       x: padding + (existingNodes % 3) * spacing,
-      y: padding + Math.floor(existingNodes / 3) * spacing
+      y: padding + Math.floor(existingNodes / 3) * spacing,
     };
   }, [nodes]);
 
-  const handleAddNode = useCallback((templateId: string) => {
-    if (!isValidTemplateId(templateId)) {
-      console.error(`Invalid template ID: ${templateId}`);
-      return;
-    }
-
-    const template = nodeTemplates[templateId];
-    if (!template) return;
-
-    const position = calculateNewNodePosition();
-    const newNode: FlowNodeType = {
-      ...template,
-      id: `${template.type}-${Date.now()}`,
-      position,
-      data: {
-        ...template.data,
-        label: `${template.data.label} ${nodes.length + 1}`
+  const handleAddNode = useCallback(
+    (templateId: string) => {
+      if (!isValidTemplateId(templateId)) {
+        console.error(`Invalid template ID: ${templateId}`);
+        return;
       }
-    };
 
-    setNodes(nds => [...nds, newNode]);
-    setIsDialogOpen(false);
-  }, [nodes, calculateNewNodePosition]);
+      const template = nodeTemplates[templateId];
+      if (!template) return;
+
+      const position = calculateNewNodePosition();
+      const newNode: FlowNodeType = {
+        ...template,
+        id: `${template.type}-${Date.now()}`,
+        position,
+        data: {
+          ...template.data,
+          label: `${template.data.label} ${nodes.length + 1}`,
+        },
+      };
+
+      setNodes((nds) => [...nds, newNode]);
+      setIsDialogOpen(false);
+    },
+    [nodes, calculateNewNodePosition]
+  );
 
   const handleDeleteNode = useCallback(() => {
     if (!selectedNode) return;
 
-    setNodes(nds => nds.filter(n => n.id !== selectedNode.id));
-    setEdges(eds => eds.filter(e =>
-      e.source !== selectedNode.id && e.target !== selectedNode.id
-    ));
+    setNodes((nds) => nds.filter((n) => n.id !== selectedNode.id));
+    setEdges((eds) =>
+      eds.filter((e) => e.source !== selectedNode.id && e.target !== selectedNode.id)
+    );
     setSelectedNode(null);
   }, [selectedNode]);
 
@@ -266,11 +282,7 @@ export const MatrixEditor = ({ projectId, matrixId }: { projectId: string; matri
                   </DialogHeader>
                   <div className="grid grid-cols-2 gap-4 py-4">
                     {Object.entries(nodeTemplates).map(([id, template]) => (
-                      <Button
-                        key={id}
-                        variant="outline"
-                        onClick={() => handleAddNode(id)}
-                      >
+                      <Button key={id} variant="outline" onClick={() => handleAddNode(id)}>
                         {template.data.label}
                       </Button>
                     ))}
@@ -278,19 +290,12 @@ export const MatrixEditor = ({ projectId, matrixId }: { projectId: string; matri
                 </DialogContent>
               </Dialog>
               {selectedNode && (
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={handleDeleteNode}
-                >
+                <Button variant="destructive" size="sm" onClick={handleDeleteNode}>
                   <Trash2 className="mr-2 h-4 w-4" />
                   Delete Node
                 </Button>
               )}
-              <Button
-                onClick={handleSave}
-                disabled={isSaving}
-              >
+              <Button onClick={handleSave} disabled={isSaving}>
                 <Save className="mr-2 h-4 w-4" />
                 {isSaving ? 'Saving...' : 'Save Flow'}
               </Button>
@@ -322,20 +327,10 @@ export const MatrixEditor = ({ projectId, matrixId }: { projectId: string; matri
               <Controls />
               <Panel position="top-right" className="bg-background/80 p-2 rounded-lg backdrop-blur">
                 <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {}}
-                    className="h-8 w-8 p-0"
-                  >
+                  <Button variant="outline" size="sm" onClick={() => {}} className="h-8 w-8 p-0">
                     <ZoomIn className="h-4 w-4" />
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {}}
-                    className="h-8 w-8 p-0"
-                  >
+                  <Button variant="outline" size="sm" onClick={() => {}} className="h-8 w-8 p-0">
                     <ZoomOut className="h-4 w-4" />
                   </Button>
                 </div>

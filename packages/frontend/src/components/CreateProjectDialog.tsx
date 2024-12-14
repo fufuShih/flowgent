@@ -12,18 +12,24 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 interface CreateProjectDialogProps {
-  onCreateProject: (name: string) => void;
+  onCreateProject: (name: string) => Promise<void>;
 }
 
 export function CreateProjectDialog({ onCreateProject }: CreateProjectDialogProps) {
   const [open, setOpen] = useState(false);
   const [projectName, setProjectName] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = () => {
-    if (!projectName.trim()) return;
-    onCreateProject(projectName);
-    setProjectName('');
-    setOpen(false);
+  const handleSubmit = async () => {
+    if (!projectName.trim() || isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      await onCreateProject(projectName);
+      setProjectName('');
+      setOpen(false);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -48,7 +54,9 @@ export function CreateProjectDialog({ onCreateProject }: CreateProjectDialogProp
           <Button variant="outline" onClick={() => setOpen(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit}>Create</Button>
+          <Button onClick={handleSubmit} disabled={isSubmitting}>
+            {isSubmitting ? 'Creating...' : 'Create'}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

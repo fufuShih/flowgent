@@ -1,5 +1,11 @@
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,13 +19,20 @@ export const CreateMatrixDialog = ({ onSubmit }: CreateMatrixDialogProps) => {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await onSubmit({ name, description });
-    setOpen(false);
-    setName('');
-    setDescription('');
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      await onSubmit({ name, description });
+      setOpen(false);
+      setName('');
+      setDescription('');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

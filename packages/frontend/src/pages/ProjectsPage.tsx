@@ -8,28 +8,49 @@ import { Project, ProjectService, CreateProjectDto } from '@/services';
 const ProjectsPage = () => {
   const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadProjects = async () => {
+    try {
+      const data = await ProjectService.getAll();
+      setProjects(data);
+      setError(null);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to load projects');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     loadProjects();
   }, []);
 
-  const loadProjects = () => {
-    setProjects(ProjectService.getAll());
+  const handleCreateProject = async (name: string) => {
+    try {
+      const createDto: CreateProjectDto = {
+        name,
+        matrices: [],
+      };
+      await ProjectService.create(createDto);
+      await loadProjects();
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to create project');
+    }
   };
 
-  const handleCreateProject = (name: string) => {
-    const createDto: CreateProjectDto = {
-      name,
-      matrices: []
-    };
-    ProjectService.create(createDto);
-    loadProjects();
+  const handleDeleteProject = async (id: string) => {
+    try {
+      await ProjectService.delete(id);
+      await loadProjects();
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to delete project');
+    }
   };
 
-  const handleDeleteProject = (id: string) => {
-    ProjectService.delete(id);
-    loadProjects();
-  };
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div className="text-red-500">{error}</div>;
 
   return (
     <div className="space-y-4 p-4">
