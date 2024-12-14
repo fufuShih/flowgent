@@ -141,7 +141,7 @@ export const backendAdapter: IStorageAdapter = {
     return result.success;
   },
 
-  // 添加一個健康檢查方法
+  // Add a health check method
   async checkHealth(): Promise<boolean> {
     try {
       const response = await fetch(`${API_BASE_URL}/health`);
