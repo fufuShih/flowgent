@@ -1,4 +1,4 @@
-import { Project } from './project.type';
+import { Project, CreateProjectDto, UpdateProjectDto } from './project.type';
 
 export const ProjectService = {
   getAll: (): Project[] => {
@@ -11,12 +11,12 @@ export const ProjectService = {
     return projects.find(p => p.id === id) || null;
   },
 
-  create: (name: string): Project => {
+  create: (data: CreateProjectDto): Project => {
     const projects = ProjectService.getAll();
     const newProject: Project = {
       id: crypto.randomUUID(),
-      name,
-      matrices: [],
+      name: data.name,
+      matrices: data.matrices || [],
       created: new Date(),
       updated: new Date()
     };
@@ -26,7 +26,7 @@ export const ProjectService = {
     return newProject;
   },
 
-  update: (id: string, data: Partial<Project>): Project | null => {
+  update: (id: string, data: UpdateProjectDto): Project | null => {
     const projects = ProjectService.getAll();
     const index = projects.findIndex(p => p.id === id);
     if (index === -1) return null;

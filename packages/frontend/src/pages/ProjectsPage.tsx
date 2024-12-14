@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router';
 import { ProjectService } from '@/services/project.service';
 import { CreateProjectDialog } from '@/components/CreateProjectDialog';
-import { Project } from '@/services/project.type';
+import { Project, CreateProjectDto } from '@/services/project.type';
 
 const ProjectsPage = () => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -18,7 +18,11 @@ const ProjectsPage = () => {
   };
 
   const handleCreateProject = (name: string) => {
-    ProjectService.create(name);
+    const createDto: CreateProjectDto = {
+      name,
+      matrices: []
+    };
+    ProjectService.create(createDto);
     loadProjects();
   };
 

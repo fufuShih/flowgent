@@ -7,3 +7,13 @@ export interface Project {
   created: Date;
   updated: Date;
 }
+
+export interface CreateProjectDto {
+  name: string;
+  matrices?: Matrix[];
+}
+
+export interface UpdateProjectDto {
+  name?: string;
+  matrices?: Matrix[];
+}
