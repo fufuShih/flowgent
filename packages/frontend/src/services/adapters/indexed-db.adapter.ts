@@ -179,6 +179,16 @@ class IndexedDBAdapter implements IStorageAdapter {
     await this.updateProject(projectId, { matrices: project.matrices });
     return true;
   }
+
+  async checkHealth(): Promise<boolean> {
+    try {
+      await this.ensureDB();
+      return true;
+    } catch (error) {
+      console.error('IndexedDB health check failed:', error);
+      return false;
+    }
+  }
 }
 
 export const indexedDBAdapter = new IndexedDBAdapter();

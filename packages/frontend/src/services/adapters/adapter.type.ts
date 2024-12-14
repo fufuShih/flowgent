@@ -16,4 +16,6 @@ export interface IStorageAdapter {
   createMatrix(projectId: string, data: CreateMatrixDto): Promise<Matrix>;
   updateMatrix(projectId: string, matrixId: string, data: UpdateMatrixDto): Promise<Matrix | null>;
   deleteMatrix(projectId: string, matrixId: string): Promise<boolean>;
+
+  checkHealth(): Promise<boolean>;
 }
