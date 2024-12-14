@@ -15,7 +15,11 @@ class IndexedDBAdapter implements IStorageAdapter {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(this.dbName, this.version);
 
-      request.onerror = () => reject(request.error);
+      request.onerror = () => {
+        console.error('Database error:', request.error);
+        reject(request.error);
+      };
+
       request.onsuccess = () => {
         this.db = request.result;
         resolve();
@@ -23,8 +27,17 @@ class IndexedDBAdapter implements IStorageAdapter {
 
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
+
+        // Create or update projects store
         if (!db.objectStoreNames.contains('projects')) {
           db.createObjectStore('projects', { keyPath: 'id' });
+        }
+
+        // Create or update matrices store
+        if (!db.objectStoreNames.contains('matrices')) {
+          const matricesStore = db.createObjectStore('matrices', { keyPath: 'id' });
+          // 確保創建 projectId 索引
+          matricesStore.createIndex('projectId', 'projectId', { unique: false });
         }
       };
     });
@@ -117,33 +130,101 @@ class IndexedDBAdapter implements IStorageAdapter {
 
   // Matrix operations
   async getAllMatrices(projectId: string): Promise<Matrix[]> {
-    const project = await this.getProjectById(projectId);
-    return project?.matrices || [];
+    const db = await this.ensureDB();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(['matrices'], 'readonly');
+      const store = transaction.objectStore('matrices');
+      const index = store.index('projectId');
+      const request = index.getAll(projectId);
+
+      request.onerror = () => {
+        console.error('Error fetching matrices:', request.error);
+        reject(request.error);
+      };
+      request.onsuccess = () => {
+        const matrices = (request.result || []).map((matrix) => ({
+          ...matrix,
+          // @ts-ignore: Type conversion needed for compatibility
+          id: String(matrix.id),
+          // @ts-ignore: Type conversion needed for compatibility
+          projectId: String(matrix.projectId),
+          created: new Date(matrix.created).toISOString(),
+          updated: new Date(matrix.updated).toISOString(),
+        }));
+        resolve(matrices);
+      };
+    });
   }
 
-  async getMatrixById(projectId: string, matrixId: string): Promise<Matrix | null> {
-    const matrices = await this.getAllMatrices(projectId);
-    return matrices.find((m) => m.id === matrixId) || null;
+  async getMatrixById(_projectId: string, matrixId: string): Promise<Matrix | null> {
+    const db = await this.ensureDB();
+    return new Promise((resolve, reject) => {
+      try {
+        const transaction = db.transaction(['matrices'], 'readonly');
+        const store = transaction.objectStore('matrices');
+        const request = store.get(matrixId);
+
+        request.onerror = () => {
+          console.error('Error fetching matrix:', request.error);
+          reject(request.error);
+        };
+        request.onsuccess = () => {
+          if (!request.result) {
+            resolve(null);
+            return;
+          }
+          const matrix = {
+            ...request.result,
+            // @ts-ignore: Type conversion needed for compatibility
+            id: String(request.result.id),
+            // @ts-ignore: Type conversion needed for compatibility
+            projectId: String(request.result.projectId),
+            created: new Date(request.result.created).toISOString(),
+            updated: new Date(request.result.updated).toISOString(),
+          };
+          resolve(matrix);
+        };
+      } catch (error) {
+        console.error('Transaction error:', error);
+        reject(error);
+      }
+    });
   }
 
   async createMatrix(projectId: string, data: CreateMatrixDto): Promise<Matrix> {
-    const project = await this.getProjectById(projectId);
-    if (!project) throw new Error('Project not found');
+    const db = await this.ensureDB();
+    const matrixId = crypto.randomUUID();
+    const now = new Date().toISOString();
 
     const newMatrix: Matrix = {
-      id: crypto.randomUUID(),
-      projectId,
+      // @ts-ignore: Type mismatch between string and number for id/projectId
+      id: matrixId,
+      // @ts-ignore: Type mismatch between string and number for id/projectId
+      projectId: projectId,
       name: data.name,
-      description: data.description,
+      description: data.description || '',
       nodes: data.nodes || [],
       edges: data.edges || [],
-      created: new Date().toISOString(),
-      updated: new Date().toISOString(),
+      created: now,
+      updated: now,
     };
 
-    project.matrices.push(newMatrix);
-    await this.updateProject(projectId, { matrices: project.matrices });
-    return newMatrix;
+    return new Promise((resolve, reject) => {
+      try {
+        const transaction = db.transaction(['matrices'], 'readwrite');
+        const store = transaction.objectStore('matrices');
+        const request = store.add(newMatrix);
+
+        request.onerror = () => {
+          console.error('Error creating matrix:', request.error);
+          reject(request.error);
+        };
+        request.onsuccess = () => resolve(newMatrix);
+      } catch (error) {
+        console.error('Transaction error:', error);
+        reject(error);
+      }
+    });
   }
 
   async updateMatrix(
@@ -151,35 +232,40 @@ class IndexedDBAdapter implements IStorageAdapter {
     matrixId: string,
     data: UpdateMatrixDto
   ): Promise<Matrix | null> {
-    const project = await this.getProjectById(projectId);
-    if (!project) return null;
+    const db = await this.ensureDB();
+    const existingMatrix = await this.getMatrixById(projectId, matrixId);
+    if (!existingMatrix) return null;
 
-    const index = project.matrices.findIndex((m) => m.id === matrixId);
-    if (index === -1) return null;
-
-    const updatedMatrix = {
-      ...project.matrices[index],
+    const updatedMatrix: Matrix = {
+      ...existingMatrix,
       ...data,
-      projectId,
+      // @ts-ignore: Type mismatch between string and number for id/projectId
+      id: matrixId,
+      // @ts-ignore: Type mismatch between string and number for id/projectId
+      projectId: projectId,
       updated: new Date().toISOString(),
     };
 
-    project.matrices[index] = updatedMatrix;
-    await this.updateProject(projectId, { matrices: project.matrices });
-    return updatedMatrix;
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(['matrices'], 'readwrite');
+      const store = transaction.objectStore('matrices');
+      const request = store.put(updatedMatrix);
+
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => resolve(updatedMatrix);
+    });
   }
 
-  async deleteMatrix(projectId: string, matrixId: string): Promise<boolean> {
-    const project = await this.getProjectById(projectId);
-    if (!project) return false;
+  async deleteMatrix(_projectId: string, matrixId: string): Promise<boolean> {
+    const db = await this.ensureDB();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(['matrices'], 'readwrite');
+      const store = transaction.objectStore('matrices');
+      const request = store.delete(matrixId);
 
-    const originalLength = project.matrices.length;
-    project.matrices = project.matrices.filter((m) => m.id !== matrixId);
-
-    if (project.matrices.length === originalLength) return false;
-
-    await this.updateProject(projectId, { matrices: project.matrices });
-    return true;
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => resolve(true);
+    });
   }
 
   async checkHealth(): Promise<boolean> {
