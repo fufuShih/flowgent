@@ -1,45 +1,9 @@
-import { Edge, MarkerType } from '@xyflow/react';
-import { FlowNodeType } from './node.type';
+import { Edge } from '@xyflow/react';
+import { matrixSchema, matrixResponseSchema, createMatrixSchema, updateMatrixSchema, flowEdgeSchema } from './schema';
+import type { z } from 'zod';
 
-// Add more specific edge type
-export interface FlowEdge extends Edge {
-  animated?: boolean;
-  style?: {
-    strokeWidth: number;
-  };
-  markerEnd?: {
-    type: MarkerType;
-    width: number;
-    height: number;
-  };
-}
-
-export interface MatrixResponse {
-  success: boolean;
-  data?: Matrix;
-  error?: string;
-}
-
-export interface Matrix {
-  id: string;
-  name: string;
-  description: string;
-  nodes: FlowNodeType[];
-  edges: FlowEdge[];
-  created: Date;
-  updated: Date;
-}
-
-export interface CreateMatrixDto {
-  name: string;
-  description: string;
-  nodes?: FlowNodeType[];
-  edges?: FlowEdge[];
-}
-
-export interface UpdateMatrixDto {
-  name?: string;
-  description?: string;
-  nodes?: FlowNodeType[];
-  edges?: FlowEdge[];
-}
+export type FlowEdge = z.infer<typeof flowEdgeSchema> & Edge;
+export type Matrix = z.infer<typeof matrixSchema>;
+export type MatrixResponse = z.infer<typeof matrixResponseSchema>;
+export type CreateMatrixDto = z.infer<typeof createMatrixSchema>;
+export type UpdateMatrixDto = z.infer<typeof updateMatrixSchema>;

@@ -1,19 +1,6 @@
-import { Matrix } from './matrix.type';
+import { projectSchema, createProjectSchema, updateProjectSchema } from './schema';
+import type { z } from 'zod';
 
-export interface Project {
-  id: string;
-  name: string;
-  matrices: Matrix[];
-  created: Date;
-  updated: Date;
-}
-
-export interface CreateProjectDto {
-  name: string;
-  matrices?: Matrix[];
-}
-
-export interface UpdateProjectDto {
-  name?: string;
-  matrices?: Matrix[];
-}
+export type Project = z.infer<typeof projectSchema>;
+export type CreateProjectDto = z.infer<typeof createProjectSchema>;
+export type UpdateProjectDto = z.infer<typeof updateProjectSchema>;

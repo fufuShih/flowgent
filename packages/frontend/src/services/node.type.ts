@@ -1,72 +1,31 @@
 import { Node } from '@xyflow/react';
+import {
+  nodeDataSchema,
+  executionStateSchema,
+  nodeStateSchema,
+  inputOutputSchema,
+  triggerNodeDataSchema,
+  actionNodeDataSchema,
+  aiNodeDataSchema,
+  flowNodeDataSchema
+} from './schema';
+import type { z } from 'zod';
 
-export interface InputOutput {
-  id: string;
-  name: string;
-  type: string;
-}
-
-// Add index signature to allow additional properties
-interface BaseNodeData {
-  label: string;
-  inputs: InputOutput[];
-  outputs: InputOutput[];
-  [key: string]: unknown;  // Add this line to allow string indexing
-}
-
-export interface TriggerNodeData extends BaseNodeData {
-  type: 'trigger';
-  params: Record<string, never>;
-}
-
-export interface AINodeData extends BaseNodeData {
-  type: 'ai';
-  params: {
-    prompt: string;
-  };
-}
-
-export interface ActionNodeData extends BaseNodeData {
-  type: 'action';
-  params: {
-    action: string;
-  };
-}
-
-export interface FlowNodeData extends BaseNodeData {
-  type: 'flow';
-  params: {
-    condition: string;
-  };
-}
-
-export type NodeDataType = TriggerNodeData | AINodeData | ActionNodeData | FlowNodeData;
-
+export type InputOutput = z.infer<typeof inputOutputSchema>;
+export type NodeDataType = z.infer<typeof nodeDataSchema>;
 export type FlowNodeType = Node<NodeDataType>;
+export type NodeState = z.infer<typeof nodeStateSchema>;
+export type ExecutionState = z.infer<typeof executionStateSchema>;
 
 // Type guards
-export const isTriggerNode = (node: FlowNodeType): node is Node<TriggerNodeData> =>
+export const isTriggerNode = (node: FlowNodeType): node is Node<z.infer<typeof triggerNodeDataSchema>> =>
   node.data.type === 'trigger';
 
-export const isAINode = (node: FlowNodeType): node is Node<AINodeData> =>
+export const isAINode = (node: FlowNodeType): node is Node<z.infer<typeof aiNodeDataSchema>> =>
   node.data.type === 'ai';
 
-export const isActionNode = (node: FlowNodeType): node is Node<ActionNodeData> =>
+export const isActionNode = (node: FlowNodeType): node is Node<z.infer<typeof actionNodeDataSchema>> =>
   node.data.type === 'action';
 
-export const isFlowNode = (node: FlowNodeType): node is Node<FlowNodeData> =>
+export const isFlowNode = (node: FlowNodeType): node is Node<z.infer<typeof flowNodeDataSchema>> =>
   node.data.type === 'flow';
-
-export interface ExecutionState {
-  id: string;
-  matrixId: string;
-  status: 'pending' | 'running' | 'completed' | 'error';
-  nodeStates: Record<string, NodeState>;
-}
-
-export interface NodeState {
-  status: 'pending' | 'running' | 'completed' | 'error';
-  input?: unknown;
-  output?: unknown;
-  error?: Error;
-}
