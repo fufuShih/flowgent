@@ -5,17 +5,17 @@ import { buildBackend } from './tasks/backend';
 
 async function build() {
   try {
-    // 清理舊的建置檔案
-    log('清理舊的建置檔案...');
+    // Clean old build files
+    log('Cleaning old build files...');
     await remove(paths.dist);
 
-    // 並行建置前後端
-    log('開始並行建置前後端...');
+    // Build frontend and backend in parallel
+    log('Starting parallel build...');
     await Promise.all([buildFrontend(), buildBackend()]);
 
-    log('建置完成！🎉');
+    log('Build completed! 🎉');
   } catch (err) {
-    error('建置過程發生錯誤:');
+    error('Build process failed:');
     console.error(err);
     process.exit(1);
   }

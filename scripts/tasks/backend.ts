@@ -3,9 +3,9 @@ import path from 'path';
 import { paths, runCommand, log } from '../utils';
 
 export async function buildBackend() {
-  log('開始建置後端...');
+  log('Building backend...');
   await runCommand('pnpm build', paths.backend);
 
-  log('複製後端建置檔案...');
+  log('Copying backend build files...');
   await copy(path.join(paths.backend, 'dist'), path.join(paths.dist, 'backend'));
 }

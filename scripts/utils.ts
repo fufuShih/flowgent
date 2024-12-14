@@ -18,7 +18,7 @@ export const paths = {
 };
 
 export async function runCommand(command: string, cwd: string) {
-  console.log(`執行命令: ${command}`);
+  console.log(`Executing command: ${command}`);
   const { stdout, stderr } = await execAsync(command, { cwd });
   if (stdout) console.log(stdout);
   if (stderr) console.error(stderr);
