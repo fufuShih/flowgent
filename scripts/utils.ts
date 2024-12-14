@@ -1,20 +1,26 @@
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 export const execAsync = promisify(exec);
 
+// Get script root directory absolute path
+const SCRIPTS_DIR = path.dirname(fileURLToPath(import.meta.url));
+const ROOT_DIR = path.resolve(SCRIPTS_DIR, '..');
+
 export const paths = {
-  root: path.resolve(__dirname, '..'),
-  get frontend() {
-    return path.resolve(this.root, 'packages/frontend');
+  root: ROOT_DIR,
+  scripts: SCRIPTS_DIR,
+  frontend: {
+    root: path.join(ROOT_DIR, 'packages/frontend'),
+    dist: path.join(ROOT_DIR, 'packages/frontend/dist'),
   },
-  get backend() {
-    return path.resolve(this.root, 'packages/backend');
+  backend: {
+    root: path.join(ROOT_DIR, 'packages/backend'),
+    dist: path.join(ROOT_DIR, 'packages/backend/dist'),
   },
-  get dist() {
-    return path.resolve(this.root, 'dist');
-  },
+  dist: path.join(ROOT_DIR, 'dist'),
 };
 
 export async function runCommand(command: string, cwd: string) {

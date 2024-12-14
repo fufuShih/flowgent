@@ -12,7 +12,7 @@
     "type-check": "pnpm -r run type-check",
     "lint": "pnpm -r run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
-    "clean": "pnpm -r run clean"
+    "clean": "node -r tsx/cjs scripts/tasks/clean.ts"
   },
   "keywords": [
     "workflow",

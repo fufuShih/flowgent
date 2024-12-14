@@ -1,13 +1,12 @@
-import { remove } from 'fs-extra';
 import { paths, log, error } from './utils';
 import { buildFrontend } from './tasks/frontend';
 import { buildBackend } from './tasks/backend';
+import { cleanDistDirectories } from './tasks/clean';
 
 async function build() {
   try {
-    // Clean old build files
-    log('Cleaning old build files...');
-    await remove(paths.dist);
+    // Clean all dist directories first
+    // await cleanDistDirectories();
 
     // Build frontend and backend in parallel
     log('Starting parallel build...');
