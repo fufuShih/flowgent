@@ -2,13 +2,39 @@ import { config } from './config';
 import type { Matrix, CreateMatrixDto, UpdateMatrixDto, MatrixResponse } from './matrix.type';
 
 export const MatrixService = {
-  getAll: (projectId: string) => config.adapter.getAllMatrices(projectId),
+  async getAll(projectId: string): Promise<Matrix[]> {
+    const matrices = await config.adapter.getAllMatrices(projectId);
+    return matrices.map((matrix) => ({
+      ...matrix,
+      nodes: typeof matrix.nodes === 'string' ? JSON.parse(matrix.nodes) : matrix.nodes,
+      edges: typeof matrix.edges === 'string' ? JSON.parse(matrix.edges) : matrix.edges,
+    }));
+  },
 
-  getById: (projectId: string, matrixId: string) =>
-    config.adapter.getMatrixById(projectId, matrixId),
+  async getById(projectId: string, matrixId: string): Promise<Matrix | null> {
+    const matrix = await config.adapter.getMatrixById(projectId, matrixId);
+    if (!matrix) return null;
 
-  create: (projectId: string, data: CreateMatrixDto) =>
-    config.adapter.createMatrix(projectId, data),
+    return {
+      ...matrix,
+      nodes: typeof matrix.nodes === 'string' ? JSON.parse(matrix.nodes) : matrix.nodes,
+      edges: typeof matrix.edges === 'string' ? JSON.parse(matrix.edges) : matrix.edges,
+    };
+  },
+
+  async create(projectId: string, data: CreateMatrixDto): Promise<Matrix> {
+    const matrix = await config.adapter.createMatrix(projectId, {
+      ...data,
+      nodes: data.nodes || [],
+      edges: data.edges || [],
+    });
+
+    return {
+      ...matrix,
+      nodes: typeof matrix.nodes === 'string' ? JSON.parse(matrix.nodes) : matrix.nodes,
+      edges: typeof matrix.edges === 'string' ? JSON.parse(matrix.edges) : matrix.edges,
+    };
+  },
 
   async update(
     projectId: string,
@@ -19,7 +45,14 @@ export const MatrixService = {
       const result = await config.adapter.updateMatrix(projectId, matrixId, data);
       if (!result) throw new Error('Matrix not found');
 
-      return { success: true, data: result };
+      return {
+        success: true,
+        data: {
+          ...result,
+          nodes: typeof result.nodes === 'string' ? JSON.parse(result.nodes) : result.nodes,
+          edges: typeof result.edges === 'string' ? JSON.parse(result.edges) : result.edges,
+        },
+      };
     } catch (error) {
       return {
         success: false,

@@ -32,7 +32,13 @@ async function fetchWithRetry(
 
 async function handleResponse(response: Response) {
   if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+    const errorText = await response.text();
+    console.error('API Error:', {
+      status: response.status,
+      statusText: response.statusText,
+      body: errorText,
+    });
+    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
   }
   const result = await response.json();
   if (!result.success) {
