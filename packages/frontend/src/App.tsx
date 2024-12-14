@@ -6,6 +6,7 @@ import ProjectDetail from "./pages/ProjectDetail"
 import MatrixListPage from "./pages/MatrixListPage"
 import MatrixEditorPage from "./pages/MatrixEditorPage"
 import LogPage from "./pages/LogPage"
+import { Toaster } from "@/components/ui/toaster"
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
             </Routes>
           </BrowserRouter>
         </div>
+        <Toaster />
       </main>
     </div>
   )
