@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router';
 import { ProjectService } from '@/services/project.service';
 import { CreateProjectDialog } from '@/components/CreateProjectDialog';
 import { Project, CreateProjectDto } from '@/services/project.type';
 
 const ProjectsPage = () => {
+  const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
 
   useEffect(() => {
@@ -40,11 +41,13 @@ const ProjectsPage = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {projects.map((project) => (
-          <Card key={project.id}>
+          <Card
+            key={project.id}
+            className="cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => navigate(`/projects/${project.id}/matrices`)}
+          >
             <CardHeader>
-              <CardTitle>
-                <Link to={`/projects/${project.id}/matrices`}>{project.name}</Link>
-              </CardTitle>
+              <CardTitle>{project.name}</CardTitle>
             </CardHeader>
             <CardContent>
               <p>Created: {new Date(project.created).toLocaleDateString()}</p>
@@ -53,7 +56,10 @@ const ProjectsPage = () => {
             <CardFooter className="justify-end">
               <Button
                 variant="destructive"
-                onClick={() => handleDeleteProject(project.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteProject(project.id);
+                }}
               >
                 Delete
               </Button>

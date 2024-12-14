@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router';
+import { useParams, useNavigate } from 'react-router';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { MatrixService } from '@/services/matrix.service';
 import { CreateMatrixDialog } from '@/components/matrix/CreateMatrixDialog';
@@ -7,6 +7,7 @@ import { CreateMatrixDialog } from '@/components/matrix/CreateMatrixDialog';
 import { CreateMatrixDto, Matrix } from '@/services/matrix.type';
 
 const MatrixListPage = () => {
+  const navigate = useNavigate();
   const { projectId } = useParams();
   const [matrices, setMatrices] = useState<Matrix[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,13 +48,13 @@ const MatrixListPage = () => {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {matrices.map((matrix) => (
-          <Card key={matrix.id}>
+          <Card
+            key={matrix.id}
+            className="cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => navigate(`/projects/${projectId}/matrices/${matrix.id}`)}
+          >
             <CardHeader>
-              <CardTitle>
-                <Link to={`/projects/${projectId}/matrices/${matrix.id}`}>
-                  {matrix.name}
-                </Link>
-              </CardTitle>
+              <CardTitle>{matrix.name}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-600 mb-2">{matrix.description}</p>
