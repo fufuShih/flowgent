@@ -36,17 +36,50 @@ interface CustomNodeProps {
 }
 
 const CustomNode = ({ data, type }: CustomNodeProps) => {
+  // Update bgColors to handle action types
   const bgColors = {
-    trigger: 'bg-orange-500',
-    action: 'bg-emerald-500',
+    action: (actionType?: string) => {
+      switch (actionType) {
+        case 'manual':
+        case 'cron':
+          return 'bg-orange-500';
+        case 'input':
+          return 'bg-emerald-500';
+        default:
+          return 'bg-gray-500';
+      }
+    },
     ai: 'bg-blue-500',
     flow: 'bg-purple-500',
   };
 
+  const handleExecute = async () => {
+    if (data.handler) {
+      try {
+        // Only pass input for non-trigger action types
+        const isTriggerable =
+          data.type === 'action' &&
+          (data.params.actionType === 'manual' || data.params.actionType === 'cron');
+        const input = isTriggerable ? undefined : 'test input';
+
+        const result = await data.handler(input);
+        console.log(`Node ${data.label} executed:`, result);
+      } catch (error) {
+        console.error(`Error executing node ${data.label}:`, error);
+      }
+    }
+  };
+
+  // Get background color based on node type and action type
+  const getBgColor = () => {
+    if (type === 'action' && 'actionType' in data.params) {
+      return bgColors.action(data.params.actionType as string);
+    }
+    return bgColors[type as keyof typeof bgColors] || 'bg-gray-500';
+  };
+
   return (
-    <div
-      className={`px-4 py-2 shadow-md rounded-md border ${bgColors[type as keyof typeof bgColors]}`}
-    >
+    <div className={`px-4 py-2 shadow-md rounded-md border ${getBgColor()}`}>
       {/* Input Handles */}
       {data.inputs.map((input, index) => (
         <Handle
@@ -72,6 +105,19 @@ const CustomNode = ({ data, type }: CustomNodeProps) => {
           ))}
         </div>
       )}
+
+      {/* Execute button */}
+      <Button
+        variant="ghost"
+        size="sm"
+        className="mt-2 text-white hover:text-white hover:bg-white/20"
+        onClick={(e) => {
+          e.stopPropagation();
+          handleExecute();
+        }}
+      >
+        Execute
+      </Button>
 
       {/* Output Handles */}
       {data.outputs.map((output, index) => (
