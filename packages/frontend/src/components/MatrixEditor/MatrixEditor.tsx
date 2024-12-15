@@ -18,7 +18,7 @@ import '@xyflow/react/dist/style.css';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { PlusCircle, Save, Trash2, ZoomIn, ZoomOut } from 'lucide-react';
+import { PlusCircle, Save, Trash2, ZoomIn, ZoomOut, Play } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -176,6 +176,7 @@ export const MatrixEditor = ({ projectId, matrixId }: { projectId: string; matri
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [selectedNode, setSelectedNode] = useState<FlowNodeType | null>(null);
+  const [isExecuting, setIsExecuting] = useState(false);
 
   useEffect(() => {
     const loadMatrix = async () => {
@@ -328,6 +329,23 @@ export const MatrixEditor = ({ projectId, matrixId }: { projectId: string; matri
     }
   }, [projectId, matrixId, nodes, edges]);
 
+  const handleExecuteMatrix = useCallback(async () => {
+    setIsExecuting(true);
+    try {
+      const result = await ExecutionService.executeMatrix(projectId, matrixId);
+      if (result.success) {
+        console.log('Matrix executed successfully:', result.result);
+        // You could add a toast notification here
+      } else {
+        setError(`Failed to execute matrix: ${result.error}`);
+      }
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to execute matrix');
+    } finally {
+      setIsExecuting(false);
+    }
+  }, [projectId, matrixId]);
+
   if (isLoading) {
     return <div className="p-4">Loading matrix...</div>;
   }
@@ -339,6 +357,15 @@ export const MatrixEditor = ({ projectId, matrixId }: { projectId: string; matri
           <div className="flex items-center justify-between px-6 py-4 border-b">
             <h2 className="text-2xl font-semibold tracking-tight">Flow Editor</h2>
             <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExecuteMatrix}
+                disabled={isExecuting}
+              >
+                <Play className="mr-2 h-4 w-4" />
+                {isExecuting ? 'Executing...' : 'Execute Matrix'}
+              </Button>
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
                   <Button variant="outline" size="sm">
