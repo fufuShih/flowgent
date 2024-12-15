@@ -15,6 +15,8 @@ import { projectRoutes } from './routes/project';
 import { matrixRoutes } from './routes/matrix';
 import { testConnection, initDatabase } from './db';
 import { executeRoutes } from './routes/execute';
+import { triggerManager } from './services/trigger.service';
+import { triggerRoutes } from './routes/trigger';
 
 const app = express();
 const port = process.env.PORT || 3004;
@@ -53,6 +55,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 app.use('/api/projects', projectRoutes);
 app.use('/api/matrices', matrixRoutes);
 app.use('/api/execute', executeRoutes);
+app.use('/api/triggers', triggerRoutes);
 
 app.get('/api/health', async (req, res) => {
   try {
@@ -87,10 +90,14 @@ const startServer = async () => {
       throw new Error('Database initialization failed');
     }
 
+    // Initialize triggers
+    await triggerManager.initializeTriggers();
+
     app.listen(port, () => {
       console.log(`Server is running on port ${port}`);
       console.log(`API URL: http://localhost:${port}/api`);
       console.log(`Database connected and initialized successfully`);
+      console.log('Triggers initialized successfully');
     });
   } catch (error) {
     console.error('Failed to start server:', error);
