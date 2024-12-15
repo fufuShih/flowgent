@@ -32,11 +32,13 @@ import { ExecutionService } from '@/services/execution.service';
 
 // CustomNode component props type
 interface CustomNodeProps {
-  data: NodeDataType;
+  data: NodeDataType & { id: string };
   type: string;
+  projectId: string;
+  matrixId: string;
 }
 
-const CustomNode = ({ data, type }: CustomNodeProps) => {
+const CustomNode = ({ data, type, projectId, matrixId }: CustomNodeProps) => {
   // Update bgColors to handle action types
   const bgColors = {
     action: (actionType?: string) => {
@@ -55,15 +57,27 @@ const CustomNode = ({ data, type }: CustomNodeProps) => {
   };
 
   const handleExecute = async () => {
-    console.log('handleExecute called', { data, type });
+    if (!data.id) {
+      console.error('Node ID is undefined', data);
+      return;
+    }
+
     try {
-      const result = await ExecutionService.executeFlow(
-        [{ id: data.id as string, data, type, position: { x: 0, y: 0 } }],
-        data.id as string
-      );
-      console.log(`Node ${data.label} executed:`, result);
+      const result = await ExecutionService.executeNode(projectId, matrixId, data.id, {
+        type: type,
+        params: data.params,
+      });
+
+      if (result.success) {
+        console.log(`Node ${data.label} executed successfully:`, result.result);
+        // Here you could update UI to show execution result
+      } else {
+        console.error(`Node ${data.label} execution failed:`, result.error);
+        // Handle error in UI
+      }
     } catch (error) {
       console.error(`Error executing node ${data.label}:`, error);
+      // Handle error in UI
     }
   };
 
@@ -134,11 +148,19 @@ const CustomNode = ({ data, type }: CustomNodeProps) => {
   );
 };
 
+// Add this type definition near the top with other interfaces
+type NodeProps = {
+  data: NodeDataType;
+  projectId: string;
+  matrixId: string;
+  [key: string]: any;
+};
+
 const nodeTypes = {
-  trigger: (props: any) => <CustomNode {...props} type="trigger" />,
-  action: (props: any) => <CustomNode {...props} type="action" />,
-  ai: (props: any) => <CustomNode {...props} type="ai" />,
-  flow: (props: any) => <CustomNode {...props} type="flow" />,
+  trigger: (props: NodeProps) => <CustomNode {...props} type="trigger" />,
+  action: (props: NodeProps) => <CustomNode {...props} type="action" />,
+  ai: (props: NodeProps) => <CustomNode {...props} type="ai" />,
+  flow: (props: NodeProps) => <CustomNode {...props} type="flow" />,
 };
 
 // Add type guard for node templates
@@ -260,17 +282,21 @@ export const MatrixEditor = ({ projectId, matrixId }: { projectId: string; matri
       const template = nodeTemplates[templateId];
       if (!template) return;
 
+      const nodeId = `${template.type}-${Date.now()}`;
       const position = calculateNewNodePosition();
+
       const newNode: FlowNodeType = {
         ...template,
-        id: `${template.type}-${Date.now()}`,
+        id: nodeId, // Set node ID
         position,
         data: {
           ...template.data,
+          id: nodeId, // Set same ID in data
           label: `${template.data.label} ${nodes.length + 1}`,
         },
       };
 
+      console.log('Creating new node:', newNode); // Debug log
       setNodes((nds) => [...nds, newNode]);
       setIsDialogOpen(false);
     },
@@ -362,7 +388,20 @@ export const MatrixEditor = ({ projectId, matrixId }: { projectId: string; matri
               fitView
               defaultEdgeOptions={defaultEdgeOptions}
               className="bg-slate-50 dark:bg-slate-900"
-              nodeTypes={nodeTypes}
+              nodeTypes={{
+                trigger: (props: { data: NodeDataType & { id: string }; [key: string]: any }) => (
+                  <CustomNode {...props} type="trigger" projectId={projectId} matrixId={matrixId} />
+                ),
+                action: (props: { data: NodeDataType & { id: string }; [key: string]: any }) => (
+                  <CustomNode {...props} type="action" projectId={projectId} matrixId={matrixId} />
+                ),
+                ai: (props: { data: NodeDataType & { id: string }; [key: string]: any }) => (
+                  <CustomNode {...props} type="ai" projectId={projectId} matrixId={matrixId} />
+                ),
+                flow: (props: { data: NodeDataType & { id: string }; [key: string]: any }) => (
+                  <CustomNode {...props} type="flow" projectId={projectId} matrixId={matrixId} />
+                ),
+              }}
               snapToGrid={true}
               snapGrid={[15, 15]}
               connectionMode={ConnectionMode.Loose}
