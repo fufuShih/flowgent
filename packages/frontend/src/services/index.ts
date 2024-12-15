@@ -1,6 +1,7 @@
 // Export services
 export { MatrixService } from './matrix.service';
 export { ProjectService } from './project.service';
+export { ExecutionService } from './execution.service';
 
 // Export types
 export type {
@@ -38,3 +39,5 @@ export {
   actionNodeDataSchema,
   flowNodeDataSchema,
 } from './schema';
+
+export type { ExecuteResponse } from './adapters/adapter.type';

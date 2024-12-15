@@ -1,6 +1,7 @@
 import { IStorageAdapter } from './adapter.type';
 import type { Matrix, CreateMatrixDto, UpdateMatrixDto } from '../matrix.type';
 import type { Project, CreateProjectDto, UpdateProjectDto } from '../project.type';
+import type { ExecuteResponse } from './adapter.type';
 
 class IndexedDBAdapter implements IStorageAdapter {
   private dbName = 'flowmatrix';
@@ -276,6 +277,46 @@ class IndexedDBAdapter implements IStorageAdapter {
       console.error('IndexedDB health check failed:', error);
       return false;
     }
+  }
+
+  async executeNode(
+    projectId: string,
+    matrixId: string,
+    nodeId: string,
+    input?: any
+  ): Promise<ExecuteResponse> {
+    console.log('Executing node:', {
+      projectId,
+      matrixId,
+      nodeId,
+      input,
+    });
+
+    // Simulate node execution
+    return {
+      success: true,
+      result: {
+        nodeId,
+        output: `Simulated output for input: ${JSON.stringify(input)}`,
+      },
+    };
+  }
+
+  async executeMatrix(projectId: string, matrixId: string, input?: any): Promise<ExecuteResponse> {
+    console.log('Executing matrix:', {
+      projectId,
+      matrixId,
+      input,
+    });
+
+    // Simulate matrix execution
+    return {
+      success: true,
+      result: {
+        matrixId,
+        output: `Simulated matrix execution with input: ${JSON.stringify(input)}`,
+      },
+    };
   }
 }
 

@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/dialog';
 import { nodeTemplates } from './nodeTemplates';
 import { FlowNodeType, NodeDataType, FlowEdge, MatrixService } from '@/services';
+import { ExecutionService } from '@/services/execution.service';
 
 // CustomNode component props type
 interface CustomNodeProps {
@@ -55,22 +56,14 @@ const CustomNode = ({ data, type }: CustomNodeProps) => {
 
   const handleExecute = async () => {
     console.log('handleExecute called', { data, type });
-    if (data.handler) {
-      console.log('Handler exists');
-      try {
-        const isTriggerable =
-          data.type === 'action' &&
-          (data.params.actionType === 'manual' || data.params.actionType === 'cron');
-        const input = isTriggerable ? undefined : 'test input';
-
-        console.log('Executing handler with input:', input);
-        const result = await data.handler(input);
-        console.log(`Node ${data.label} executed:`, result);
-      } catch (error) {
-        console.error(`Error executing node ${data.label}:`, error);
-      }
-    } else {
-      console.log('No handler found for node:', data);
+    try {
+      const result = await ExecutionService.executeFlow(
+        [{ id: data.id as string, data, type, position: { x: 0, y: 0 } }],
+        data.id as string
+      );
+      console.log(`Node ${data.label} executed:`, result);
+    } catch (error) {
+      console.error(`Error executing node ${data.label}:`, error);
     }
   };
 

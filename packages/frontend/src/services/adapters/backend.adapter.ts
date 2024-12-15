@@ -1,6 +1,7 @@
 import type { IStorageAdapter } from './adapter.type';
 import type { Matrix, CreateMatrixDto, UpdateMatrixDto } from '../matrix.type';
 import type { Project, CreateProjectDto, UpdateProjectDto } from '../project.type';
+import type { ExecuteResponse } from './adapter.type';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3004/api';
 
@@ -155,6 +156,50 @@ export const backendAdapter: IStorageAdapter = {
     } catch (error) {
       console.error('Backend health check failed:', error);
       return false;
+    }
+  },
+
+  async executeNode(
+    projectId: string,
+    matrixId: string,
+    nodeId: string,
+    input?: any
+  ): Promise<ExecuteResponse> {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/execute/node/${projectId}/${matrixId}/${nodeId}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ input }),
+        }
+      );
+      return handleResponse(response);
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to execute node',
+      };
+    }
+  },
+
+  async executeMatrix(projectId: string, matrixId: string, input?: any): Promise<ExecuteResponse> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/execute/matrix/${projectId}/${matrixId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ input }),
+      });
+      return handleResponse(response);
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to execute matrix',
+      };
     }
   },
 };
