@@ -1,13 +1,5 @@
 import { Node } from '@xyflow/react';
-import {
-  nodeDataSchema,
-  executionStateSchema,
-  nodeStateSchema,
-  inputOutputSchema,
-  actionNodeDataSchema,
-  aiNodeDataSchema,
-  flowNodeDataSchema,
-} from './schema';
+import { nodeDataSchema, executionStateSchema, nodeStateSchema, inputOutputSchema } from './schema';
 import type { z } from 'zod';
 
 export type InputOutput = z.infer<typeof inputOutputSchema>;

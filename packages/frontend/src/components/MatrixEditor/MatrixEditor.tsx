@@ -156,13 +156,6 @@ type NodeProps = {
   [key: string]: any;
 };
 
-const nodeTypes = {
-  trigger: (props: NodeProps) => <CustomNode {...props} type="trigger" />,
-  action: (props: NodeProps) => <CustomNode {...props} type="action" />,
-  ai: (props: NodeProps) => <CustomNode {...props} type="ai" />,
-  flow: (props: NodeProps) => <CustomNode {...props} type="flow" />,
-};
-
 // Add type guard for node templates
 const isValidTemplateId = (id: string): id is keyof typeof nodeTemplates => {
   return id in nodeTemplates;
