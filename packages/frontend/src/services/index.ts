@@ -11,11 +11,7 @@ export type {
   FlowEdge,
 } from './matrix.type';
 
-export type {
-  Project,
-  CreateProjectDto,
-  UpdateProjectDto,
-} from './project.type';
+export type { Project, CreateProjectDto, UpdateProjectDto } from './project.type';
 
 export type {
   InputOutput,
@@ -23,15 +19,12 @@ export type {
   FlowNodeType,
   NodeState,
   ExecutionState,
+  NodeHandler,
+  ActionTriggerType,
 } from './node.type';
 
 // Export type guards
-export {
-  isTriggerNode,
-  isAINode,
-  isActionNode,
-  isFlowNode,
-} from './node.type';
+export { isAINode, isActionNode, isFlowNode } from './node.type';
 
 // Export schemas
 export {
@@ -41,7 +34,6 @@ export {
   executionStateSchema,
   nodeStateSchema,
   inputOutputSchema,
-  triggerNodeDataSchema,
   aiNodeDataSchema,
   actionNodeDataSchema,
   flowNodeDataSchema,

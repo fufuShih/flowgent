@@ -4,7 +4,6 @@ import {
   executionStateSchema,
   nodeStateSchema,
   inputOutputSchema,
-  triggerNodeDataSchema,
   actionNodeDataSchema,
   aiNodeDataSchema,
   flowNodeDataSchema,
@@ -12,24 +11,23 @@ import {
 import type { z } from 'zod';
 
 export type InputOutput = z.infer<typeof inputOutputSchema>;
-export type NodeDataType = z.infer<typeof nodeDataSchema>;
+export type NodeDataType = z.infer<typeof nodeDataSchema> & {
+  handler?: NodeHandler;
+};
 export type FlowNodeType = Node<NodeDataType>;
 export type NodeState = z.infer<typeof nodeStateSchema>;
 export type ExecutionState = z.infer<typeof executionStateSchema>;
 
-// Type guards
-export const isTriggerNode = (
-  node: FlowNodeType
-): node is Node<z.infer<typeof triggerNodeDataSchema>> => node.data.type === 'trigger';
+export type ActionTriggerType = 'manual' | 'input' | 'cron' | 'webhook';
 
-export const isAINode = (node: FlowNodeType): node is Node<z.infer<typeof aiNodeDataSchema>> =>
+// Type guards
+export const isActionNode = (node: FlowNodeType): node is Node<NodeDataType & { type: 'action' }> =>
+  node.data.type === 'action';
+
+export const isAINode = (node: FlowNodeType): node is Node<NodeDataType & { type: 'ai' }> =>
   node.data.type === 'ai';
 
-export const isActionNode = (
-  node: FlowNodeType
-): node is Node<z.infer<typeof actionNodeDataSchema>> => node.data.type === 'action';
-
-export const isFlowNode = (node: FlowNodeType): node is Node<z.infer<typeof flowNodeDataSchema>> =>
+export const isFlowNode = (node: FlowNodeType): node is Node<NodeDataType & { type: 'flow' }> =>
   node.data.type === 'flow';
 
 export interface Matrix {
@@ -50,3 +48,5 @@ export interface CreateMatrixDto {
   nodes: any[]; // Will be converted to JSON string
   edges: any[]; // Will be converted to JSON string
 }
+
+export type NodeHandler = (input?: any) => Promise<any>;

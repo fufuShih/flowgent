@@ -8,29 +8,30 @@ export const inputOutputSchema = z.object({
   type: z.string(),
 });
 
-const baseNodeDataSchema = z.object({
-  label: z.string(),
-  inputs: z.array(inputOutputSchema),
-  outputs: z.array(inputOutputSchema),
-}).catchall(z.unknown());
+const baseNodeDataSchema = z
+  .object({
+    label: z.string(),
+    inputs: z.array(inputOutputSchema),
+    outputs: z.array(inputOutputSchema),
+    handler: z.function().optional(),
+  })
+  .catchall(z.unknown());
 
 // Node related schemas
-export const triggerNodeDataSchema = baseNodeDataSchema.extend({
-  type: z.literal('trigger'),
-  params: z.record(z.never()),
+export const actionNodeDataSchema = baseNodeDataSchema.extend({
+  type: z.literal('action'),
+  params: z.object({
+    actionType: z.enum(['manual', 'input', 'cron', 'webhook']),
+    action: z.string(),
+    schedule: z.string().optional(), // For cron triggers
+    endpoint: z.string().optional(), // For webhook triggers
+  }),
 });
 
 export const aiNodeDataSchema = baseNodeDataSchema.extend({
   type: z.literal('ai'),
   params: z.object({
     prompt: z.string(),
-  }),
-});
-
-export const actionNodeDataSchema = baseNodeDataSchema.extend({
-  type: z.literal('action'),
-  params: z.object({
-    action: z.string(),
   }),
 });
 
@@ -42,9 +43,8 @@ export const flowNodeDataSchema = baseNodeDataSchema.extend({
 });
 
 export const nodeDataSchema = z.discriminatedUnion('type', [
-  triggerNodeDataSchema,
-  aiNodeDataSchema,
   actionNodeDataSchema,
+  aiNodeDataSchema,
   flowNodeDataSchema,
 ]);
 
@@ -68,14 +68,18 @@ export const flowEdgeSchema = z.object({
   source: z.string(),
   target: z.string(),
   animated: z.boolean().optional(),
-  style: z.object({
-    strokeWidth: z.number(),
-  }).optional(),
-  markerEnd: z.object({
-    type: z.nativeEnum(MarkerType),
-    width: z.number(),
-    height: z.number(),
-  }).optional(),
+  style: z
+    .object({
+      strokeWidth: z.number(),
+    })
+    .optional(),
+  markerEnd: z
+    .object({
+      type: z.nativeEnum(MarkerType),
+      width: z.number(),
+      height: z.number(),
+    })
+    .optional(),
 });
 
 export const matrixSchema = z.object({
