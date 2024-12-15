@@ -49,33 +49,31 @@ const createActionNode = (
   actionType: ActionTriggerType,
   action: string,
   extraParams: Record<string, any> = {}
-): NodeTemplate => {
-  console.log('Creating action node with type:', actionType);
-  return {
+): NodeTemplate => ({
+  type: 'action',
+  data: {
+    id: '',
     type: 'action',
-    data: {
-      type: 'action',
-      label,
-      params: {
-        actionType,
-        action,
-        ...extraParams,
-      },
-      inputs:
-        actionType === 'input'
-          ? inputs.single()
-          : ([...inputs.none] as { type: string; id: string; name: string }[]),
-      outputs: outputs.single(),
-      handler: defaultHandlers.action,
+    label,
+    params: {
+      actionType,
+      action,
+      ...extraParams,
     },
-  };
-};
+    inputs:
+      actionType === 'input'
+        ? inputs.single()
+        : ([...inputs.none] as { type: string; id: string; name: string }[]),
+    outputs: outputs.single(),
+    handler: defaultHandlers.action,
+  },
+});
 
 export const nodeTemplates: Record<string, NodeTemplate> = {
   // Action nodes
   manualTrigger: createActionNode('Manual Trigger', 'manual', 'trigger'),
   cronTrigger: createActionNode('Scheduled Trigger', 'cron', 'trigger', {
-    schedule: '0 * * * *', // Default: every hour
+    schedule: '0 * * * *',
   }),
   action: createActionNode('Action', 'input', 'process'),
 
@@ -83,6 +81,7 @@ export const nodeTemplates: Record<string, NodeTemplate> = {
   ai: {
     type: 'ai',
     data: {
+      id: '',
       type: 'ai',
       label: 'AI Processing',
       params: {
@@ -98,6 +97,7 @@ export const nodeTemplates: Record<string, NodeTemplate> = {
   flow: {
     type: 'flow',
     data: {
+      id: '',
       type: 'flow',
       label: 'Flow Control',
       params: {
