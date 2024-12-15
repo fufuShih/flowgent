@@ -1,18 +1,26 @@
-import { Edge } from '@xyflow/react';
-import { flowEdgeSchema } from './schema';
-import type { z } from 'zod';
+import { FlowNodeType } from './node.type';
+import { MarkerType, Edge } from '@xyflow/react';
 
-export type FlowEdge = z.infer<typeof flowEdgeSchema> & Edge;
-export type Matrix = {
-  id: number;
-  projectId: number;
+export interface Matrix {
+  id: string;
+  projectId: string;
   name: string;
   description: string;
-  nodes: any[]; // For backend adapter: will be parsed from JSON string
-  edges: any[]; // For backend adapter: will be parsed from JSON string
+  nodes: FlowNodeType[]; // Will be JSON stringified in backend
+  edges: FlowEdge[]; // Will be JSON stringified in backend
   created: string;
   updated: string;
+}
+
+export type CreateMatrixDto = {
+  projectId: string;
+  name: string;
+  description: string;
+  nodes?: FlowNodeType[];
+  edges?: FlowEdge[];
 };
+
+export type UpdateMatrixDto = Partial<CreateMatrixDto>;
 
 export type MatrixResponse = {
   success: boolean;
@@ -20,11 +28,17 @@ export type MatrixResponse = {
   error?: string;
 };
 
-export type CreateMatrixDto = {
-  name: string;
-  description: string;
-  nodes?: any[];
-  edges?: any[];
+export type FlowEdge = Edge & {
+  id: string;
+  source: string;
+  target: string;
+  animated?: boolean;
+  style?: {
+    strokeWidth: number;
+  };
+  markerEnd?: {
+    type: MarkerType;
+    width: number;
+    height: number;
+  };
 };
-
-export type UpdateMatrixDto = Partial<CreateMatrixDto>;

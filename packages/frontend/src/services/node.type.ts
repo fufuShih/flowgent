@@ -12,6 +12,7 @@ import type { z } from 'zod';
 
 export type InputOutput = z.infer<typeof inputOutputSchema>;
 export type NodeDataType = z.infer<typeof nodeDataSchema> & {
+  id?: string;
   handler?: NodeHandler;
 };
 export type FlowNodeType = Node<NodeDataType>;

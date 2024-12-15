@@ -9,16 +9,37 @@ export const ExecutionService = {
     nodeId: string,
     input?: any
   ): Promise<ExecuteResponse> {
-    return config.adapter.executeNode(projectId, matrixId, nodeId, input);
+    try {
+      const response = await config.adapter.executeNode(projectId, matrixId, nodeId, input);
+      return response;
+    } catch (error) {
+      console.error('Execute node error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to execute node',
+      };
+    }
   },
 
   async executeMatrix(projectId: string, matrixId: string, input?: any): Promise<ExecuteResponse> {
-    return config.adapter.executeMatrix(projectId, matrixId, input);
+    try {
+      const response = await config.adapter.executeMatrix(projectId, matrixId, input);
+      return response;
+    } catch (error) {
+      console.error('Execute matrix error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to execute matrix',
+      };
+    }
   },
 
+  // Local execution for offline mode
   async executeFlow(
     nodes: FlowNodeType[],
     startNodeId: string,
+    projectId: string,
+    matrixId: string,
     input?: any
   ): Promise<ExecuteResponse> {
     try {
@@ -27,7 +48,12 @@ export const ExecutionService = {
         throw new Error('Start node not found');
       }
 
-      // Execute the node handler if it exists
+      // If using backend adapter, delegate to backend
+      if (await config.adapter.checkHealth()) {
+        return this.executeNode(projectId, matrixId, startNodeId, input);
+      }
+
+      // Local execution fallback
       if (startNode.data.handler) {
         const result = await startNode.data.handler(input);
         return {

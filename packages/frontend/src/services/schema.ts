@@ -10,6 +10,7 @@ export const inputOutputSchema = z.object({
 
 const baseNodeDataSchema = z
   .object({
+    id: z.string(),
     label: z.string(),
     inputs: z.array(inputOutputSchema),
     outputs: z.array(inputOutputSchema),

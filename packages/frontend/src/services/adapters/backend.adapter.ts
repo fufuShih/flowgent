@@ -48,6 +48,17 @@ async function handleResponse(response: Response) {
   return result;
 }
 
+const handleNodeExecution = async (response: Response): Promise<ExecuteResponse> => {
+  if (!response.ok) {
+    const error = await response.text();
+    return {
+      success: false,
+      error: `HTTP error! status: ${response.status}, message: ${error}`,
+    };
+  }
+  return response.json();
+};
+
 export const backendAdapter: IStorageAdapter = {
   // Project operations
   async getAllProjects(): Promise<Project[]> {
@@ -166,7 +177,7 @@ export const backendAdapter: IStorageAdapter = {
     input?: any
   ): Promise<ExecuteResponse> {
     try {
-      const response = await fetch(
+      const response = await fetchWithRetry(
         `${API_BASE_URL}/execute/node/${projectId}/${matrixId}/${nodeId}`,
         {
           method: 'POST',
@@ -176,7 +187,7 @@ export const backendAdapter: IStorageAdapter = {
           body: JSON.stringify({ input }),
         }
       );
-      return handleResponse(response);
+      return handleNodeExecution(response);
     } catch (error) {
       return {
         success: false,
@@ -187,14 +198,17 @@ export const backendAdapter: IStorageAdapter = {
 
   async executeMatrix(projectId: string, matrixId: string, input?: any): Promise<ExecuteResponse> {
     try {
-      const response = await fetch(`${API_BASE_URL}/execute/matrix/${projectId}/${matrixId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ input }),
-      });
-      return handleResponse(response);
+      const response = await fetchWithRetry(
+        `${API_BASE_URL}/execute/matrix/${projectId}/${matrixId}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ input }),
+        }
+      );
+      return handleNodeExecution(response);
     } catch (error) {
       return {
         success: false,
