@@ -56,6 +56,9 @@ importers:
       '@types/cors':
         specifier: ^2.8.13
         version: 2.8.17
+      '@types/cron':
+        specifier: ^2.0.1
+        version: 2.4.3
       '@types/express':
         specifier: ^4.17.17
         version: 4.17.21
@@ -68,6 +71,9 @@ importers:
       cors:
         specifier: ^2.8.5
         version: 2.8.5
+      cron:
+        specifier: ^2.3.1
+        version: 2.4.4
       dotenv:
         specifier: ^16.0.3
         version: 16.4.7
@@ -1176,6 +1182,10 @@ packages:
   '@types/cors@2.8.17':
     resolution: {integrity: sha512-8CGDvrBj1zgo2qE+oS3pOCyYNqCPryMWY2bGfwA0dcfopWGgxs+78df0Rs3rc9THP4JkOhLsAa+15VdpAqkcUA==}
 
+  '@types/cron@2.4.3':
+    resolution: {integrity: sha512-ViRBkoZD9Rk0hGeMdd2GHGaOaZuH9mDmwsE5/Zo53Ftwcvh7h9VJc8lIt2wdgEwS4EW5lbtTX6vlE0idCLPOyA==}
+    deprecated: This is a stub types definition. cron provides its own type definitions, so you do not need this installed.
+
   '@types/d3-array@3.2.1':
     resolution: {integrity: sha512-Y2Jn2idRrLzUfAKV2LyRImR+y4oa2AntrgID95SHJxuMUrkNXmanDSed71sRNZysveJVt1hLLemQZIady0FpEg==}
 
@@ -1295,6 +1305,9 @@ packages:
 
   '@types/jsonfile@6.1.4':
     resolution: {integrity: sha512-D5qGUYwjvnNNextdU59/+fI+spnwtTFmyQP0h+PfIOSkNfpU6AOICUOkm4i0OnSk+NyjdPJrxCDro0sJsWlRpQ==}
+
+  '@types/luxon@3.3.8':
+    resolution: {integrity: sha512-jYvz8UMLDgy3a5SkGJne8H7VA7zPV2Lwohjx0V8V31+SqAjNmurWMkk9cQhfvlcnXWudBpK9xPM1n4rljOcHYQ==}
 
   '@types/mime@1.3.5':
     resolution: {integrity: sha512-/pyBZWSLD2n0dcHE3hq8s8ZvcETHtEuF+3E7XVt0Ig2nvsVQXdghHVcEkIWjy9A0wKfTn97a/PSDYohKIlnP/w==}
@@ -1744,6 +1757,9 @@ packages:
 
   create-require@1.1.1:
     resolution: {integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==}
+
+  cron@2.4.4:
+    resolution: {integrity: sha512-MHlPImXJj3K7x7lyUHjtKEOl69CSlTOWxS89jiFgNkzXfvhVjhMz/nc7/EIfN9vgooZp8XTtXJ1FREdmbyXOiQ==}
 
   croner@4.1.97:
     resolution: {integrity: sha512-/f6gpQuxDaqXu+1kwQYSckUglPaOrHdbIlBAu0YuW8/Cdb45XwXYNUBXg3r/9Mo6n540Kn/smKcZWko5x99KrQ==}
@@ -2716,6 +2732,10 @@ packages:
     resolution: {integrity: sha512-6koYRhnM2N0GGZIdXzSeiNwguv1gt/FAjZOiPl76roBi3xKEXa4WmfpxgQwTTL4KipXjefrnf3oV4IsYhi4JFA==}
     peerDependencies:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0-rc
+
+  luxon@3.3.0:
+    resolution: {integrity: sha512-An0UCfG/rSiqtAIiBPO0Y9/zAnHUZxAMiCpTd5h2smgsj7GGmcenvrvww2cqNA8/4A5ZrD1gJpHN2mIHZQF+Mg==}
+    engines: {node: '>=12'}
 
   make-error@1.3.6:
     resolution: {integrity: sha512-s8UhlNe7vPKomQhC1qFelMokr/Sc3AgNbso3n74mVPA5LTZwkB9NlXf4XPamLxJE8h0gh73rM94xvwRT2CVInw==}
@@ -4607,6 +4627,10 @@ snapshots:
     dependencies:
       '@types/node': 18.19.68
 
+  '@types/cron@2.4.3':
+    dependencies:
+      cron: 2.4.4
+
   '@types/d3-array@3.2.1': {}
 
   '@types/d3-axis@3.0.6':
@@ -4756,6 +4780,8 @@ snapshots:
   '@types/jsonfile@6.1.4':
     dependencies:
       '@types/node': 22.10.2
+
+  '@types/luxon@3.3.8': {}
 
   '@types/mime@1.3.5': {}
 
@@ -5290,6 +5316,11 @@ snapshots:
       vary: 1.1.2
 
   create-require@1.1.1: {}
+
+  cron@2.4.4:
+    dependencies:
+      '@types/luxon': 3.3.8
+      luxon: 3.3.0
 
   croner@4.1.97: {}
 
@@ -6380,6 +6411,8 @@ snapshots:
   lucide-react@0.468.0(react@18.3.1):
     dependencies:
       react: 18.3.1
+
+  luxon@3.3.0: {}
 
   make-error@1.3.6: {}
 
