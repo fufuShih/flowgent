@@ -54,19 +54,23 @@ const CustomNode = ({ data, type }: CustomNodeProps) => {
   };
 
   const handleExecute = async () => {
+    console.log('handleExecute called', { data, type });
     if (data.handler) {
+      console.log('Handler exists');
       try {
-        // Only pass input for non-trigger action types
         const isTriggerable =
           data.type === 'action' &&
           (data.params.actionType === 'manual' || data.params.actionType === 'cron');
         const input = isTriggerable ? undefined : 'test input';
 
+        console.log('Executing handler with input:', input);
         const result = await data.handler(input);
         console.log(`Node ${data.label} executed:`, result);
       } catch (error) {
         console.error(`Error executing node ${data.label}:`, error);
       }
+    } else {
+      console.log('No handler found for node:', data);
     }
   };
 
@@ -113,6 +117,7 @@ const CustomNode = ({ data, type }: CustomNodeProps) => {
         className="mt-2 text-white hover:text-white hover:bg-white/20"
         onClick={(e) => {
           e.stopPropagation();
+          console.log('Button clicked');
           handleExecute();
         }}
       >

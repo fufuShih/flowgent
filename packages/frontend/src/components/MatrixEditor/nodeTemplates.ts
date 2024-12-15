@@ -28,6 +28,7 @@ const inputs = {
 // Default handlers for each node type
 const defaultHandlers: Record<string, NodeHandler> = {
   action: async (input?: any) => {
+    console.log('Action handler called with input:', input);
     console.log('Action node executing:', input);
     return { status: true, output: `Action executed: ${input || 'no input'}` };
   },
@@ -48,24 +49,27 @@ const createActionNode = (
   actionType: ActionTriggerType,
   action: string,
   extraParams: Record<string, any> = {}
-): NodeTemplate => ({
-  type: 'action',
-  data: {
+): NodeTemplate => {
+  console.log('Creating action node with type:', actionType);
+  return {
     type: 'action',
-    label,
-    params: {
-      actionType,
-      action,
-      ...extraParams,
+    data: {
+      type: 'action',
+      label,
+      params: {
+        actionType,
+        action,
+        ...extraParams,
+      },
+      inputs:
+        actionType === 'input'
+          ? inputs.single()
+          : ([...inputs.none] as { type: string; id: string; name: string }[]),
+      outputs: outputs.single(),
+      handler: defaultHandlers.action,
     },
-    inputs:
-      actionType === 'input'
-        ? inputs.single()
-        : ([...inputs.none] as { type: string; id: string; name: string }[]),
-    outputs: outputs.single(),
-    handler: defaultHandlers.action,
-  },
-});
+  };
+};
 
 export const nodeTemplates: Record<string, NodeTemplate> = {
   // Action nodes
