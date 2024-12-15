@@ -14,6 +14,7 @@ import cors from 'cors';
 import { projectRoutes } from './routes/project';
 import { matrixRoutes } from './routes/matrix';
 import { testConnection, initDatabase } from './db';
+import { executeRoutes } from './routes/execute';
 
 const app = express();
 const port = process.env.PORT || 3004;
@@ -51,6 +52,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 
 app.use('/api/projects', projectRoutes);
 app.use('/api/matrices', matrixRoutes);
+app.use('/api/execute', executeRoutes);
 
 app.get('/api/health', async (req, res) => {
   try {
