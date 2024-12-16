@@ -15,60 +15,20 @@ interface TriggerRecord {
   updated: Date;
 }
 
-class TriggerManager {
-  private cronJobs: Map<number, CronJob> = new Map();
+interface TriggerState {
+  cronJobs: Map<number, CronJob>;
+}
 
-  async initializeTriggers() {
-    // Load all active triggers from database
-    const activeTriggers = await db.select().from(triggers).where(eq(triggers.status, 'active'));
+// Create initial state
+const createInitialState = (): TriggerState => ({
+  cronJobs: new Map(),
+});
 
-    // Initialize each trigger
-    for (const trigger of activeTriggers) {
-      await this.setupTrigger(trigger);
-    }
-  }
+// Main trigger service object
+const createTriggerService = (initialState: TriggerState = createInitialState()) => {
+  let state = initialState;
 
-  async setupTrigger(trigger: TriggerRecord) {
-    const config = JSON.parse(trigger.config);
-
-    switch (trigger.type) {
-      case 'cron':
-        this.setupCronTrigger(trigger.id, config.schedule, trigger.matrixId, trigger.nodeId);
-        break;
-      case 'webhook':
-        // Setup webhook endpoint
-        this.setupWebhookTrigger(trigger.id, config, trigger.matrixId, trigger.nodeId);
-        break;
-      // Other trigger types can be added here
-    }
-  }
-
-  private setupCronTrigger(triggerId: number, schedule: string, matrixId: number, nodeId: string) {
-    const job = new CronJob(schedule, async () => {
-      try {
-        // Execute the matrix starting from this node
-        await this.executeTriggerNode(matrixId, nodeId);
-
-        // Update last triggered time
-        await db
-          .update(triggers)
-          .set({ lastTriggered: new Date(), updated: new Date() })
-          .where(eq(triggers.id, triggerId))
-          .execute();
-      } catch (error) {
-        console.error(`Error executing cron trigger ${triggerId}:`, error);
-      }
-    });
-
-    this.cronJobs.set(triggerId, job);
-    job.start();
-  }
-
-  private setupWebhookTrigger(triggerId: number, config: any, matrixId: number, nodeId: string) {
-    // Implementation for webhook triggers will be added in the routes
-  }
-
-  private async executeTriggerNode(matrixId: number, nodeId: string) {
+  const executeTriggerNode = async (matrixId: number, nodeId: string) => {
     try {
       const response = await fetch(
         `http://localhost:${process.env.PORT || 3004}/api/execute/node/${matrixId}/${nodeId}/start`,
@@ -85,21 +45,76 @@ class TriggerManager {
         throw new Error(`Failed to execute trigger node: ${response.statusText}`);
       }
 
-      const result = await response.json();
-      return result;
+      return await response.json();
     } catch (error) {
       console.error('Error executing trigger node:', error);
       throw error;
     }
-  }
+  };
 
-  // Clean up method
-  async stopAllTriggers() {
-    for (const [id, job] of this.cronJobs) {
-      job.stop();
-      this.cronJobs.delete(id);
+  const setupCronTrigger = (
+    triggerId: number,
+    schedule: string,
+    matrixId: number,
+    nodeId: string
+  ) => {
+    const job = new CronJob(schedule, async () => {
+      try {
+        await executeTriggerNode(matrixId, nodeId);
+        await db
+          .update(triggers)
+          .set({ lastTriggered: new Date(), updated: new Date() })
+          .where(eq(triggers.id, triggerId))
+          .execute();
+      } catch (error) {
+        console.error(`Error executing cron trigger ${triggerId}:`, error);
+      }
+    });
+
+    state.cronJobs.set(triggerId, job);
+    job.start();
+  };
+
+  const setupWebhookTrigger = (
+    _triggerId: number,
+    _config: any,
+    _matrixId: number,
+    _nodeId: string
+  ) => {
+    // Implementation for webhook triggers will be added in the routes
+  };
+
+  const setupTrigger = async (trigger: TriggerRecord) => {
+    const config = JSON.parse(trigger.config);
+
+    const triggerHandlers = {
+      cron: () => setupCronTrigger(trigger.id, config.schedule, trigger.matrixId, trigger.nodeId),
+      webhook: () => setupWebhookTrigger(trigger.id, config, trigger.matrixId, trigger.nodeId),
+    };
+
+    const handler = triggerHandlers[trigger.type as keyof typeof triggerHandlers];
+    if (handler) {
+      handler();
     }
-  }
-}
+  };
 
-export const triggerManager = new TriggerManager();
+  const initializeTriggers = async () => {
+    const activeTriggers = await db.select().from(triggers).where(eq(triggers.status, 'active'));
+    return Promise.all(activeTriggers.map(setupTrigger));
+  };
+
+  const stopAllTriggers = () => {
+    state.cronJobs.forEach((job, id) => {
+      job.stop();
+      state.cronJobs.delete(id);
+    });
+  };
+
+  return {
+    initializeTriggers,
+    setupTrigger,
+    stopAllTriggers,
+  };
+};
+
+export const triggerManager = createTriggerService();
