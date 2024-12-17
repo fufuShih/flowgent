@@ -13,9 +13,10 @@ import { CreateMatrixDto } from '@/services';
 
 interface CreateMatrixDialogProps {
   onSubmit: (data: CreateMatrixDto) => Promise<void>;
+  projectId: string;
 }
 
-export const CreateMatrixDialog = ({ onSubmit }: CreateMatrixDialogProps) => {
+export const CreateMatrixDialog = ({ onSubmit, projectId }: CreateMatrixDialogProps) => {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -26,7 +27,7 @@ export const CreateMatrixDialog = ({ onSubmit }: CreateMatrixDialogProps) => {
     if (isSubmitting) return;
     setIsSubmitting(true);
     try {
-      await onSubmit({ name, description });
+      await onSubmit({ name, description, projectId: projectId });
       setOpen(false);
       setName('');
       setDescription('');

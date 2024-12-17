@@ -43,7 +43,7 @@ const MatrixListPage = () => {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">Matrices</h2>
-        <CreateMatrixDialog onSubmit={handleCreateMatrix} />
+        <CreateMatrixDialog onSubmit={handleCreateMatrix} projectId={projectId!} />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {matrices.map((matrix) => (
@@ -57,8 +57,12 @@ const MatrixListPage = () => {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-600 mb-2">{matrix.description}</p>
-              <p className="text-xs text-gray-500">Created: {new Date(matrix.created).toLocaleDateString()}</p>
-              <p className="text-xs text-gray-500">Updated: {new Date(matrix.updated).toLocaleDateString()}</p>
+              <p className="text-xs text-gray-500">
+                Created: {new Date(matrix.created).toLocaleDateString()}
+              </p>
+              <p className="text-xs text-gray-500">
+                Updated: {new Date(matrix.updated).toLocaleDateString()}
+              </p>
             </CardContent>
           </Card>
         ))}
