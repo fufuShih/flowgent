@@ -3,9 +3,14 @@ export { MatrixService } from './matrix.service';
 export { ProjectService } from './project.service';
 export { TriggerService } from './trigger.service';
 export { NodeTypeService } from './nodeType.service';
+export { ExecutionService } from './execution.service';
 
-// Export types and type guards
+// Export all types
 export type {
+  Matrix,
+  Project,
+  CreateMatrixDto,
+  CreateProjectDto,
   NodeType,
   BaseNode,
   TriggerNode,
@@ -14,8 +19,14 @@ export type {
   SubMatrixNode,
   TransformerNode,
   LoopNode,
-} from './node.type';
+  NodeDataType,
+  FlowNodeType,
+  FlowEdge,
+  NodeHandler,
+  ActionTriggerType,
+} from './types';
 
+// Export type guards
 export {
   isTriggerNode,
   isActionNode,
@@ -23,4 +34,4 @@ export {
   isSubMatrixNode,
   isTransformerNode,
   isLoopNode,
-} from './node.type';
+} from './types';

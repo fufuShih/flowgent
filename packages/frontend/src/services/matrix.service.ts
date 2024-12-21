@@ -10,47 +10,56 @@ import {
   type GetApiMatrixResponse,
   type PostApiExecuteMatrixByIdResponse,
 } from '../openapi-client';
-import type { Matrix } from '../openapi-client/types.gen';
-import type { BaseNode } from './node.type';
+import type { Matrix, CreateMatrixDto, BaseNode } from './types';
 
 export class MatrixService {
   static async getAllMatrices(): Promise<GetApiMatrixResponse> {
-    const response = await getApiMatrix();
-    return response;
+    return getApiMatrix();
   }
 
-  static async createMatrix(matrix: {
-    name: string;
-    description?: string;
-    projectId: number;
-    isSubMatrix?: boolean;
-    config?: Record<string, unknown>;
-  }) {
-    return postApiMatrix({ body: matrix });
+  static async getAll(projectId: string): Promise<Matrix[]> {
+    const response = await this.getAllMatrices();
+    return response.data?.filter((matrix) => matrix.projectId === Number(projectId)) as Matrix[];
   }
 
-  static async getMatrixById(id: number): Promise<Matrix | null> {
-    return getApiMatrixById({ path: { id } });
+  static async create(projectId: string, data: CreateMatrixDto): Promise<Matrix> {
+    return postApiMatrix({
+      body: {
+        ...data,
+        projectId: Number(projectId),
+      },
+    }) as Promise<Matrix>;
   }
 
-  static async updateMatrix(id: number, matrix: Partial<Matrix>) {
-    return putApiMatrixById({ path: { id }, body: matrix });
+  static async getById(projectId: string, matrixId: string): Promise<Matrix | null> {
+    return getApiMatrixById({ path: { id: Number(matrixId) } });
   }
 
-  static async deleteMatrix(id: number) {
+  static async update(projectId: string, matrixId: string, data: { nodes: any[]; edges: any[] }) {
+    const response = await putApiMatrixById({
+      path: { id: Number(matrixId) },
+      body: data,
+    });
+    return {
+      success: true,
+      data: response,
+    };
+  }
+
+  static async delete(id: number) {
     return deleteApiMatrixById({ path: { id } });
   }
 
-  static async getMatrixNodes(id: number): Promise<BaseNode[]> {
+  static async getNodes(id: number): Promise<BaseNode[]> {
     const response = await getApiMatrixByIdNodes({ path: { id } });
     return response.data || [];
   }
 
-  static async getMatrixConnections(id: number) {
+  static async getConnections(id: number) {
     return getApiMatrixByIdConnections({ path: { id } });
   }
 
-  static async executeMatrix(
+  static async execute(
     id: number,
     input?: Record<string, unknown>
   ): Promise<PostApiExecuteMatrixByIdResponse> {

@@ -8,12 +8,12 @@ import {
 import type { Trigger } from '../openapi-client/types.gen';
 
 export class TriggerService {
-  static async getAllTriggers(): Promise<Trigger[]> {
+  static async getAll(): Promise<Trigger[]> {
     const response = await getApiTrigger();
     return response.data || [];
   }
 
-  static async createTrigger(trigger: {
+  static async create(trigger: {
     nodeId: number;
     type: string;
     name: string;
@@ -22,11 +22,11 @@ export class TriggerService {
     return postApiTrigger({ body: trigger });
   }
 
-  static async getTriggerById(id: number): Promise<Trigger | null> {
+  static async getById(id: number): Promise<Trigger | null> {
     return getApiTriggerById({ path: { id } });
   }
 
-  static async updateTrigger(
+  static async update(
     id: number,
     update: {
       name?: string;
@@ -37,7 +37,7 @@ export class TriggerService {
     return putApiTriggerById({ path: { id }, body: update });
   }
 
-  static async deleteTrigger(id: number) {
+  static async delete(id: number): Promise<void> {
     return deleteApiTriggerById({ path: { id } });
   }
 }
