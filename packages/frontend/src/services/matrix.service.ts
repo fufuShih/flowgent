@@ -1,65 +1,62 @@
-import { config } from './config';
-import type { Matrix, CreateMatrixDto, UpdateMatrixDto, MatrixResponse } from './matrix.type';
+import {
+  getApiMatrix,
+  postApiMatrix,
+  getApiMatrixById,
+  putApiMatrixById,
+  deleteApiMatrixById,
+  getApiMatrixByIdNodes,
+  getApiMatrixByIdConnections,
+  postApiExecuteMatrixById,
+  type GetApiMatrixResponse,
+  type PostApiExecuteMatrixByIdResponse,
+} from '../openapi-client';
+import type { Matrix } from '../openapi-client/types.gen';
+import type { BaseNode } from './node.type';
 
-export const MatrixService = {
-  async getAll(projectId: string): Promise<Matrix[]> {
-    const matrices = await config.adapter.getAllMatrices(projectId);
-    return matrices.map((matrix) => ({
-      ...matrix,
-      nodes: typeof matrix.nodes === 'string' ? JSON.parse(matrix.nodes) : matrix.nodes,
-      edges: typeof matrix.edges === 'string' ? JSON.parse(matrix.edges) : matrix.edges,
-    }));
-  },
+export class MatrixService {
+  static async getAllMatrices(): Promise<GetApiMatrixResponse> {
+    const response = await getApiMatrix();
+    return response;
+  }
 
-  async getById(projectId: string, matrixId: string): Promise<Matrix | null> {
-    const matrix = await config.adapter.getMatrixById(projectId, matrixId);
-    if (!matrix) return null;
+  static async createMatrix(matrix: {
+    name: string;
+    description?: string;
+    projectId: number;
+    isSubMatrix?: boolean;
+    config?: Record<string, unknown>;
+  }) {
+    return postApiMatrix({ body: matrix });
+  }
 
-    return {
-      ...matrix,
-      nodes: typeof matrix.nodes === 'string' ? JSON.parse(matrix.nodes) : matrix.nodes,
-      edges: typeof matrix.edges === 'string' ? JSON.parse(matrix.edges) : matrix.edges,
-    };
-  },
+  static async getMatrixById(id: number): Promise<Matrix | null> {
+    return getApiMatrixById({ path: { id } });
+  }
 
-  async create(projectId: string, data: CreateMatrixDto): Promise<Matrix> {
-    const matrix = await config.adapter.createMatrix(projectId, {
-      ...data,
-      nodes: data.nodes || [],
-      edges: data.edges || [],
+  static async updateMatrix(id: number, matrix: Partial<Matrix>) {
+    return putApiMatrixById({ path: { id }, body: matrix });
+  }
+
+  static async deleteMatrix(id: number) {
+    return deleteApiMatrixById({ path: { id } });
+  }
+
+  static async getMatrixNodes(id: number): Promise<BaseNode[]> {
+    const response = await getApiMatrixByIdNodes({ path: { id } });
+    return response.data || [];
+  }
+
+  static async getMatrixConnections(id: number) {
+    return getApiMatrixByIdConnections({ path: { id } });
+  }
+
+  static async executeMatrix(
+    id: number,
+    input?: Record<string, unknown>
+  ): Promise<PostApiExecuteMatrixByIdResponse> {
+    return postApiExecuteMatrixById({
+      path: { id },
+      body: { input },
     });
-
-    return {
-      ...matrix,
-      nodes: typeof matrix.nodes === 'string' ? JSON.parse(matrix.nodes) : matrix.nodes,
-      edges: typeof matrix.edges === 'string' ? JSON.parse(matrix.edges) : matrix.edges,
-    };
-  },
-
-  async update(
-    projectId: string,
-    matrixId: string,
-    data: UpdateMatrixDto
-  ): Promise<MatrixResponse> {
-    try {
-      const result = await config.adapter.updateMatrix(projectId, matrixId, data);
-      if (!result) throw new Error('Matrix not found');
-
-      return {
-        success: true,
-        data: {
-          ...result,
-          nodes: typeof result.nodes === 'string' ? JSON.parse(result.nodes) : result.nodes,
-          edges: typeof result.edges === 'string' ? JSON.parse(result.edges) : result.edges,
-        },
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to update matrix',
-      };
-    }
-  },
-
-  delete: (projectId: string, matrixId: string) => config.adapter.deleteMatrix(projectId, matrixId),
-};
+  }
+}

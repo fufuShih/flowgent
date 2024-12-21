@@ -1,10 +1,32 @@
-import { config } from './config';
-import type { CreateProjectDto, UpdateProjectDto } from './project.type';
+import {
+  getApiProject,
+  postApiProject,
+  getApiProjectById,
+  putApiProjectById,
+  deleteApiProjectById,
+  type GetApiProjectResponse,
+} from '../openapi-client';
+import type { Project } from '../openapi-client/types.gen';
 
-export const ProjectService = {
-  getAll: () => config.adapter.getAllProjects(),
-  getById: (id: string) => config.adapter.getProjectById(id),
-  create: (data: CreateProjectDto) => config.adapter.createProject(data),
-  update: (id: string, data: UpdateProjectDto) => config.adapter.updateProject(id, data),
-  delete: (id: string) => config.adapter.deleteProject(id),
-};
+export class ProjectService {
+  static async getAllProjects(): Promise<GetApiProjectResponse> {
+    const response = await getApiProject();
+    return response;
+  }
+
+  static async createProject(project: { name: string; description?: string }) {
+    return postApiProject({ body: project });
+  }
+
+  static async getProjectById(id: number): Promise<Project | null> {
+    return getApiProjectById({ path: { id } });
+  }
+
+  static async updateProject(id: number, project: Project) {
+    return putApiProjectById({ path: { id }, body: project });
+  }
+
+  static async deleteProject(id: number) {
+    return deleteApiProjectById({ path: { id } });
+  }
+}

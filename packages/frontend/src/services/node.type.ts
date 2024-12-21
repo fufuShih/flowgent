@@ -1,45 +1,92 @@
-import { Node } from '@xyflow/react';
-import { nodeDataSchema, executionStateSchema, nodeStateSchema, inputOutputSchema } from './schema';
-import type { z } from 'zod';
+export type NodeType = 'trigger' | 'action' | 'condition' | 'subMatrix' | 'transformer' | 'loop';
 
-export type InputOutput = z.infer<typeof inputOutputSchema>;
-export type NodeDataType = z.infer<typeof nodeDataSchema> & {
-  id?: string;
-  handler?: NodeHandler;
-};
-export type FlowNodeType = Node<NodeDataType>;
-export type NodeState = z.infer<typeof nodeStateSchema>;
-export type ExecutionState = z.infer<typeof executionStateSchema>;
-
-export type ActionTriggerType = 'manual' | 'input' | 'cron' | 'webhook';
-
-// Type guards
-export const isActionNode = (node: FlowNodeType): node is Node<NodeDataType & { type: 'action' }> =>
-  node.data.type === 'action';
-
-export const isAINode = (node: FlowNodeType): node is Node<NodeDataType & { type: 'ai' }> =>
-  node.data.type === 'ai';
-
-export const isFlowNode = (node: FlowNodeType): node is Node<NodeDataType & { type: 'flow' }> =>
-  node.data.type === 'flow';
-
-export interface Matrix {
+export interface BaseNode {
   id: number;
-  projectId: number;
+  matrixId: number;
+  type: NodeType;
   name: string;
-  description: string;
-  nodes: string; // JSON string format
-  edges: string; // JSON string format
-  created: string;
-  updated: string;
+  description?: string;
+  config: Record<string, unknown>;
+  position: { x: number; y: number };
+  created?: string;
+  updated?: string;
 }
 
-export interface CreateMatrixDto {
-  projectId: number;
-  name: string;
-  description: string;
-  nodes: any[]; // Will be converted to JSON string
-  edges: any[]; // Will be converted to JSON string
+export interface TriggerNode extends BaseNode {
+  type: 'trigger';
+  config: {
+    triggerType: string;
+    conditions?: Record<string, unknown>;
+  };
 }
 
-export type NodeHandler = (input?: any) => Promise<any>;
+export interface ActionNode extends BaseNode {
+  type: 'action';
+  config: {
+    actionType: string;
+    parameters: Record<string, unknown>;
+  };
+}
+
+export interface ConditionNode extends BaseNode {
+  type: 'condition';
+  config: {
+    conditions: Array<{
+      condition: string;
+      target: string;
+    }>;
+  };
+}
+
+export interface SubMatrixNode extends BaseNode {
+  type: 'subMatrix';
+  subMatrixId: number;
+  config: {
+    inputMapping: Record<string, string>;
+    outputMapping: Record<string, string>;
+  };
+}
+
+export interface TransformerNode extends BaseNode {
+  type: 'transformer';
+  config: {
+    transformations: Array<{
+      source: string;
+      target: string;
+      transform: string;
+    }>;
+  };
+}
+
+export interface LoopNode extends BaseNode {
+  type: 'loop';
+  config: {
+    iteratorKey: string;
+    maxIterations?: number;
+    breakCondition?: string;
+  };
+}
+
+export const isTriggerNode = (node: BaseNode): node is TriggerNode => {
+  return node.type === 'trigger';
+};
+
+export const isActionNode = (node: BaseNode): node is ActionNode => {
+  return node.type === 'action';
+};
+
+export const isConditionNode = (node: BaseNode): node is ConditionNode => {
+  return node.type === 'condition';
+};
+
+export const isSubMatrixNode = (node: BaseNode): node is SubMatrixNode => {
+  return node.type === 'subMatrix';
+};
+
+export const isTransformerNode = (node: BaseNode): node is TransformerNode => {
+  return node.type === 'transformer';
+};
+
+export const isLoopNode = (node: BaseNode): node is LoopNode => {
+  return node.type === 'loop';
+};
