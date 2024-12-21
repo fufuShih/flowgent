@@ -3,6 +3,7 @@ import { Pool } from 'pg';
 import * as schema from './schema';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import path from 'path';
+import { sql } from 'drizzle-orm';
 
 const pool = new Pool({
   host: process.env.DB_HOST || 'localhost',
@@ -23,12 +24,18 @@ export const db = drizzle(pool, { schema });
 // Export a function to test and initialize the database
 export const initDatabase = async () => {
   try {
-    // Run migrations instead of manual table creation
-    await migrate(db, {
-      migrationsFolder: path.join(__dirname, 'migrations'),
-    });
+    // First push the schema to database
+    console.log('Pushing schema to database...');
+    await db.execute(sql`CREATE SCHEMA IF NOT EXISTS public`);
 
-    console.log('Database migrations completed successfully');
+    // Create migrations directory if it doesn't exist
+    const migrationsFolder = path.join(__dirname, '../../drizzle');
+
+    // Run migrations
+    console.log('Running migrations...');
+    await migrate(db, { migrationsFolder });
+
+    console.log('Database initialization completed successfully');
     return true;
   } catch (error) {
     console.error('Database initialization failed:', error);

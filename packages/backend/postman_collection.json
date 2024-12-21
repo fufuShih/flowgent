@@ -1,0 +1,291 @@
+{
+  "info": {
+    "name": "Flow Engine API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Projects",
+      "item": [
+        {
+          "name": "Get All Projects",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/projects"
+          }
+        },
+        {
+          "name": "Get Project by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/:id",
+            "path": {
+              "id": "1"
+            }
+          }
+        },
+        {
+          "name": "Create Project",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/projects",
+            "header": {
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": {
+                "name": "My Project",
+                "description": "Project description"
+              }
+            }
+          }
+        },
+        {
+          "name": "Update Project",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/projects/:id",
+            "path": {
+              "id": "1"
+            },
+            "header": {
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": {
+                "name": "Updated Project",
+                "description": "Updated description"
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete Project",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/projects/:id",
+            "path": {
+              "id": "1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Matrix",
+      "item": [
+        {
+          "name": "Get All Matrices",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/matrix"
+          }
+        },
+        {
+          "name": "Get Matrix by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/matrix/:id",
+            "path": {
+              "id": "1"
+            }
+          }
+        },
+        {
+          "name": "Create Matrix",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/matrix",
+            "header": {
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": {
+                "name": "My Matrix",
+                "description": "Matrix description",
+                "projectId": 1,
+                "isSubMatrix": false,
+                "config": {}
+              }
+            }
+          }
+        },
+        {
+          "name": "Update Matrix",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/matrix/:id",
+            "path": {
+              "id": "1"
+            },
+            "header": {
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": {
+                "name": "Updated Matrix",
+                "description": "Updated description",
+                "projectId": 1,
+                "isSubMatrix": false,
+                "config": {}
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete Matrix",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/matrix/:id",
+            "path": {
+              "id": "1"
+            }
+          }
+        },
+        {
+          "name": "Get Matrix Nodes",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/matrix/:id/nodes",
+            "path": {
+              "id": "1"
+            }
+          }
+        },
+        {
+          "name": "Get Matrix Connections",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/matrix/:id/connections",
+            "path": {
+              "id": "1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Execute",
+      "item": [
+        {
+          "name": "Execute Matrix",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/execute/matrix/:id",
+            "path": {
+              "id": "1"
+            },
+            "header": {
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": {
+                "input": {}
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Node Types",
+      "item": [
+        {
+          "name": "Get Node Types",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/node-types"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Triggers",
+      "item": [
+        {
+          "name": "Get All Triggers",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/triggers"
+          }
+        },
+        {
+          "name": "Get Trigger by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/triggers/:id",
+            "path": {
+              "id": "1"
+            }
+          }
+        },
+        {
+          "name": "Create Trigger",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/triggers",
+            "header": {
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": {
+                "nodeId": 1,
+                "type": "schedule",
+                "name": "My Trigger",
+                "config": {
+                  "cronExpression": "*/5 * * * *"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Update Trigger",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/triggers/:id",
+            "path": {
+              "id": "1"
+            },
+            "header": {
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": {
+                "name": "Updated Trigger",
+                "config": {
+                  "cronExpression": "*/10 * * * *"
+                },
+                "status": "active"
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete Trigger",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/triggers/:id",
+            "path": {
+              "id": "1"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3004",
+      "type": "string"
+    }
+  ]
+}
