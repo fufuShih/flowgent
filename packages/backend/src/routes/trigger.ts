@@ -1,92 +1,176 @@
-import { Router } from 'express';
+import express from 'express';
 import { db } from '../db';
-import { triggers } from '../db/schema';
-import { triggerManager } from '../services/trigger.service';
-import { z } from 'zod';
+import { triggers, matrix, nodes } from '../db/schema';
 import { eq } from 'drizzle-orm';
+import cron from 'node-cron';
 
-const router = Router();
+const router = express.Router();
+const scheduledTasks = new Map();
 
-const createTriggerSchema = z.object({
-  matrixId: z.number(),
-  nodeId: z.string(),
-  type: z.enum(['click', 'cron', 'webhook']),
-  config: z
-    .object({
-      schedule: z.string().optional(), // For cron triggers
-      endpoint: z.string().optional(), // For webhook triggers
-      method: z.enum(['GET', 'POST']).optional(), // For webhook triggers
-    })
-    .optional(),
+// Schedule management
+const scheduleTask = (trigger: any) => {
+  if (trigger.type !== 'schedule' || !trigger.config.cronExpression) {
+    return;
+  }
+
+  const task = cron.schedule(trigger.config.cronExpression, async () => {
+    await executeTriggerFlow(trigger.id, {});
+  });
+
+  scheduledTasks.set(trigger.id, task);
+};
+
+const unscheduleTask = (triggerId: number) => {
+  const task = scheduledTasks.get(triggerId);
+  if (task) {
+    task.stop();
+    scheduledTasks.delete(triggerId);
+  }
+};
+
+// Execute flow for a trigger
+const executeTriggerFlow = async (triggerId: number, payload: any) => {
+  try {
+    const [trigger] = await db.select().from(triggers).where(eq(triggers.id, triggerId));
+
+    if (!trigger) {
+      throw new Error('Trigger not found');
+    }
+
+    const [node] = await db.select().from(nodes).where(eq(nodes.id, trigger.nodeId));
+
+    if (!node) {
+      throw new Error('Node not found');
+    }
+
+    // Update last triggered timestamp
+    await db.update(triggers).set({ lastTriggered: new Date() }).where(eq(triggers.id, triggerId));
+
+    // TODO: Implement actual flow execution
+    console.log(`Executing flow for trigger ${triggerId} with payload:`, payload);
+  } catch (error) {
+    console.error(`Error executing flow for trigger ${triggerId}:`, error);
+  }
+};
+
+// CRUD Routes
+router.get('/', async (req, res) => {
+  try {
+    const selectedTriggers = await db.select().from(triggers);
+    res.json({ status: 'success', data: selectedTriggers });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
 });
 
-// Create new trigger
+router.get('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const selectedTrigger = await db
+      .select()
+      .from(triggers)
+      .where(eq(triggers.id, parseInt(id)));
+    res.json({ status: 'success', data: selectedTrigger });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
 router.post('/', async (req, res) => {
   try {
-    const data = createTriggerSchema.parse(req.body);
-
-    const result = await db
+    const { nodeId, type, name, config } = req.body;
+    const newTrigger = await db
       .insert(triggers)
       .values({
-        matrixId: data.matrixId,
-        nodeId: data.nodeId,
-        type: data.type,
-        config: JSON.stringify(data.config || {}),
+        nodeId,
+        type,
+        name,
+        config,
         status: 'inactive',
       })
       .returning();
 
-    res.json({ success: true, data: result[0] });
-  } catch (error) {
-    res.status(400).json({
-      success: false,
-      error: error instanceof Error ? error.message : String(error),
-    });
-  }
-});
-
-// Activate trigger
-router.post('/:triggerId/activate', async (req, res) => {
-  try {
-    const { triggerId } = req.params;
-
-    const trigger = await db
-      .update(triggers)
-      .set({ status: 'active' })
-      .where(eq(triggers.id, parseInt(triggerId)))
-      .returning();
-
-    if (trigger.length > 0) {
-      await triggerManager.setupTrigger(trigger[0]);
+    // If it's a schedule trigger and it's active, schedule it
+    if (type === 'schedule' && config.cronExpression) {
+      scheduleTask(newTrigger[0]);
     }
 
-    res.json({ success: true, data: trigger[0] });
+    res.json({ status: 'success', data: newTrigger });
   } catch (error) {
     res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : String(error),
+      status: 'error',
+      error: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 });
 
-// Deactivate trigger
-router.post('/:triggerId/deactivate', async (req, res) => {
+router.put('/:id', async (req, res) => {
   try {
-    const { triggerId } = req.params;
+    const { id } = req.params;
+    const { name, config, status } = req.body;
 
-    const result = await db
+    // Unschedule if it exists
+    unscheduleTask(parseInt(id));
+
+    const updatedTrigger = await db
       .update(triggers)
-      .set({ status: 'inactive' })
-      .where(eq(triggers.id, parseInt(triggerId)))
+      .set({ name, config, status })
+      .where(eq(triggers.id, parseInt(id)))
       .returning();
 
-    res.json({ success: true, data: result[0] });
+    // Reschedule if it's an active schedule trigger
+    if (updatedTrigger[0].type === 'schedule' && status === 'active') {
+      scheduleTask(updatedTrigger[0]);
+    }
+
+    res.json({ status: 'success', data: updatedTrigger });
   } catch (error) {
     res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : String(error),
+      status: 'error',
+      error: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 });
+
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    // Unschedule if it exists
+    unscheduleTask(parseInt(id));
+    await db.delete(triggers).where(eq(triggers.id, parseInt(id)));
+    res.json({ status: 'success', data: { id } });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+// Initialize triggers
+export const initializeTriggers = async () => {
+  try {
+    // Get all active triggers
+    const activeTriggers = await db.select().from(triggers).where(eq(triggers.status, 'active'));
+
+    // Initialize each trigger based on type
+    for (const trigger of activeTriggers) {
+      if (trigger.type === 'schedule') {
+        scheduleTask(trigger);
+      }
+    }
+
+    console.log(`Initialized ${activeTriggers.length} triggers`);
+  } catch (error) {
+    console.error('Failed to initialize triggers:', error);
+    throw error;
+  }
+};
 
 export const triggerRoutes = router;

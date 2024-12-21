@@ -1,178 +1,140 @@
-import { Router } from 'express';
+import express from 'express';
 import { db } from '../db';
-import { matrices } from '../db/schema';
-import { z } from 'zod';
-import { eq, and } from 'drizzle-orm';
+import { connections, matrix, nodes } from '../db/schema';
+import { eq } from 'drizzle-orm';
 
-const router = Router();
+const router = express.Router();
 
-const createMatrixSchema = z.object({
-  projectId: z
-    .union([z.string(), z.number()])
-    .transform((val) => (typeof val === 'string' ? parseInt(val, 10) : val)),
-  name: z.string(),
-  description: z.string(),
-  nodes: z.array(z.any()).default([]),
-  edges: z.array(z.any()).default([]),
+router.get('/', async (req, res) => {
+  try {
+    const allMatrices = await db.select().from(matrix);
+    res.json({ status: 'success', data: allMatrices });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
 });
 
-const updateMatrixSchema = z.object({
-  projectId: z
-    .union([z.string(), z.number()])
-    .transform((val) => (typeof val === 'string' ? parseInt(val, 10) : val))
-    .optional(),
-  name: z.string().optional(),
-  description: z.string().optional(),
-  nodes: z.array(z.any()).optional(),
-  edges: z.array(z.any()).optional(),
+router.get('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const searchedMatrix = await db
+      .select()
+      .from(matrix)
+      .where(eq(matrix.id, parseInt(id)));
+
+    if (!searchedMatrix) {
+      res.status(404).json({ status: 'error', error: 'Matrix not found' });
+    }
+
+    res.json({ status: 'success', data: searchedMatrix });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
 });
 
 router.post('/', async (req, res) => {
   try {
-    const data = createMatrixSchema.parse(req.body);
-    const result = await db
-      .insert(matrices)
-      .values({
-        projectId: data.projectId,
-        name: data.name,
-        description: data.description,
-        nodes: JSON.stringify(data.nodes),
-        edges: JSON.stringify(data.edges),
-      })
+    const { name, description, projectId, isSubMatrix, config } = req.body;
+
+    const newMatrix = await db
+      .insert(matrix)
+      .values({ name, description, projectId, isSubMatrix, config })
       .returning();
 
-    // Parse JSON strings back to objects for the response
-    const matrix = {
-      ...result[0],
-      nodes: JSON.parse(result[0].nodes),
-      edges: JSON.parse(result[0].edges),
-    };
-
-    res.json({ success: true, data: matrix });
+    return res.json({ status: 'success', data: newMatrix });
   } catch (error) {
-    console.error('Create matrix error:', error);
-    res.status(400).json({
-      success: false,
-      error: error instanceof Error ? error.message : String(error),
-    });
-  }
-});
-
-// Get all matrices for a project
-router.get('/:projectId', async (req, res) => {
-  try {
-    const projectId = parseInt(req.params.projectId, 10);
-    if (isNaN(projectId)) {
-      throw new Error('Invalid project ID');
-    }
-
-    const result = await db.select().from(matrices).where(eq(matrices.projectId, projectId));
-
-    // Parse JSON strings to objects
-    const matrixList = result.map((matrix) => ({
-      ...matrix,
-      nodes: JSON.parse(matrix.nodes),
-      edges: JSON.parse(matrix.edges),
-    }));
-
-    res.json({ success: true, data: matrixList });
-  } catch (error) {
-    console.error('Get matrices error:', error);
     res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : String(error),
+      status: 'error',
+      error: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 });
 
-// Get a specific matrix by project ID and matrix ID
-router.get('/:projectId/:matrixId', async (req, res) => {
+router.put('/:id', async (req, res) => {
   try {
-    const projectId = parseInt(req.params.projectId, 10);
-    const matrixId = parseInt(req.params.matrixId, 10);
+    const { id } = req.params;
+    const { name, description, projectId, isSubMatrix, config } = req.body;
+    const updatedMatrix = await db
+      .update(matrix)
+      .set({ name, description, projectId, isSubMatrix, config })
+      .where(eq(matrix.id, parseInt(id)))
+      .returning();
+    res.json({ status: 'success', data: updatedMatrix });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
 
-    if (isNaN(projectId) || isNaN(matrixId)) {
-      throw new Error('Invalid project ID or matrix ID');
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await db.delete(matrix).where(eq(matrix.id, parseInt(id)));
+    res.json({ status: 'success' });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+router.get('/:id/nodes', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const matrixExists = await db
+      .select()
+      .from(matrix)
+      .where(eq(matrix.id, parseInt(id)))
+      .limit(1);
+    if (!matrixExists) {
+      res.status(404).json({ status: 'error', error: 'Matrix not found' });
     }
 
-    const result = await db
+    const selectedNodes = await db
       .select()
-      .from(matrices)
-      .where(and(eq(matrices.projectId, projectId), eq(matrices.id, matrixId)))
+      .from(nodes)
+      .where(eq(nodes.matrixId, parseInt(id)));
+    res.json({ status: 'success', data: selectedNodes });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+router.get('/:id/connections', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const matrixExists = await db
+      .select()
+      .from(matrix)
+      .where(eq(matrix.id, parseInt(id)))
       .limit(1);
 
-    if (result.length === 0) {
-      return res.status(404).json({
-        success: false,
-        error: 'Matrix not found',
-      });
+    if (!matrixExists) {
+      res.status(404).json({ status: 'error', error: 'Matrix not found' });
     }
 
-    // Parse JSON strings to objects
-    const matrix = {
-      ...result[0],
-      nodes: JSON.parse(result[0].nodes),
-      edges: JSON.parse(result[0].edges),
-    };
-
-    res.json({ success: true, data: matrix });
+    const selectedConnections = await db
+      .select()
+      .from(connections)
+      .where(eq(connections.matrixId, parseInt(id)));
+    res.json({ status: 'success', data: selectedConnections });
   } catch (error) {
-    console.error('Get matrix error:', error);
     res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : String(error),
-    });
-  }
-});
-
-// Update a matrix
-router.put('/:matrixId', async (req, res) => {
-  try {
-    const matrixId = parseInt(req.params.matrixId, 10);
-    if (isNaN(matrixId)) {
-      throw new Error('Invalid matrix ID');
-    }
-
-    const data = updateMatrixSchema.parse(req.body);
-    const updateData: any = { ...data };
-
-    // Convert arrays to JSON strings if they exist
-    if (data.nodes) {
-      updateData.nodes = JSON.stringify(data.nodes);
-    }
-    if (data.edges) {
-      updateData.edges = JSON.stringify(data.edges);
-    }
-
-    // Add updated timestamp
-    updateData.updated = new Date();
-
-    const result = await db
-      .update(matrices)
-      .set(updateData)
-      .where(eq(matrices.id, matrixId))
-      .returning();
-
-    if (result.length === 0) {
-      return res.status(404).json({
-        success: false,
-        error: 'Matrix not found',
-      });
-    }
-
-    // Parse JSON strings back to objects for the response
-    const matrix = {
-      ...result[0],
-      nodes: JSON.parse(result[0].nodes),
-      edges: JSON.parse(result[0].edges),
-    };
-
-    res.json({ success: true, data: matrix });
-  } catch (error) {
-    console.error('Update matrix error:', error);
-    res.status(400).json({
-      success: false,
-      error: error instanceof Error ? error.message : String(error),
+      status: 'error',
+      error: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 });

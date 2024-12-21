@@ -1,31 +1,80 @@
-import { Router } from 'express';
+import express from 'express';
 import { db } from '../db';
 import { projects } from '../db/schema';
-import { z } from 'zod';
+import { eq } from 'drizzle-orm';
 
-const router = Router();
+const router = express.Router();
 
-const createProjectSchema = z.object({
-  name: z.string(),
+router.get('/', async (req, res) => {
+  try {
+    const allProjects = await db.select().from(projects);
+    res.json({ status: 'success', data: allProjects });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+router.get('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const project = await db
+      .select()
+      .from(projects)
+      .where(eq(projects.id, parseInt(id)));
+    res.json({ status: 'success', data: project });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
 });
 
 router.post('/', async (req, res) => {
   try {
-    const { name } = createProjectSchema.parse(req.body);
-    const result = await db.insert(projects).values({ name }).returning();
-    res.json({ success: true, data: result[0] });
+    const { name, description } = req.body;
+    const newProject = await db.insert(projects).values({ name, description }).returning();
+    res.json({ status: 'success', data: newProject });
   } catch (error) {
-    res.status(400).json({ success: false, error: String(error) });
+    res.status(500).json({
+      status: 'error',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
   }
 });
 
-router.get('/', async (req, res) => {
+router.put('/:id', async (req, res) => {
   try {
-    const result = await db.select().from(projects);
-    res.json({ success: true, data: result });
+    const { id } = req.params;
+    const { name, description } = req.body;
+    const updatedProject = await db
+      .update(projects)
+      .set({ name, description })
+      .where(eq(projects.id, parseInt(id)))
+      .returning();
+    res.json({ status: 'success', data: updatedProject });
   } catch (error) {
-    res.status(500).json({ success: false, error: String(error) });
+    res.status(500).json({
+      status: 'error',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
   }
 });
 
-export const projectRoutes = router; 
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await db.delete(projects).where(eq(projects.id, parseInt(id)));
+    res.json({ status: 'success' });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+export const projectRoutes = router;

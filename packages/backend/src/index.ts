@@ -1,5 +1,13 @@
 import dotenv from 'dotenv';
 import path from 'path';
+import express from 'express';
+import cors from 'cors';
+import { executeRoutes } from './routes/execute';
+import { triggerRoutes, initializeTriggers } from './routes/trigger';
+import { testConnection, initDatabase } from './db';
+import { projectRoutes } from './routes/project';
+import { nodeTypeRoutes } from './routes/nodeType';
+import { matrixRoutes } from './routes/matrix';
 
 // Load environment variables
 const envPath =
@@ -8,15 +16,6 @@ const envPath =
     : path.resolve(process.cwd(), '.env');
 
 dotenv.config({ path: envPath });
-
-import express from 'express';
-import cors from 'cors';
-import { projectRoutes } from './routes/project';
-import { matrixRoutes } from './routes/matrix';
-import { testConnection, initDatabase } from './db';
-import { executeRoutes } from './routes/execute';
-import { triggerManager } from './services/trigger.service';
-import { triggerRoutes } from './routes/trigger';
 
 const app = express();
 const port = process.env.PORT || 3004;
@@ -54,6 +53,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 
 app.use('/api/projects', projectRoutes);
 app.use('/api/matrices', matrixRoutes);
+app.use('/api/node-types', nodeTypeRoutes);
 app.use('/api/execute', executeRoutes);
 app.use('/api/triggers', triggerRoutes);
 
@@ -91,12 +91,12 @@ const startServer = async () => {
     }
 
     // Initialize triggers
-    await triggerManager.initializeTriggers();
+    await initializeTriggers();
 
     app.listen(port, () => {
       console.log(`Server is running on port ${port}`);
       console.log(`API URL: http://localhost:${port}/api`);
-      console.log(`Database connected and initialized successfully`);
+      console.log('Database connected and initialized successfully');
       console.log('Triggers initialized successfully');
     });
   } catch (error) {
