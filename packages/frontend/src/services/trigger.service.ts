@@ -10,7 +10,7 @@ import type { Trigger } from '../openapi-client/types.gen';
 export class TriggerService {
   static async getAll(): Promise<Trigger[]> {
     const response = await getApiTrigger();
-    return response.data || [];
+    return (response.data || []) as Trigger[];
   }
 
   static async create(trigger: {
@@ -19,11 +19,13 @@ export class TriggerService {
     name: string;
     config?: Record<string, unknown>;
   }): Promise<Trigger> {
-    return postApiTrigger({ body: trigger });
+    const response = await postApiTrigger({ body: trigger });
+    return response.data as Trigger;
   }
 
   static async getById(id: number): Promise<Trigger | null> {
-    return getApiTriggerById({ path: { id } });
+    const response = await getApiTriggerById({ path: { id } });
+    return response.data as Trigger | null;
   }
 
   static async update(
@@ -34,10 +36,11 @@ export class TriggerService {
       status?: 'active' | 'inactive';
     }
   ): Promise<Trigger> {
-    return putApiTriggerById({ path: { id }, body: update });
+    const response = await putApiTriggerById({ path: { id }, body: update });
+    return response.data as Trigger;
   }
 
   static async delete(id: number): Promise<void> {
-    return deleteApiTriggerById({ path: { id } });
+    await deleteApiTriggerById({ path: { id } });
   }
 }

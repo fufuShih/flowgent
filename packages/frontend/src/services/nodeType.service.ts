@@ -1,9 +1,8 @@
 import { getApiNodeType } from '../openapi-client';
-import type { NodeType } from './types';
 
 export class NodeTypeService {
-  static async getAll(): Promise<NodeType[]> {
+  static async getAll(): Promise<string[]> {
     const response = await getApiNodeType();
-    return response.data as NodeType[];
+    return (response.data?.data || []) as string[];
   }
 }

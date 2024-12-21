@@ -1,4 +1,4 @@
-import type { PostApiExecuteMatrixByIdResponse } from '../openapi-client';
+import { postApiExecuteMatrixById } from '../openapi-client';
 
 export class ExecutionService {
   static async executeNode(projectId: string, matrixId: string, nodeId: string, data: any) {
@@ -15,20 +15,14 @@ export class ExecutionService {
     matrixId: string
   ): Promise<{ success: boolean; error?: string; result?: any }> {
     try {
-      const response: PostApiExecuteMatrixByIdResponse = await fetch(
-        `/api/execute/matrix/${matrixId}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({}),
-        }
-      ).then((res) => res.json());
+      const response = await postApiExecuteMatrixById({
+        path: { id: Number(matrixId) },
+        body: {},
+      });
 
       return {
-        success: Boolean(response.success),
-        result: response,
+        success: Boolean(response.data?.success),
+        result: response.data,
       };
     } catch (error) {
       return {

@@ -1,97 +1,58 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
+import { useEffect, useState } from 'react';
+import { ProjectService } from '@/services';
+import type { Project } from '@/services/types';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router';
 import { CreateProjectDialog } from '@/components/CreateProjectDialog';
-import { Project, ProjectService } from '@/services';
 
-const ProjectsPage = () => {
+export default function ProjectsPage() {
   const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const loadProjects = async () => {
-    try {
-      const data = await ProjectService.getAll();
-      setProjects(data);
-      setError(null);
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to load projects');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   useEffect(() => {
     loadProjects();
   }, []);
 
-  const handleCreateProject = async (name: string) => {
+  const loadProjects = async () => {
     try {
-      await ProjectService.create({ name });
-      await loadProjects();
+      const data = await ProjectService.getAll();
+      setProjects(data || []);
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to create project');
+      console.error('Failed to load projects:', error);
     }
   };
 
-  const handleDeleteProject = async (id: string) => {
+  const handleCreateProject = async (name: string, description?: string) => {
     try {
-      await ProjectService.delete(id);
+      await ProjectService.create({ name, description });
       await loadProjects();
+      setIsCreateDialogOpen(false);
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to delete project');
+      console.error('Failed to create project:', error);
     }
   };
-
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div className="text-red-500">{error}</div>;
 
   return (
-    <div className="space-y-4 p-4">
-      <div className="flex justify-between items-center">
+    <div className="container mx-auto p-4">
+      <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Projects</h1>
-        <CreateProjectDialog onCreateProject={handleCreateProject} />
+        <Button onClick={() => setIsCreateDialogOpen(true)}>Create Project</Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {projects.map((project) => (
-          <Card
-            key={project.id}
-            className="cursor-pointer hover:shadow-lg transition-shadow"
-            onClick={() => navigate(`/projects/${project.id}/matrices`)}
-          >
-            <CardHeader>
-              <CardTitle>{project.name}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {project.description && (
-                <p className="text-sm text-gray-600 mb-2">{project.description}</p>
-              )}
-              <p className="text-xs text-gray-500">
-                Created: {new Date(project.created).toLocaleDateString()}
-              </p>
-              <p className="text-xs text-gray-500">
-                Updated: {new Date(project.updated).toLocaleDateString()}
-              </p>
-            </CardContent>
-            <CardFooter className="justify-end">
-              <Button
-                variant="destructive"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDeleteProject(project.id.toString());
-                }}
-              >
-                Delete
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
+        {Array.isArray(projects) &&
+          projects.map((project) => (
+            <div
+              key={project.id}
+              className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50"
+              onClick={() => navigate(`/projects/${project.id}`)}
+            >
+              <h2 className="text-xl font-semibold">{project.name}</h2>
+              {project.description && <p className="text-gray-600 mt-2">{project.description}</p>}
+            </div>
+          ))}
       </div>
     </div>
   );
-};
-
-export default ProjectsPage;
+}

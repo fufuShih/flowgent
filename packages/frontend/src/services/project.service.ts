@@ -4,31 +4,41 @@ import {
   getApiProjectById,
   putApiProjectById,
   deleteApiProjectById,
+  type GetApiProjectResponse,
 } from '../openapi-client';
 import type { Project, CreateProjectDto } from './types';
 
 export class ProjectService {
   static async getAll(): Promise<Project[]> {
-    const response = await getApiProject();
-    return response.data as Project[];
+    const response = (await getApiProject()) as GetApiProjectResponse;
+    return response.data?.data || [];
   }
 
   static async create(data: CreateProjectDto): Promise<Project> {
-    return postApiProject({ body: data }) as Promise<Project>;
+    const response = await postApiProject({
+      body: data,
+    });
+    return response.data as Project;
   }
 
   static async getById(id: string): Promise<Project | null> {
-    return getApiProjectById({ path: { id: Number(id) } });
+    const response = await getApiProjectById({
+      path: { id: Number(id) },
+    });
+    return response.data as Project | null;
   }
 
   static async update(id: string, project: Project): Promise<Project> {
-    return putApiProjectById({
+    const response = await putApiProjectById({
       path: { id: Number(id) },
       body: project,
-    }) as Promise<Project>;
+    });
+    return response.data as Project;
   }
 
   static async delete(id: string): Promise<void> {
-    return deleteApiProjectById({ path: { id: Number(id) } });
+    await deleteApiProjectById({
+      path: { id: Number(id) },
+    });
   }
 }
