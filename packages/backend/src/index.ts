@@ -65,11 +65,11 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 });
 
 // Routes
-app.use('/api/projects', projectRoutes);
-app.use('/api/matrices', matrixRoutes);
-app.use('/api/node-types', nodeTypeRoutes);
+app.use('/api/project', projectRoutes);
+app.use('/api/matrix', matrixRoutes);
+app.use('/api/node-type', nodeTypeRoutes);
 app.use('/api/execute', executeRoutes);
-app.use('/api/triggers', triggerRoutes);
+app.use('/api/trigger', triggerRoutes);
 
 // Health check endpoint
 app.get('/api/health', async (req, res) => {
