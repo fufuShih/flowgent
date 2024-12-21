@@ -5,7 +5,54 @@ import { eq } from 'drizzle-orm';
 
 const router = express.Router();
 
-// Execute a matrix flow
+/**
+ * @openapi
+ * /api/execute/matrix/{id}:
+ *   post:
+ *     tags:
+ *       - Execute
+ *     summary: Execute a matrix flow
+ *     description: Executes a matrix flow with the given input
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Matrix ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               input:
+ *                 type: object
+ *                 description: Input data for the matrix execution
+ *     responses:
+ *       200:
+ *         description: Matrix execution started successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 matrixId:
+ *                   type: string
+ *                 input:
+ *                   type: object
+ *       404:
+ *         description: Matrix not found
+ *       400:
+ *         description: Matrix is not active
+ *       500:
+ *         description: Internal server error
+ */
 router.post('/matrix/:id', async (req, res) => {
   try {
     const { id } = req.params;

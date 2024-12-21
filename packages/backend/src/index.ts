@@ -2,12 +2,15 @@ import dotenv from 'dotenv';
 import path from 'path';
 import express from 'express';
 import cors from 'cors';
+import swaggerUi from 'swagger-ui-express';
 import { executeRoutes } from './routes/execute';
 import { triggerRoutes, initializeTriggers } from './routes/trigger';
 import { testConnection, initDatabase } from './db';
 import { projectRoutes } from './routes/project';
 import { nodeTypeRoutes } from './routes/nodeType';
 import { matrixRoutes } from './routes/matrix';
+// Import the generated swagger.json
+import swaggerDocument from './swagger/swagger.json';
 
 // Load environment variables
 const envPath =
@@ -20,6 +23,7 @@ dotenv.config({ path: envPath });
 const app = express();
 const port = process.env.PORT || 3004;
 
+// Middleware
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || 'http://localhost:5173',
@@ -30,11 +34,20 @@ app.use(
 
 app.use(express.json());
 
+// Swagger UI setup
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.get('/api-docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerDocument);
+});
+
+// Logging middleware
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
   next();
 });
 
+// Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('Error:', {
     message: err.message,
@@ -51,12 +64,14 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   });
 });
 
+// Routes
 app.use('/api/projects', projectRoutes);
 app.use('/api/matrices', matrixRoutes);
 app.use('/api/node-types', nodeTypeRoutes);
 app.use('/api/execute', executeRoutes);
 app.use('/api/triggers', triggerRoutes);
 
+// Health check endpoint
 app.get('/api/health', async (req, res) => {
   try {
     const dbConnected = await testConnection();
@@ -76,6 +91,7 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
+// Server startup
 const startServer = async () => {
   try {
     // Test database connection
@@ -95,6 +111,7 @@ const startServer = async () => {
 
     app.listen(port, () => {
       console.log(`Server is running on port ${port}`);
+      console.log(`API Documentation: http://localhost:${port}/api-docs`);
       console.log(`API URL: http://localhost:${port}/api`);
       console.log('Database connected and initialized successfully');
       console.log('Triggers initialized successfully');

@@ -5,6 +5,113 @@ import { eq } from 'drizzle-orm';
 
 const router = express.Router();
 
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     Project:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *         name:
+ *           type: string
+ *         description:
+ *           type: string
+ */
+
+/**
+ * @openapi
+ * /api/project:
+ *   get:
+ *     tags:
+ *       - Project
+ *     summary: Get all projects
+ *     responses:
+ *       200:
+ *         description: List of all projects
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Project'
+ *   post:
+ *     tags:
+ *       - Project
+ *     summary: Create a new project
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Project created successfully
+ *
+ * /api/project/{id}:
+ *   get:
+ *     tags:
+ *       - Project
+ *     summary: Get a project by ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Project details
+ *
+ *   put:
+ *     tags:
+ *       - Project
+ *     summary: Update a project
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Project'
+ *     responses:
+ *       200:
+ *         description: Project updated successfully
+ *
+ *   delete:
+ *     tags:
+ *       - Project
+ *     summary: Delete a project
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Project deleted successfully
+ */
+
 router.get('/', async (req, res) => {
   try {
     const allProjects = await db.select().from(projects);

@@ -5,6 +5,161 @@ import { eq } from 'drizzle-orm';
 
 const router = express.Router();
 
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     Matrix:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *         name:
+ *           type: string
+ *         description:
+ *           type: string
+ *         projectId:
+ *           type: integer
+ *         isSubMatrix:
+ *           type: boolean
+ *         config:
+ *           type: object
+ *         status:
+ *           type: string
+ *           enum: [active, inactive]
+ */
+
+/**
+ * @openapi
+ * /api/matrix:
+ *   get:
+ *     tags:
+ *       - Matrix
+ *     summary: Get all matrices
+ *     responses:
+ *       200:
+ *         description: List of all matrices
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Matrix'
+ *   post:
+ *     tags:
+ *       - Matrix
+ *     summary: Create a new matrix
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - projectId
+ *             properties:
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               projectId:
+ *                 type: integer
+ *               isSubMatrix:
+ *                 type: boolean
+ *               config:
+ *                 type: object
+ *     responses:
+ *       200:
+ *         description: Matrix created successfully
+ *
+ * /api/matrix/{id}:
+ *   get:
+ *     tags:
+ *       - Matrix
+ *     summary: Get a matrix by ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Matrix details
+ *       404:
+ *         description: Matrix not found
+ *
+ *   put:
+ *     tags:
+ *       - Matrix
+ *     summary: Update a matrix
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Matrix'
+ *     responses:
+ *       200:
+ *         description: Matrix updated successfully
+ *
+ *   delete:
+ *     tags:
+ *       - Matrix
+ *     summary: Delete a matrix
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Matrix deleted successfully
+ *
+ * /api/matrix/{id}/nodes:
+ *   get:
+ *     tags:
+ *       - Matrix
+ *     summary: Get all nodes for a matrix
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: List of nodes for the matrix
+ *
+ * /api/matrix/{id}/connections:
+ *   get:
+ *     tags:
+ *       - Matrix
+ *     summary: Get all connections for a matrix
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: List of connections for the matrix
+ */
+
 router.get('/', async (req, res) => {
   try {
     const allMatrices = await db.select().from(matrix);

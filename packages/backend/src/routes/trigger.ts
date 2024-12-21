@@ -7,6 +7,126 @@ import cron from 'node-cron';
 const router = express.Router();
 const scheduledTasks = new Map();
 
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     Trigger:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *         nodeId:
+ *           type: integer
+ *         type:
+ *           type: string
+ *         name:
+ *           type: string
+ *         config:
+ *           type: object
+ *         status:
+ *           type: string
+ *           enum: [active, inactive]
+ *         lastTriggered:
+ *           type: string
+ *           format: date-time
+ */
+
+/**
+ * @openapi
+ * /api/trigger:
+ *   get:
+ *     tags:
+ *       - Trigger
+ *     summary: Get all triggers
+ *     responses:
+ *       200:
+ *         description: List of all triggers
+ *   post:
+ *     tags:
+ *       - Trigger
+ *     summary: Create a new trigger
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - nodeId
+ *               - type
+ *               - name
+ *             properties:
+ *               nodeId:
+ *                 type: integer
+ *               type:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *               config:
+ *                 type: object
+ *     responses:
+ *       200:
+ *         description: Trigger created successfully
+ *
+ * /api/trigger/{id}:
+ *   get:
+ *     tags:
+ *       - Trigger
+ *     summary: Get a trigger by ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Trigger details
+ *
+ *   put:
+ *     tags:
+ *       - Trigger
+ *     summary: Update a trigger
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               config:
+ *                 type: object
+ *               status:
+ *                 type: string
+ *                 enum: [active, inactive]
+ *     responses:
+ *       200:
+ *         description: Trigger updated successfully
+ *
+ *   delete:
+ *     tags:
+ *       - Trigger
+ *     summary: Delete a trigger
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Trigger deleted successfully
+ */
+
 // Schedule management
 const scheduleTask = (trigger: any) => {
   if (trigger.type !== 'schedule' || !trigger.config.cronExpression) {
