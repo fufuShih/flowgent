@@ -27,8 +27,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { nodeTemplates } from './nodeTemplates';
-import { FlowNodeType, NodeDataType, FlowEdge, MatrixService } from '@/services';
-import { ExecutionService } from '@/services/execution.service';
+import { FlowNodeType, FlowEdge, NodeDataType, ExecutionService, MatrixService } from '@/services';
 
 // CustomNode component props type
 interface CustomNodeProps {
@@ -72,7 +71,7 @@ const CustomNode = ({ data, type, projectId, matrixId }: CustomNodeProps) => {
         console.log(`Node ${data.label} executed successfully:`, result.result);
         // Here you could update UI to show execution result
       } else {
-        console.error(`Node ${data.label} execution failed:`, result.error);
+        console.error(`Node ${data.label} execution failed:`, result.result);
         // Handle error in UI
       }
     } catch (error) {
@@ -310,10 +309,7 @@ export const MatrixEditor = ({ projectId, matrixId }: { projectId: string; matri
   const handleSave = useCallback(async () => {
     setIsSaving(true);
     try {
-      const response = await MatrixService.update(projectId, matrixId, { nodes, edges });
-      if (!response.success) {
-        throw new Error(response.error);
-      }
+      await MatrixService.update(projectId, matrixId, { nodes, edges });
       setError(null);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to save matrix');
@@ -328,7 +324,6 @@ export const MatrixEditor = ({ projectId, matrixId }: { projectId: string; matri
       const result = await ExecutionService.executeMatrix(projectId, matrixId);
       if (result.success) {
         console.log('Matrix executed successfully:', result.result);
-        // You could add a toast notification here
       } else {
         setError(`Failed to execute matrix: ${result.error}`);
       }

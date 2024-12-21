@@ -1,5 +1,5 @@
-import type { Node } from '@xyflow/react';
 import type { NodeDataType, NodeHandler, ActionTriggerType } from '@/services';
+import type { Node } from '@xyflow/react';
 
 type NodeTemplate = Omit<Node<NodeDataType>, 'id' | 'position'>;
 
@@ -16,20 +16,19 @@ const outputs = {
   flow: [
     { id: 'out-1', name: 'true', ...IO.any },
     { id: 'out-2', name: 'false', ...IO.any },
-  ],
+  ] as Array<{ id: string; name: string; type: string }>,
 } as const;
 
 // Define common node inputs
 const inputs = {
   single: (type = IO.any) => [{ id: 'in-1', name: 'input', ...type }],
-  none: [],
+  none: [] as Array<{ id: string; name: string; type: string }>,
 } as const;
 
 // Default handlers for each node type
 const defaultHandlers: Record<string, NodeHandler> = {
   action: async (input?: any) => {
     console.log('Action handler called with input:', input);
-    console.log('Action node executing:', input);
     return { status: true, output: `Action executed: ${input || 'no input'}` };
   },
   ai: async (input: any) => {
@@ -60,10 +59,7 @@ const createActionNode = (
       action,
       ...extraParams,
     },
-    inputs:
-      actionType === 'input'
-        ? inputs.single()
-        : ([...inputs.none] as { type: string; id: string; name: string }[]),
+    inputs: actionType === 'input' ? inputs.single() : inputs.none,
     outputs: outputs.single(),
     handler: defaultHandlers.action,
   },
@@ -104,7 +100,7 @@ export const nodeTemplates: Record<string, NodeTemplate> = {
         condition: 'Set condition',
       },
       inputs: inputs.single(),
-      outputs: [...outputs.flow] as { type: string; id: string; name: string }[],
+      outputs: outputs.flow,
       handler: defaultHandlers.flow,
     },
   },

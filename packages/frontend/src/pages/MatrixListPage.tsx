@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { CreateMatrixDialog } from '@/components/matrix/CreateMatrixDialog';
-
-import { CreateMatrixDto, Matrix, MatrixService } from '@/services';
+import { Matrix, MatrixService } from '@/services';
 
 const MatrixListPage = () => {
   const navigate = useNavigate();
@@ -14,11 +13,14 @@ const MatrixListPage = () => {
 
   useEffect(() => {
     const fetchMatrices = async () => {
+      if (!projectId) return;
+
       try {
-        const data = await MatrixService.getAll(projectId!);
+        const data = await MatrixService.getAll(projectId);
         setMatrices(data);
-      } catch {
-        setError('Failed to fetch matrices');
+        setError(null);
+      } catch (error) {
+        setError(error instanceof Error ? error.message : 'Failed to fetch matrices');
       } finally {
         setLoading(false);
       }
@@ -27,23 +29,30 @@ const MatrixListPage = () => {
     fetchMatrices();
   }, [projectId]);
 
-  const handleCreateMatrix = async (data: CreateMatrixDto) => {
+  const handleCreateMatrix = async (data: { name: string; description?: string }) => {
+    if (!projectId) return;
+
     try {
-      const newMatrix = await MatrixService.create(projectId!, data);
+      const newMatrix = await MatrixService.create(projectId, {
+        ...data,
+        projectId,
+      });
       setMatrices([...matrices, newMatrix]);
-    } catch {
-      setError('Failed to create matrix');
+      setError(null);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to create matrix');
     }
   };
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
+  if (!projectId) return <div>Invalid project ID</div>;
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">Matrices</h2>
-        <CreateMatrixDialog onSubmit={handleCreateMatrix} projectId={projectId!} />
+        <CreateMatrixDialog onSubmit={handleCreateMatrix} projectId={projectId} />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {matrices.map((matrix) => (
@@ -56,7 +65,9 @@ const MatrixListPage = () => {
               <CardTitle>{matrix.name}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-600 mb-2">{matrix.description}</p>
+              {matrix.description && (
+                <p className="text-sm text-gray-600 mb-2">{matrix.description}</p>
+              )}
               <p className="text-xs text-gray-500">
                 Created: {new Date(matrix.created).toLocaleDateString()}
               </p>

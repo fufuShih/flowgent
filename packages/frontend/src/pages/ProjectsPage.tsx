@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CreateProjectDialog } from '@/components/CreateProjectDialog';
-import { Project, ProjectService, CreateProjectDto } from '@/services';
+import { Project, ProjectService } from '@/services';
 
 const ProjectsPage = () => {
   const navigate = useNavigate();
@@ -29,11 +29,7 @@ const ProjectsPage = () => {
 
   const handleCreateProject = async (name: string) => {
     try {
-      const createDto: CreateProjectDto = {
-        name,
-        matrices: [],
-      };
-      await ProjectService.create(createDto);
+      await ProjectService.create({ name });
       await loadProjects();
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to create project');
@@ -70,15 +66,22 @@ const ProjectsPage = () => {
               <CardTitle>{project.name}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p>Created: {new Date(project.created).toLocaleDateString()}</p>
-              <p>Updated: {new Date(project.updated).toLocaleDateString()}</p>
+              {project.description && (
+                <p className="text-sm text-gray-600 mb-2">{project.description}</p>
+              )}
+              <p className="text-xs text-gray-500">
+                Created: {new Date(project.created).toLocaleDateString()}
+              </p>
+              <p className="text-xs text-gray-500">
+                Updated: {new Date(project.updated).toLocaleDateString()}
+              </p>
             </CardContent>
             <CardFooter className="justify-end">
               <Button
                 variant="destructive"
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleDeleteProject(project.id);
+                  handleDeleteProject(project.id.toString());
                 }}
               >
                 Delete
