@@ -1,44 +1,127 @@
-import {
-  getApiProject,
-  postApiProject,
-  getApiProjectById,
-  putApiProjectById,
-  deleteApiProjectById,
-  type GetApiProjectResponse,
+import type {
+  GetApiProjectsData,
+  GetApiProjectsResponse,
+  PostApiProjectsData,
+  Project,
+  GetApiProjectsByProjectIdData,
+  PatchApiProjectsByProjectIdData,
+  DeleteApiProjectsByProjectIdData,
 } from '../openapi-client';
-import type { Project, CreateProjectDto } from './types';
+import {
+  getApiProjects,
+  postApiProjects,
+  getApiProjectsByProjectId,
+  patchApiProjectsByProjectId,
+  deleteApiProjectsByProjectId,
+} from '../openapi-client';
+import { ServiceResponse } from './types';
 
 export class ProjectService {
-  static async getAll(): Promise<Project[]> {
-    const response = (await getApiProject()) as GetApiProjectResponse;
-    return response.data?.data || [];
+  static async getProjects(
+    params?: GetApiProjectsData['query']
+  ): Promise<ServiceResponse<Project[]>> {
+    try {
+      const response = await getApiProjects({
+        query: params,
+      });
+
+      return {
+        success: true,
+        data: (response.data?.data ?? []) as Project[],
+        pagination: response.data?.pagination,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch projects',
+      };
+    }
   }
 
-  static async create(data: CreateProjectDto): Promise<Project> {
-    const response = await postApiProject({
-      body: data,
-    });
-    return response.data as Project;
+  static async createProject(
+    params: PostApiProjectsData['body']
+  ): Promise<ServiceResponse<Project>> {
+    try {
+      const response = await postApiProjects({
+        body: params,
+      });
+
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to create project',
+      };
+    }
   }
 
-  static async getById(id: string): Promise<Project | null> {
-    const response = await getApiProjectById({
-      path: { id: Number(id) },
-    });
-    return response.data as Project | null;
+  static async getProject(
+    projectId: GetApiProjectsByProjectIdData['path']['projectId']
+  ): Promise<ServiceResponse<Project>> {
+    try {
+      const response = await getApiProjectsByProjectId({
+        path: {
+          projectId,
+        },
+      });
+
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch project',
+      };
+    }
   }
 
-  static async update(id: string, project: Project): Promise<Project> {
-    const response = await putApiProjectById({
-      path: { id: Number(id) },
-      body: project,
-    });
-    return response.data as Project;
+  static async updateProject(
+    projectId: PatchApiProjectsByProjectIdData['path']['projectId'],
+    params: PatchApiProjectsByProjectIdData['body']
+  ): Promise<ServiceResponse<Project>> {
+    try {
+      const response = await patchApiProjectsByProjectId({
+        path: {
+          projectId,
+        },
+        body: params,
+      });
+
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to update project',
+      };
+    }
   }
 
-  static async delete(id: string): Promise<void> {
-    await deleteApiProjectById({
-      path: { id: Number(id) },
-    });
+  static async deleteProject(
+    projectId: DeleteApiProjectsByProjectIdData['path']['projectId']
+  ): Promise<ServiceResponse<void>> {
+    try {
+      await deleteApiProjectsByProjectId({
+        path: {
+          projectId,
+        },
+      });
+
+      return {
+        success: true,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to delete project',
+      };
+    }
   }
 }

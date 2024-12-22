@@ -10,5 +10,6 @@ export default defineConfig({
       dates: true,
       name: '@hey-api/transformers',
     },
+    'zod',
   ],
 });

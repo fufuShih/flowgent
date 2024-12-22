@@ -1,126 +1,168 @@
 import {
-  getApiMatrix,
-  postApiMatrix,
-  getApiMatrixById,
-  putApiMatrixById,
-  deleteApiMatrixById,
-  getApiMatrixByIdNodes,
-  getApiMatrixByIdConnections,
-  postApiExecuteMatrixById,
-  type Matrix as ApiMatrix,
-  type GetApiMatrixByIdConnectionsResponse,
-  type GetApiMatrixByIdNodesResponse,
-  type GetApiMatrixResponse,
-  type PostApiExecuteMatrixByIdResponse,
-  type PostApiMatrixResponse,
-  type GetApiMatrixByIdResponse,
-  type PutApiMatrixByIdResponse,
-} from '../openapi-client';
-import type { Matrix, CreateMatrixDto, BaseNode } from './types';
-
-interface MatrixUpdateDto {
-  name?: string;
-  description?: string;
-  status?: 'active' | 'inactive' | 'draft' | 'error';
-  config?: {
-    nodes: Array<{
-      id: string;
-      type: string;
-      position: { x: number; y: number };
-      data: Record<string, any>;
-      measured?: { width: number; height: number };
-    }>;
-    edges: Array<{
-      id: string;
-      source: string;
-      target: string;
-      type?: string;
-      data?: Record<string, any>;
-    }>;
-  };
-}
+  getApiProjectByProjectIdMatrix,
+  postApiProjectByProjectIdMatrix,
+  getApiMatrixByMatrixId,
+  patchApiMatrixByMatrixId,
+  deleteApiMatrixByMatrixId,
+  postApiMatrixByMatrixIdClone,
+} from '../openapi-client/sdk.gen';
+import {
+  DeleteApiMatrixByMatrixIdData,
+  GetApiMatrixByMatrixIdData,
+  GetApiProjectByProjectIdMatrixData,
+  Matrix,
+  PatchApiMatrixByMatrixIdData,
+  PostApiMatrixByMatrixIdCloneData,
+  PostApiProjectByProjectIdMatrixData,
+} from '../openapi-client/types.gen';
+import { ServiceResponse } from './types';
 
 export class MatrixService {
-  static async getAllMatrices(): Promise<ApiMatrix[]> {
-    const response = (await getApiMatrix()) as GetApiMatrixResponse;
-    return response.data?.data || [];
-  }
+  static async getMatrices(
+    projectId: GetApiProjectByProjectIdMatrixData['path']['projectId'],
+    params?: GetApiProjectByProjectIdMatrixData['query']
+  ): Promise<ServiceResponse<Matrix[]>> {
+    try {
+      const response = await getApiProjectByProjectIdMatrix({
+        path: { projectId },
+        query: {
+          limit: params?.limit,
+          page: params?.page,
+          status: params?.status as 'active' | 'inactive' | 'draft' | 'error',
+          version: params?.version,
+        },
+      });
 
-  static async getAll(projectId: string): Promise<Matrix[]> {
-    const matrices = await this.getAllMatrices();
-    return matrices.filter((matrix) => matrix.projectId === Number(projectId)) as Matrix[];
-  }
-
-  static async create(projectId: string, data: CreateMatrixDto): Promise<Matrix> {
-    const response = (await postApiMatrix({
-      body: {
-        ...data,
-        projectId: Number(projectId),
-      },
-    })) as PostApiMatrixResponse;
-    return response as Matrix;
-  }
-
-  static async getById(projectId: string, matrixId: string): Promise<Matrix | null> {
-    const response = (await getApiMatrixById({
-      path: { id: Number(matrixId) },
-    })) as GetApiMatrixByIdResponse;
-    return response as Matrix | null;
-  }
-
-  static async update(
-    projectId: string,
-    matrixId: string,
-    data: { nodes: any[]; edges: any[] }
-  ): Promise<Matrix> {
-    const updateData: MatrixUpdateDto = {
-      config: {
-        nodes: data.nodes.map((node) => ({
-          id: node.id,
-          type: node.type,
-          position: node.position,
-          data: node.data,
-          measured: node.measured,
-        })),
-        edges: data.edges,
-      },
-    };
-
-    const response = (await putApiMatrixById({
-      path: { id: Number(matrixId) },
-      body: updateData,
-    })) as PutApiMatrixByIdResponse;
-
-    if (!response || 'error' in response) {
-      throw new Error(response?.error || 'Failed to update matrix');
+      return {
+        success: true,
+        data: response.data?.data || [],
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch matrices',
+      };
     }
-
-    return response as Matrix;
   }
 
-  static async delete(id: number): Promise<void> {
-    await deleteApiMatrixById({ path: { id } });
+  static async createMatrix(
+    projectId: PostApiProjectByProjectIdMatrixData['path']['projectId'],
+    params: PostApiProjectByProjectIdMatrixData['body']
+  ): Promise<ServiceResponse<Matrix>> {
+    try {
+      const response = await postApiProjectByProjectIdMatrix({
+        path: { projectId },
+        body: {
+          name: params.name,
+          description: params.description,
+          status: params.status as 'active' | 'inactive' | 'draft' | 'error',
+          config: params.config,
+          parentMatrixId: params.parentMatrixId,
+        },
+      });
+
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to create matrix',
+      };
+    }
   }
 
-  static async getNodes(id: number): Promise<BaseNode[]> {
-    const response = (await getApiMatrixByIdNodes({
-      path: { id },
-    })) as GetApiMatrixByIdNodesResponse;
-    return (response.data?.data || []) as BaseNode[];
+  static async getMatrix(
+    matrixId: GetApiMatrixByMatrixIdData['path']['matrixId'],
+    options?: GetApiMatrixByMatrixIdData['query']
+  ): Promise<ServiceResponse<Matrix>> {
+    try {
+      const response = await getApiMatrixByMatrixId({
+        path: { matrixId },
+        query: {
+          includeNodes: options?.includeNodes,
+          includeConnections: options?.includeConnections,
+        },
+      });
+
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch matrix',
+      };
+    }
   }
 
-  static async getConnections(id: number): Promise<any[]> {
-    const response = (await getApiMatrixByIdConnections({
-      path: { id },
-    })) as GetApiMatrixByIdConnectionsResponse;
-    return (response.data?.data || []) as any[];
+  static async updateMatrix(
+    matrixId: PatchApiMatrixByMatrixIdData['path']['matrixId'],
+    params: PatchApiMatrixByMatrixIdData['body']
+  ): Promise<ServiceResponse<Matrix>> {
+    try {
+      const response = await patchApiMatrixByMatrixId({
+        path: { matrixId },
+        body: {
+          name: params.name,
+          description: params.description,
+          status: params.status as 'active' | 'inactive' | 'draft' | 'error',
+          config: params.config,
+        },
+      });
+
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to update matrix',
+      };
+    }
   }
 
-  static async execute(id: number, input?: Record<string, unknown>) {
-    const response = await postApiExecuteMatrixById({
-      path: { id },
-      body: { input },
-    });
-    return response as PostApiExecuteMatrixByIdResponse;
+  static async deleteMatrix(
+    matrixId: DeleteApiMatrixByMatrixIdData['path']['matrixId']
+  ): Promise<ServiceResponse<void>> {
+    try {
+      await deleteApiMatrixByMatrixId({
+        path: {
+          matrixId,
+        },
+      });
+
+      return {
+        success: true,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to delete matrix',
+      };
+    }
+  }
+
+  static async cloneMatrix(
+    matrixId: PostApiMatrixByMatrixIdCloneData['path']['matrixId']
+  ): Promise<ServiceResponse<Matrix>> {
+    try {
+      const response = await postApiMatrixByMatrixIdClone({
+        path: { matrixId },
+      });
+
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to clone matrix',
+      };
+    }
   }
 }
