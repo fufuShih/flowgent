@@ -921,7 +921,7 @@
         }
       }
     },
-    "/api/project/{projectId}/matrix": {
+    "/api/matrix/project/{projectId}": {
       "get": {
         "summary": "Get all matrices for a project",
         "tags": [

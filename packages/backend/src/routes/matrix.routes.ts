@@ -82,10 +82,9 @@ const queryParamsSchema = z.object({
  *         - updated
  */
 
-// GET /projects/:projectId/matrix
 /**
  * @swagger
- * /api/project/{projectId}/matrix:
+ * /api/matrix/project/{projectId}:
  *   get:
  *     summary: Get all matrices for a project
  *     tags: [Matrix]
@@ -155,6 +154,7 @@ const queryParamsSchema = z.object({
 router.get('/project/:projectId', async (req, res) => {
   try {
     const projectId = parseInt(req.params.projectId);
+    console.log(req, res);
     if (isNaN(projectId)) {
       return res.status(400).json({ error: 'Invalid project ID' });
     }
@@ -208,7 +208,6 @@ router.get('/project/:projectId', async (req, res) => {
   }
 });
 
-// GET /matrix/:matrixId
 /**
  * @swagger
  * /api/matrix/{matrixId}:
@@ -296,10 +295,10 @@ router.get('/:matrixId', async (req, res) => {
   }
 });
 
-// POST /projects/:projectId/matrix
+// POST /matrix/project/{projectId}
 /**
  * @swagger
- * /api/project/{projectId}/matrix:
+ * /api/matrix/project/{projectId}:
  *   post:
  *     summary: Create a new matrix
  *     tags: [Matrix]
