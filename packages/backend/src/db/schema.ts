@@ -7,6 +7,7 @@ import {
   jsonb,
   pgEnum,
   AnyPgColumn,
+  boolean,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
@@ -70,6 +71,8 @@ export const nodeTypeEnum = pgEnum('node_type', [
   'transformer',
   'loop',
 ]);
+
+export type NodeType = (typeof nodeTypeEnum.enumValues)[number];
 
 /**
  * Nodes table

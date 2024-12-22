@@ -4,6 +4,7 @@ import * as schema from './schema';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import path from 'path';
 import { sql } from 'drizzle-orm';
+import { nodes, type NodeType, matrix } from './schema';
 
 // Database configuration interface
 interface DatabaseConfig extends PoolConfig {
@@ -54,6 +55,9 @@ export const initDatabase = async (): Promise<boolean> => {
     // Run migrations
     const migrationsFolder = path.join(__dirname, '../../drizzle');
     await migrate(db, { migrationsFolder });
+
+    // Initialize template nodes
+    await initializeTemplateNodes();
 
     console.log('Database initialization completed successfully');
     return true;
@@ -151,3 +155,132 @@ export const closeDatabase = async (): Promise<void> => {
     throw error;
   }
 };
+
+async function initializeTemplateNodes(): Promise<void> {
+  try {
+    // 檢查是否已經存在基礎 matrix
+    const baseMatrix = await db
+      .select()
+      .from(matrix)
+      .where(sql`id = 0`);
+
+    let matrixId = 0;
+
+    // 如果基礎 matrix 不存在，創建它
+    if (baseMatrix.length === 0) {
+      const result = await db
+        .insert(matrix)
+        .values({
+          id: 0,
+          name: 'Base Template Matrix',
+          description: 'Stores base node templates',
+          status: 'inactive',
+          config: {},
+        })
+        .returning({ id: matrix.id });
+
+      matrixId = result[0].id;
+    }
+
+    // 檢查是否已經存在基礎節點
+    const existingNodes = await db
+      .select()
+      .from(nodes)
+      .where(sql`matrix_id = ${matrixId}`);
+
+    if (existingNodes.length === 0) {
+      const baseNodes: {
+        matrixId: number;
+        type: NodeType;
+        name: string;
+        description: string;
+        config: Record<string, unknown>;
+        position: { x: number; y: number };
+      }[] = [
+        {
+          matrixId: 0,
+          type: 'trigger' as NodeType,
+          name: 'HTTP Trigger',
+          description: 'Triggers flow on HTTP request',
+          config: {
+            type: 'webhook',
+            method: 'POST',
+            path: '/webhook',
+            headers: {},
+          },
+          position: { x: 0, y: 0 },
+        },
+        {
+          matrixId: 0,
+          type: 'trigger' as NodeType,
+          name: 'Schedule Trigger',
+          description: 'Triggers flow on schedule',
+          config: {
+            type: 'schedule',
+            cron: '0 0 * * *',
+            timezone: 'UTC',
+          },
+          position: { x: 0, y: 0 },
+        },
+        {
+          matrixId: 0,
+          type: 'action' as NodeType,
+          name: 'HTTP Request',
+          description: 'Make HTTP request to external service',
+          config: {
+            method: 'GET',
+            url: '',
+            headers: {},
+            body: {},
+          },
+          position: { x: 0, y: 0 },
+        },
+        {
+          matrixId: 0,
+          type: 'condition' as NodeType,
+          name: 'Data Condition',
+          description: 'Check data conditions',
+          config: {
+            operator: 'equals',
+            field: '',
+            value: '',
+          },
+          position: { x: 0, y: 0 },
+        },
+        {
+          matrixId: 0,
+          type: 'transformer' as NodeType,
+          name: 'Data Mapper',
+          description: 'Transform data structure',
+          config: {
+            mappings: {},
+          },
+          position: { x: 0, y: 0 },
+        },
+        {
+          matrixId: 0,
+          type: 'loop' as NodeType,
+          name: 'For Each',
+          description: 'Iterate over array items',
+          config: {
+            arrayPath: '',
+            maxIterations: 100,
+          },
+          position: { x: 0, y: 0 },
+        },
+      ];
+
+      for (const node of baseNodes) {
+        await db.insert(nodes).values({
+          ...node,
+          matrixId,
+        });
+      }
+
+      console.log('Base nodes initialized successfully');
+    }
+  } catch (error) {
+    console.error('Error initializing base nodes:', error);
+    throw error;
+  }
+}

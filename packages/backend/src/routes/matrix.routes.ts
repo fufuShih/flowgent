@@ -154,7 +154,6 @@ const queryParamsSchema = z.object({
 router.get('/project/:projectId', async (req, res) => {
   try {
     const projectId = parseInt(req.params.projectId);
-    console.log(req, res);
     if (isNaN(projectId)) {
       return res.status(400).json({ error: 'Invalid project ID' });
     }
