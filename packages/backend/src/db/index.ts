@@ -68,18 +68,50 @@ export const initDatabase = async (): Promise<boolean> => {
  */
 async function createEnums(): Promise<void> {
   try {
-    // Create enums from schema
-    await db.execute(sql`
-      DO $$ BEGIN
-        CREATE TYPE IF NOT EXISTS matrix_status AS ENUM ('active', 'inactive', 'draft', 'error');
-        CREATE TYPE IF NOT EXISTS node_type AS ENUM ('trigger', 'action', 'condition', 'subMatrix', 'transformer', 'loop');
-        CREATE TYPE IF NOT EXISTS connection_type AS ENUM ('default', 'success', 'error', 'condition');
-        CREATE TYPE IF NOT EXISTS trigger_type AS ENUM ('webhook', 'schedule', 'event', 'manual', 'email', 'database');
-        CREATE TYPE IF NOT EXISTS trigger_status AS ENUM ('active', 'inactive', 'error');
-      EXCEPTION
-        WHEN duplicate_object THEN NULL;
-      END $$;
-    `);
+    // Create each enum separately to better handle errors
+    const enumStatements = [
+      `DO $$
+       BEGIN
+         IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'matrix_status') THEN
+           CREATE TYPE matrix_status AS ENUM ('active', 'inactive', 'draft', 'error');
+         END IF;
+       END $$;`,
+
+      `DO $$
+       BEGIN
+         IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'node_type') THEN
+           CREATE TYPE node_type AS ENUM ('trigger', 'action', 'condition', 'subMatrix', 'transformer', 'loop');
+         END IF;
+       END $$;`,
+
+      `DO $$
+       BEGIN
+         IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'connection_type') THEN
+           CREATE TYPE connection_type AS ENUM ('default', 'success', 'error', 'condition');
+         END IF;
+       END $$;`,
+
+      `DO $$
+       BEGIN
+         IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'trigger_type') THEN
+           CREATE TYPE trigger_type AS ENUM ('webhook', 'schedule', 'event', 'manual', 'email', 'database');
+         END IF;
+       END $$;`,
+
+      `DO $$
+       BEGIN
+         IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'trigger_status') THEN
+           CREATE TYPE trigger_status AS ENUM ('active', 'inactive', 'error');
+         END IF;
+       END $$;`,
+    ];
+
+    // Execute each statement separately
+    for (const statement of enumStatements) {
+      await db.execute(sql.raw(statement));
+    }
+
+    console.log('Enums created successfully');
   } catch (error) {
     console.error('Error creating enums:', error);
     throw error;

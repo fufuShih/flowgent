@@ -13,7 +13,7 @@
     "docker:down": "docker-compose -f docker-compose.dev.yml down",
     "docker:logs": "docker-compose -f docker-compose.dev.yml logs -f",
     "docker:clean": "docker-compose -f docker-compose.dev.yml down -v",
-    "swagger:generate": "swagger-jsdoc -d ./src/swagger/swaggerDef.json ./src/routes/*.ts -o ./src/swagger/swagger.json"
+    "swagger:generate": "swagger-jsdoc -d ./src/swagger/swaggerDef.json ./src/routes/*.ts -o ./src/swagger/gen-swagger.json"
   },
   "keywords": [],
   "author": "",

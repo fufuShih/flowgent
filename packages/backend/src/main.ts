@@ -6,7 +6,7 @@ import swaggerUi from 'swagger-ui-express';
 import { testConnection, initDatabase } from './db';
 import routes from './routes';
 // Import the generated swagger.json
-import swaggerDocument from './swagger/swagger.json';
+import swaggerDocument from './swagger/gen-swagger.json';
 
 // Load environment variables
 const envPath =
