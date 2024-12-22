@@ -3,12 +3,8 @@ import path from 'path';
 import express from 'express';
 import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
-import { executeRoutes } from './routes/execute';
-import { triggerRoutes, initializeTriggers } from './routes/trigger';
 import { testConnection, initDatabase } from './db';
-import { projectRoutes } from './routes/project';
-import { nodeTypeRoutes } from './routes/nodeType';
-import { matrixRoutes } from './routes/matrix';
+import routes from './routes';
 // Import the generated swagger.json
 import swaggerDocument from './swagger/swagger.json';
 
@@ -64,12 +60,8 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   });
 });
 
-// Routes
-app.use('/api/project', projectRoutes);
-app.use('/api/matrix', matrixRoutes);
-app.use('/api/node-type', nodeTypeRoutes);
-app.use('/api/execute', executeRoutes);
-app.use('/api/trigger', triggerRoutes);
+// Mount all routes under /api
+app.use('/api', routes);
 
 // Health check endpoint
 app.get('/api/health', async (req, res) => {
@@ -106,15 +98,11 @@ const startServer = async () => {
       throw new Error('Database initialization failed');
     }
 
-    // Initialize triggers
-    await initializeTriggers();
-
     app.listen(port, () => {
       console.log(`Server is running on port ${port}`);
       console.log(`API Documentation: http://localhost:${port}/api-docs`);
       console.log(`API URL: http://localhost:${port}/api`);
       console.log('Database connected and initialized successfully');
-      console.log('Triggers initialized successfully');
     });
   } catch (error) {
     console.error('Failed to start server:', error);
