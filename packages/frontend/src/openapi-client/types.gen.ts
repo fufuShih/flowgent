@@ -407,7 +407,7 @@ export type DeleteApiConnectionsByConnectionIdResponse = (void);
 
 export type DeleteApiConnectionsByConnectionIdError = (unknown);
 
-export type GetApiProjectByProjectIdMatrixData = {
+export type GetApiMatrixProjectByProjectIdData = {
     path: {
         /**
          * Project ID
@@ -434,7 +434,7 @@ export type GetApiProjectByProjectIdMatrixData = {
     };
 };
 
-export type GetApiProjectByProjectIdMatrixResponse = ({
+export type GetApiMatrixProjectByProjectIdResponse = ({
     data?: Array<Matrix>;
     pagination?: {
         total?: number;
@@ -444,9 +444,9 @@ export type GetApiProjectByProjectIdMatrixResponse = ({
     };
 });
 
-export type GetApiProjectByProjectIdMatrixError = (unknown);
+export type GetApiMatrixProjectByProjectIdError = (unknown);
 
-export type PostApiProjectByProjectIdMatrixData = {
+export type PostApiMatrixProjectByProjectIdData = {
     body: {
         name: string;
         description?: string;
@@ -464,9 +464,9 @@ export type PostApiProjectByProjectIdMatrixData = {
     };
 };
 
-export type PostApiProjectByProjectIdMatrixResponse = (Matrix);
+export type PostApiMatrixProjectByProjectIdResponse = (Matrix);
 
-export type PostApiProjectByProjectIdMatrixError = (unknown);
+export type PostApiMatrixProjectByProjectIdError = (unknown);
 
 export type GetApiMatrixByMatrixIdData = {
     path: {
@@ -896,7 +896,7 @@ export const PatchApiConnectionsByConnectionIdResponseTransformer: PatchApiConne
     return data;
 };
 
-export type GetApiProjectByProjectIdMatrixResponseTransformer = (data: any) => Promise<GetApiProjectByProjectIdMatrixResponse>;
+export type GetApiMatrixProjectByProjectIdResponseTransformer = (data: any) => Promise<GetApiMatrixProjectByProjectIdResponse>;
 
 export type MatrixModelResponseTransformer = (data: any) => Matrix;
 
@@ -910,16 +910,16 @@ export const MatrixModelResponseTransformer: MatrixModelResponseTransformer = da
     return data;
 };
 
-export const GetApiProjectByProjectIdMatrixResponseTransformer: GetApiProjectByProjectIdMatrixResponseTransformer = async (data) => {
+export const GetApiMatrixProjectByProjectIdResponseTransformer: GetApiMatrixProjectByProjectIdResponseTransformer = async (data) => {
     if (Array.isArray(data?.data)) {
         data.data.forEach(MatrixModelResponseTransformer);
     }
     return data;
 };
 
-export type PostApiProjectByProjectIdMatrixResponseTransformer = (data: any) => Promise<PostApiProjectByProjectIdMatrixResponse>;
+export type PostApiMatrixProjectByProjectIdResponseTransformer = (data: any) => Promise<PostApiMatrixProjectByProjectIdResponse>;
 
-export const PostApiProjectByProjectIdMatrixResponseTransformer: PostApiProjectByProjectIdMatrixResponseTransformer = async (data) => {
+export const PostApiMatrixProjectByProjectIdResponseTransformer: PostApiMatrixProjectByProjectIdResponseTransformer = async (data) => {
     MatrixModelResponseTransformer(data);
     return data;
 };

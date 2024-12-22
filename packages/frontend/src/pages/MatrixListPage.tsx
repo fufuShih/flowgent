@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { CreateMatrixDialog } from '@/components/matrix/CreateMatrixDialog';
-import { Matrix, MatrixService } from '@/services';
+import { MatrixService } from '@/services';
+import type { Matrix } from '../openapi-client/types.gen';
 
 const MatrixListPage = () => {
   const navigate = useNavigate();
@@ -16,9 +17,13 @@ const MatrixListPage = () => {
       if (!projectId) return;
 
       try {
-        const data = await MatrixService.getAll(projectId);
-        setMatrices(data);
-        setError(null);
+        const response = await MatrixService.getMatrices(parseInt(projectId));
+        if (response.success && response.data) {
+          setMatrices(response.data);
+          setError(null);
+        } else {
+          setError(response.error || 'Failed to fetch matrices');
+        }
       } catch (error) {
         setError(error instanceof Error ? error.message : 'Failed to fetch matrices');
       } finally {
@@ -33,12 +38,18 @@ const MatrixListPage = () => {
     if (!projectId) return;
 
     try {
-      const newMatrix = await MatrixService.create(projectId, {
-        ...data,
-        projectId,
+      const response = await MatrixService.createMatrix(parseInt(projectId), {
+        name: data.name,
+        description: data.description,
+        status: 'draft',
       });
-      setMatrices([...matrices, newMatrix]);
-      setError(null);
+
+      if (response.success && response.data) {
+        setMatrices([...matrices, response.data]);
+        setError(null);
+      } else {
+        setError(response.error || 'Failed to create matrix');
+      }
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to create matrix');
     }
@@ -52,7 +63,7 @@ const MatrixListPage = () => {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">Matrices</h2>
-        <CreateMatrixDialog onSubmit={handleCreateMatrix} projectId={projectId} />
+        <CreateMatrixDialog onSubmit={handleCreateMatrix} />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {matrices.map((matrix) => (

@@ -1,107 +1,109 @@
-import type { NodeDataType, NodeHandler, ActionTriggerType } from '@/services';
-import type { Node } from '@xyflow/react';
+import type { Node } from '../../openapi-client/types.gen';
 
-type NodeTemplate = Omit<Node<NodeDataType>, 'id' | 'position'>;
-
-// Define input/output types for better reusability
-const IO = {
-  any: { type: 'any' },
-  string: { type: 'string' },
-  boolean: { type: 'boolean' },
-} as const;
-
-// Define common node outputs
-const outputs = {
-  single: (type = IO.any) => [{ id: 'out-1', name: 'output', ...type }],
-  flow: [
-    { id: 'out-1', name: 'true', ...IO.any },
-    { id: 'out-2', name: 'false', ...IO.any },
-  ] as Array<{ id: string; name: string; type: string }>,
-} as const;
-
-// Define common node inputs
-const inputs = {
-  single: (type = IO.any) => [{ id: 'in-1', name: 'input', ...type }],
-  none: [] as Array<{ id: string; name: string; type: string }>,
-} as const;
-
-// Default handlers for each node type
-const defaultHandlers: Record<string, NodeHandler> = {
-  action: async (input?: any) => {
-    console.log('Action handler called with input:', input);
-    return { status: true, output: `Action executed: ${input || 'no input'}` };
-  },
-  ai: async (input: any) => {
-    console.log('AI node processing:', input);
-    return { result: `AI processed: ${input}` };
-  },
-  flow: async (input: any) => {
-    console.log('Flow node evaluating:', input);
-    const condition = Math.random() > 0.5;
-    return { result: condition, output: input };
-  },
-};
-
-// Helper function to create action node template
-const createActionNode = (
-  label: string,
-  actionType: ActionTriggerType,
-  action: string,
-  extraParams: Record<string, any> = {}
-): NodeTemplate => ({
-  type: 'action',
+interface NodeTemplate {
+  type: Node['type'];
   data: {
-    id: '',
-    type: 'action',
-    label,
-    params: {
-      actionType,
-      action,
-      ...extraParams,
-    },
-    inputs: actionType === 'input' ? inputs.single() : inputs.none,
-    outputs: outputs.single(),
-    handler: defaultHandlers.action,
-  },
-});
+    name: string;
+    label: string;
+    description?: string;
+    config: {
+      template: true;
+      templateId: string;
+      [key: string]: unknown;
+    };
+  };
+}
 
 export const nodeTemplates: Record<string, NodeTemplate> = {
-  // Action nodes
-  manualTrigger: createActionNode('Manual Trigger', 'manual', 'trigger'),
-  cronTrigger: createActionNode('Scheduled Trigger', 'cron', 'trigger', {
-    schedule: '0 * * * *',
-  }),
-  action: createActionNode('Action', 'input', 'process'),
-
-  // AI node
-  ai: {
-    type: 'ai',
+  httpTrigger: {
+    type: 'trigger',
     data: {
-      id: '',
-      type: 'ai',
-      label: 'AI Processing',
-      params: {
-        prompt: 'Enter your prompt',
+      name: 'HTTP Trigger',
+      label: 'HTTP Webhook',
+      description: 'Triggers flow on HTTP request',
+      config: {
+        template: true,
+        templateId: 'httpTrigger',
+        type: 'webhook',
+        method: 'POST',
+        path: '/webhook',
+        headers: {},
       },
-      inputs: inputs.single(),
-      outputs: outputs.single(),
-      handler: defaultHandlers.ai,
     },
   },
-
-  // Flow control node
-  flow: {
-    type: 'flow',
+  scheduleTrigger: {
+    type: 'trigger',
     data: {
-      id: '',
-      type: 'flow',
-      label: 'Flow Control',
-      params: {
-        condition: 'Set condition',
+      name: 'Schedule Trigger',
+      label: 'Schedule',
+      description: 'Triggers flow on schedule',
+      config: {
+        template: true,
+        templateId: 'scheduleTrigger',
+        type: 'schedule',
+        cron: '0 0 * * *',
+        timezone: 'UTC',
       },
-      inputs: inputs.single(),
-      outputs: outputs.flow,
-      handler: defaultHandlers.flow,
+    },
+  },
+  httpRequest: {
+    type: 'action',
+    data: {
+      name: 'HTTP Request',
+      label: 'HTTP Request',
+      description: 'Make HTTP request to external service',
+      config: {
+        template: true,
+        templateId: 'httpRequest',
+        method: 'GET',
+        url: '',
+        headers: {},
+        body: {},
+      },
+    },
+  },
+  dataCondition: {
+    type: 'condition',
+    data: {
+      name: 'Data Condition',
+      label: 'Data Check',
+      description: 'Check data conditions',
+      config: {
+        template: true,
+        templateId: 'dataCondition',
+        operator: 'equals',
+        field: '',
+        value: '',
+      },
+    },
+  },
+  dataMapper: {
+    type: 'transformer',
+    data: {
+      name: 'Data Mapper',
+      label: 'Map Data',
+      description: 'Transform data structure',
+      config: {
+        template: true,
+        templateId: 'dataMapper',
+        mappings: {},
+      },
+    },
+  },
+  forEach: {
+    type: 'loop',
+    data: {
+      name: 'For Each',
+      label: 'For Each Loop',
+      description: 'Iterate over array items',
+      config: {
+        template: true,
+        templateId: 'forEach',
+        arrayPath: '',
+        maxIterations: 100,
+      },
     },
   },
 };
+
+export type NodeTemplateKey = keyof typeof nodeTemplates;

@@ -1,6 +1,6 @@
 import {
-  getApiProjectByProjectIdMatrix,
-  postApiProjectByProjectIdMatrix,
+  postApiMatrixProjectByProjectId,
+  getApiMatrixProjectByProjectId,
   getApiMatrixByMatrixId,
   patchApiMatrixByMatrixId,
   deleteApiMatrixByMatrixId,
@@ -9,21 +9,21 @@ import {
 import {
   DeleteApiMatrixByMatrixIdData,
   GetApiMatrixByMatrixIdData,
-  GetApiProjectByProjectIdMatrixData,
+  GetApiMatrixProjectByProjectIdData,
   Matrix,
   PatchApiMatrixByMatrixIdData,
   PostApiMatrixByMatrixIdCloneData,
-  PostApiProjectByProjectIdMatrixData,
+  PostApiMatrixProjectByProjectIdData,
 } from '../openapi-client/types.gen';
 import { ServiceResponse } from './types';
 
 export class MatrixService {
   static async getMatrices(
-    projectId: GetApiProjectByProjectIdMatrixData['path']['projectId'],
-    params?: GetApiProjectByProjectIdMatrixData['query']
+    projectId: GetApiMatrixProjectByProjectIdData['path']['projectId'],
+    params?: GetApiMatrixProjectByProjectIdData['query']
   ): Promise<ServiceResponse<Matrix[]>> {
     try {
-      const response = await getApiProjectByProjectIdMatrix({
+      const response = await getApiMatrixProjectByProjectId({
         path: { projectId },
         query: {
           limit: params?.limit,
@@ -46,11 +46,11 @@ export class MatrixService {
   }
 
   static async createMatrix(
-    projectId: PostApiProjectByProjectIdMatrixData['path']['projectId'],
-    params: PostApiProjectByProjectIdMatrixData['body']
+    projectId: PostApiMatrixProjectByProjectIdData['path']['projectId'],
+    params: PostApiMatrixProjectByProjectIdData['body']
   ): Promise<ServiceResponse<Matrix>> {
     try {
-      const response = await postApiProjectByProjectIdMatrix({
+      const response = await postApiMatrixProjectByProjectId({
         path: { projectId },
         body: {
           name: params.name,

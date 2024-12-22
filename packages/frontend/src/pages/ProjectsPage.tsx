@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
 import { ProjectService } from '@/services';
-import type { Project } from '@/services/types';
+import type { Project } from '../openapi-client';
 import { useNavigate } from 'react-router';
 import { CreateProjectDialog } from '@/components/CreateProjectDialog';
 
 export default function ProjectsPage() {
   const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   useEffect(() => {
     loadProjects();
@@ -15,8 +14,12 @@ export default function ProjectsPage() {
 
   const loadProjects = async () => {
     try {
-      const data = await ProjectService.getAll();
-      setProjects(data || []);
+      const response = await ProjectService.getProjects();
+      if (response.success && response.data) {
+        setProjects(response.data);
+      } else {
+        console.error('Failed to load projects:', response.error);
+      }
     } catch (error) {
       console.error('Failed to load projects:', error);
     }
@@ -24,9 +27,16 @@ export default function ProjectsPage() {
 
   const handleCreateProject = async (name: string, description?: string) => {
     try {
-      await ProjectService.create({ name, description });
-      await loadProjects();
-      setIsCreateDialogOpen(false);
+      const response = await ProjectService.createProject({
+        name,
+        description,
+      });
+
+      if (response.success) {
+        await loadProjects();
+      } else {
+        console.error('Failed to create project:', response.error);
+      }
     } catch (error) {
       console.error('Failed to create project:', error);
     }

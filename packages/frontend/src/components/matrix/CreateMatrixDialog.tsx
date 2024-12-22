@@ -9,14 +9,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { CreateMatrixDto } from '@/services';
+import type { PostApiMatrixProjectByProjectIdData } from '../../openapi-client/types.gen';
 
 interface CreateMatrixDialogProps {
-  onSubmit: (data: CreateMatrixDto) => Promise<void>;
-  projectId: string;
+  onSubmit: (data: { name: string; description?: string }) => Promise<void>;
 }
 
-export const CreateMatrixDialog = ({ onSubmit, projectId }: CreateMatrixDialogProps) => {
+export const CreateMatrixDialog = ({ onSubmit }: CreateMatrixDialogProps) => {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -27,7 +26,10 @@ export const CreateMatrixDialog = ({ onSubmit, projectId }: CreateMatrixDialogPr
     if (isSubmitting) return;
     setIsSubmitting(true);
     try {
-      await onSubmit({ name, description, projectId: projectId });
+      await onSubmit({
+        name,
+        description,
+      });
       setOpen(false);
       setName('');
       setDescription('');
@@ -67,14 +69,15 @@ export const CreateMatrixDialog = ({ onSubmit, projectId }: CreateMatrixDialogPr
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Enter matrix description"
-              required
             />
           </div>
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit">Create</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Creating...' : 'Create'}
+            </Button>
           </div>
         </form>
       </DialogContent>
