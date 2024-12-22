@@ -542,7 +542,7 @@ export type PostApiMatrixByMatrixIdCloneResponse = (Matrix);
 
 export type PostApiMatrixByMatrixIdCloneError = (unknown);
 
-export type GetApiMatrixByMatrixIdNodesData = {
+export type GetApiNodesMatrixByMatrixIdData = {
     path: {
         /**
          * Matrix ID
@@ -561,44 +561,11 @@ export type GetApiMatrixByMatrixIdNodesData = {
     };
 };
 
-export type GetApiMatrixByMatrixIdNodesResponse = (Array<(Node & {
+export type GetApiNodesMatrixByMatrixIdResponse = (Array<(Node & {
     trigger?: Trigger;
 })>);
 
-export type GetApiMatrixByMatrixIdNodesError = (unknown);
-
-export type PostApiMatrixByMatrixIdNodesData = {
-    body: {
-        type: 'trigger' | 'action' | 'condition' | 'subMatrix' | 'transformer' | 'loop';
-        name: string;
-        description?: string;
-        config?: {
-            [key: string]: unknown;
-        };
-        position: {
-            x: number;
-            y: number;
-        };
-        subMatrixId?: number;
-        trigger?: {
-            type?: 'webhook' | 'schedule' | 'event' | 'manual' | 'email' | 'database';
-            name?: string;
-            config?: {
-                [key: string]: unknown;
-            };
-        };
-    };
-    path: {
-        /**
-         * Matrix ID
-         */
-        matrixId: number;
-    };
-};
-
-export type PostApiMatrixByMatrixIdNodesResponse = (Node);
-
-export type PostApiMatrixByMatrixIdNodesError = (unknown);
+export type GetApiNodesMatrixByMatrixIdError = (unknown);
 
 export type GetApiNodesByNodeIdData = {
     path: {
@@ -659,6 +626,39 @@ export type DeleteApiNodesByNodeIdData = {
 export type DeleteApiNodesByNodeIdResponse = (void);
 
 export type DeleteApiNodesByNodeIdError = (unknown);
+
+export type PostApiNodesMatrixByMatrixIdNodesData = {
+    body: {
+        type: 'trigger' | 'action' | 'condition' | 'subMatrix' | 'transformer' | 'loop';
+        name: string;
+        description?: string;
+        config?: {
+            [key: string]: unknown;
+        };
+        position: {
+            x: number;
+            y: number;
+        };
+        subMatrixId?: number;
+        trigger?: {
+            type?: 'webhook' | 'schedule' | 'event' | 'manual' | 'email' | 'database';
+            name?: string;
+            config?: {
+                [key: string]: unknown;
+            };
+        };
+    };
+    path: {
+        /**
+         * Matrix ID
+         */
+        matrixId: number;
+    };
+};
+
+export type PostApiNodesMatrixByMatrixIdNodesResponse = (Node);
+
+export type PostApiNodesMatrixByMatrixIdNodesError = (unknown);
 
 export type GetApiProjectsData = {
     query?: {
@@ -938,7 +938,7 @@ export const PostApiMatrixByMatrixIdCloneResponseTransformer: PostApiMatrixByMat
     return data;
 };
 
-export type PostApiMatrixByMatrixIdNodesResponseTransformer = (data: any) => Promise<PostApiMatrixByMatrixIdNodesResponse>;
+export type PatchApiNodesByNodeIdResponseTransformer = (data: any) => Promise<PatchApiNodesByNodeIdResponse>;
 
 export type NodeModelResponseTransformer = (data: any) => Node;
 
@@ -952,14 +952,14 @@ export const NodeModelResponseTransformer: NodeModelResponseTransformer = data =
     return data;
 };
 
-export const PostApiMatrixByMatrixIdNodesResponseTransformer: PostApiMatrixByMatrixIdNodesResponseTransformer = async (data) => {
+export const PatchApiNodesByNodeIdResponseTransformer: PatchApiNodesByNodeIdResponseTransformer = async (data) => {
     NodeModelResponseTransformer(data);
     return data;
 };
 
-export type PatchApiNodesByNodeIdResponseTransformer = (data: any) => Promise<PatchApiNodesByNodeIdResponse>;
+export type PostApiNodesMatrixByMatrixIdNodesResponseTransformer = (data: any) => Promise<PostApiNodesMatrixByMatrixIdNodesResponse>;
 
-export const PatchApiNodesByNodeIdResponseTransformer: PatchApiNodesByNodeIdResponseTransformer = async (data) => {
+export const PostApiNodesMatrixByMatrixIdNodesResponseTransformer: PostApiNodesMatrixByMatrixIdNodesResponseTransformer = async (data) => {
     NodeModelResponseTransformer(data);
     return data;
 };

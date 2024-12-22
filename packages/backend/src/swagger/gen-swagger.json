@@ -1329,7 +1329,7 @@
         }
       }
     },
-    "/api/matrix/{matrixId}/nodes": {
+    "/api/nodes/matrix/{matrixId}": {
       "get": {
         "summary": "Get all nodes for a matrix",
         "tags": [
@@ -1399,123 +1399,6 @@
           },
           "400": {
             "description": "Invalid matrix ID"
-          },
-          "404": {
-            "description": "Matrix not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      },
-      "post": {
-        "summary": "Create a new node",
-        "tags": [
-          "Nodes"
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "matrixId",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "Matrix ID"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "type",
-                  "name",
-                  "position"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "trigger",
-                      "action",
-                      "condition",
-                      "subMatrix",
-                      "transformer",
-                      "loop"
-                    ]
-                  },
-                  "name": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 255
-                  },
-                  "description": {
-                    "type": "string"
-                  },
-                  "config": {
-                    "type": "object"
-                  },
-                  "position": {
-                    "type": "object",
-                    "required": [
-                      "x",
-                      "y"
-                    ],
-                    "properties": {
-                      "x": {
-                        "type": "number"
-                      },
-                      "y": {
-                        "type": "number"
-                      }
-                    }
-                  },
-                  "subMatrixId": {
-                    "type": "integer"
-                  },
-                  "trigger": {
-                    "type": "object",
-                    "properties": {
-                      "type": {
-                        "type": "string",
-                        "enum": [
-                          "webhook",
-                          "schedule",
-                          "event",
-                          "manual",
-                          "email",
-                          "database"
-                        ]
-                      },
-                      "name": {
-                        "type": "string"
-                      },
-                      "config": {
-                        "type": "object"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Node created successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Node"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request body"
           },
           "404": {
             "description": "Matrix not found"
@@ -1704,6 +1587,125 @@
           },
           "404": {
             "description": "Node not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/nodes/matrix/{matrixId}/nodes": {
+      "post": {
+        "summary": "Create a new node",
+        "tags": [
+          "Nodes"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "matrixId",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Matrix ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "type",
+                  "name",
+                  "position"
+                ],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "trigger",
+                      "action",
+                      "condition",
+                      "subMatrix",
+                      "transformer",
+                      "loop"
+                    ]
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 255
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "config": {
+                    "type": "object"
+                  },
+                  "position": {
+                    "type": "object",
+                    "required": [
+                      "x",
+                      "y"
+                    ],
+                    "properties": {
+                      "x": {
+                        "type": "number"
+                      },
+                      "y": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "subMatrixId": {
+                    "type": "integer"
+                  },
+                  "trigger": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "webhook",
+                          "schedule",
+                          "event",
+                          "manual",
+                          "email",
+                          "database"
+                        ]
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "config": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Node created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Node"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body"
+          },
+          "404": {
+            "description": "Matrix not found"
           },
           "500": {
             "description": "Internal server error"

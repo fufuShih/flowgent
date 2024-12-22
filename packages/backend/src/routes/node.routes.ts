@@ -112,7 +112,7 @@ type NodeWithTrigger = InferModel<typeof nodes, 'select'> & {
 
 /**
  * @swagger
- * /api/matrix/{matrixId}/nodes:
+ * /api/nodes/matrix/{matrixId}:
  *   get:
  *     summary: Get all nodes for a matrix
  *     tags: [Nodes]
@@ -281,7 +281,7 @@ router.get('/:nodeId', async (req, res) => {
 
 /**
  * @swagger
- * /api/matrix/{matrixId}/nodes:
+ * /api/nodes/matrix/{matrixId}/nodes:
  *   post:
  *     summary: Create a new node
  *     tags: [Nodes]

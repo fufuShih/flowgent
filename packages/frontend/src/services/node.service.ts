@@ -1,27 +1,27 @@
 import {
   deleteApiNodesByNodeId,
-  getApiMatrixByMatrixIdNodes,
+  getApiNodesMatrixByMatrixId,
   getApiNodesByNodeId,
   patchApiNodesByNodeId,
-  postApiMatrixByMatrixIdNodes,
+  postApiNodesMatrixByMatrixIdNodes,
 } from '../openapi-client/sdk.gen';
 import {
   DeleteApiNodesByNodeIdData,
-  GetApiMatrixByMatrixIdNodesData,
+  GetApiNodesMatrixByMatrixIdData,
   GetApiNodesByNodeIdData,
   Node,
   PatchApiNodesByNodeIdData,
-  PostApiMatrixByMatrixIdNodesData,
+  PostApiNodesMatrixByMatrixIdNodesData,
 } from '../openapi-client/types.gen';
 import { ServiceResponse } from './types';
 
 export class NodeService {
   static async getNodes(
-    matrixId: GetApiMatrixByMatrixIdNodesData['path']['matrixId'],
-    options?: GetApiMatrixByMatrixIdNodesData['query']
+    matrixId: GetApiNodesMatrixByMatrixIdData['path']['matrixId'],
+    options?: GetApiNodesMatrixByMatrixIdData['query']
   ): Promise<ServiceResponse<Node[]>> {
     try {
-      const response = await getApiMatrixByMatrixIdNodes({
+      const response = await getApiNodesMatrixByMatrixId({
         path: { matrixId },
         query: {
           type: options?.type,
@@ -42,11 +42,11 @@ export class NodeService {
   }
 
   static async createNode(
-    matrixId: PostApiMatrixByMatrixIdNodesData['path']['matrixId'],
-    params: PostApiMatrixByMatrixIdNodesData['body']
+    matrixId: PostApiNodesMatrixByMatrixIdNodesData['path']['matrixId'],
+    params: PostApiNodesMatrixByMatrixIdNodesData['body']
   ): Promise<ServiceResponse<Node>> {
     try {
-      const response = await postApiMatrixByMatrixIdNodes({
+      const response = await postApiNodesMatrixByMatrixIdNodes({
         path: { matrixId },
         body: params,
       });
