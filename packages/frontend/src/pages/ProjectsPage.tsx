@@ -45,7 +45,7 @@ export default function ProjectsPage() {
             <div
               key={project.id}
               className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50"
-              onClick={() => navigate(`/projects/${project.id}`)}
+              onClick={() => navigate(`/projects/${project.id}/matrices`)}
             >
               <h2 className="text-xl font-semibold">{project.name}</h2>
               {project.description && <p className="text-gray-600 mt-2">{project.description}</p>}
