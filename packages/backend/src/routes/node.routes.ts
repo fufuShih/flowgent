@@ -56,7 +56,106 @@ type NodeWithTrigger = InferModel<typeof nodes, 'select'> & {
   trigger?: InferModel<typeof triggers, 'select'>;
 };
 
-// GET /matrix/:matrixId/nodes
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Node:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: The node ID
+ *         matrixId:
+ *           type: integer
+ *           description: The matrix ID this node belongs to
+ *         type:
+ *           type: string
+ *           enum: [trigger, action, condition, subMatrix, transformer, loop]
+ *           description: Node type
+ *         name:
+ *           type: string
+ *           description: Node name
+ *         description:
+ *           type: string
+ *           nullable: true
+ *           description: Node description
+ *         config:
+ *           type: object
+ *           description: Node configuration
+ *         position:
+ *           type: object
+ *           properties:
+ *             x:
+ *               type: number
+ *             y:
+ *               type: number
+ *         subMatrixId:
+ *           type: integer
+ *           nullable: true
+ *           description: ID of the sub-matrix (if type is subMatrix)
+ *         created:
+ *           type: string
+ *           format: date-time
+ *         updated:
+ *           type: string
+ *           format: date-time
+ *       required:
+ *         - id
+ *         - matrixId
+ *         - type
+ *         - name
+ *         - position
+ *         - created
+ *         - updated
+ */
+
+/**
+ * @swagger
+ * /api/matrix/{matrixId}/nodes:
+ *   get:
+ *     summary: Get all nodes for a matrix
+ *     tags: [Nodes]
+ *     parameters:
+ *       - in: path
+ *         name: matrixId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Matrix ID
+ *       - in: query
+ *         name: type
+ *         schema:
+ *           type: string
+ *           enum: [trigger, action, condition, subMatrix, transformer, loop]
+ *         description: Filter nodes by type
+ *       - in: query
+ *         name: includeTrigger
+ *         schema:
+ *           type: boolean
+ *           default: false
+ *         description: Include trigger details for trigger nodes
+ *     responses:
+ *       200:
+ *         description: List of nodes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 allOf:
+ *                   - $ref: '#/components/schemas/Node'
+ *                   - type: object
+ *                     properties:
+ *                       trigger:
+ *                         $ref: '#/components/schemas/Trigger'
+ *       400:
+ *         description: Invalid matrix ID
+ *       404:
+ *         description: Matrix not found
+ *       500:
+ *         description: Internal server error
+ */
 router.get('/matrix/:matrixId', async (req, res) => {
   try {
     const matrixId = parseInt(req.params.matrixId);
@@ -114,7 +213,38 @@ router.get('/matrix/:matrixId', async (req, res) => {
   }
 });
 
-// GET /nodes/:nodeId
+/**
+ * @swagger
+ * /api/nodes/{nodeId}:
+ *   get:
+ *     summary: Get a node by ID
+ *     tags: [Nodes]
+ *     parameters:
+ *       - in: path
+ *         name: nodeId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Node ID
+ *     responses:
+ *       200:
+ *         description: Node found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/Node'
+ *                 - type: object
+ *                   properties:
+ *                     trigger:
+ *                       $ref: '#/components/schemas/Trigger'
+ *       400:
+ *         description: Invalid node ID
+ *       404:
+ *         description: Node not found
+ *       500:
+ *         description: Internal server error
+ */
 router.get('/:nodeId', async (req, res) => {
   try {
     const nodeId = parseInt(req.params.nodeId);
@@ -149,7 +279,77 @@ router.get('/:nodeId', async (req, res) => {
   }
 });
 
-// POST /matrix/:matrixId/nodes
+/**
+ * @swagger
+ * /api/matrix/{matrixId}/nodes:
+ *   post:
+ *     summary: Create a new node
+ *     tags: [Nodes]
+ *     parameters:
+ *       - in: path
+ *         name: matrixId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Matrix ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - type
+ *               - name
+ *               - position
+ *             properties:
+ *               type:
+ *                 type: string
+ *                 enum: [trigger, action, condition, subMatrix, transformer, loop]
+ *               name:
+ *                 type: string
+ *                 minLength: 1
+ *                 maxLength: 255
+ *               description:
+ *                 type: string
+ *               config:
+ *                 type: object
+ *               position:
+ *                 type: object
+ *                 required:
+ *                   - x
+ *                   - y
+ *                 properties:
+ *                   x:
+ *                     type: number
+ *                   y:
+ *                     type: number
+ *               subMatrixId:
+ *                 type: integer
+ *               trigger:
+ *                 type: object
+ *                 properties:
+ *                   type:
+ *                     type: string
+ *                     enum: [webhook, schedule, event, manual, email, database]
+ *                   name:
+ *                     type: string
+ *                   config:
+ *                     type: object
+ *     responses:
+ *       201:
+ *         description: Node created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Node'
+ *       400:
+ *         description: Invalid request body
+ *       404:
+ *         description: Matrix not found
+ *       500:
+ *         description: Internal server error
+ */
 router.post('/matrix/:matrixId', async (req, res) => {
   try {
     const matrixId = parseInt(req.params.matrixId);
@@ -223,7 +423,68 @@ router.post('/matrix/:matrixId', async (req, res) => {
   }
 });
 
-// PATCH /nodes/:nodeId
+/**
+ * @swagger
+ * /api/nodes/{nodeId}:
+ *   patch:
+ *     summary: Update a node
+ *     tags: [Nodes]
+ *     parameters:
+ *       - in: path
+ *         name: nodeId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Node ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 minLength: 1
+ *                 maxLength: 255
+ *               description:
+ *                 type: string
+ *               config:
+ *                 type: object
+ *               position:
+ *                 type: object
+ *                 properties:
+ *                   x:
+ *                     type: number
+ *                   y:
+ *                     type: number
+ *               trigger:
+ *                 type: object
+ *                 properties:
+ *                   type:
+ *                     type: string
+ *                     enum: [webhook, schedule, event, manual, email, database]
+ *                   name:
+ *                     type: string
+ *                   config:
+ *                     type: object
+ *                   status:
+ *                     type: string
+ *                     enum: [active, inactive, error]
+ *     responses:
+ *       200:
+ *         description: Node updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Node'
+ *       400:
+ *         description: Invalid request parameters
+ *       404:
+ *         description: Node not found
+ *       500:
+ *         description: Internal server error
+ */
 router.patch('/:nodeId', async (req, res) => {
   try {
     const nodeId = parseInt(req.params.nodeId);
@@ -279,7 +540,29 @@ router.patch('/:nodeId', async (req, res) => {
   }
 });
 
-// DELETE /nodes/:nodeId
+/**
+ * @swagger
+ * /api/nodes/{nodeId}:
+ *   delete:
+ *     summary: Delete a node
+ *     tags: [Nodes]
+ *     parameters:
+ *       - in: path
+ *         name: nodeId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Node ID
+ *     responses:
+ *       204:
+ *         description: Node deleted successfully
+ *       400:
+ *         description: Invalid node ID
+ *       404:
+ *         description: Node not found
+ *       500:
+ *         description: Internal server error
+ */
 router.delete('/:nodeId', async (req, res) => {
   try {
     const nodeId = parseInt(req.params.nodeId);

@@ -43,7 +43,91 @@ const queryParamsSchema = z.object({
   includeConditions: z.coerce.boolean().default(false),
 });
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Connection:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: The connection ID
+ *         matrixId:
+ *           type: integer
+ *           description: The matrix ID this connection belongs to
+ *         sourceId:
+ *           type: integer
+ *           description: Source node ID
+ *         targetId:
+ *           type: integer
+ *           description: Target node ID
+ *         type:
+ *           type: string
+ *           enum: [default, success, error, condition]
+ *           description: Connection type
+ *         config:
+ *           type: object
+ *           description: Connection configuration
+ *         created:
+ *           type: string
+ *           format: date-time
+ *         updated:
+ *           type: string
+ *           format: date-time
+ *       required:
+ *         - id
+ *         - matrixId
+ *         - sourceId
+ *         - targetId
+ *         - type
+ *         - created
+ *         - updated
+ */
+
 // GET /matrix/:matrixId/connections
+/**
+ * @swagger
+ * /api/matrix/{matrixId}/connections:
+ *   get:
+ *     summary: Get all connections for a matrix
+ *     tags: [Connections]
+ *     parameters:
+ *       - in: path
+ *         name: matrixId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Matrix ID
+ *       - in: query
+ *         name: includeConditions
+ *         schema:
+ *           type: boolean
+ *           default: false
+ *         description: Include conditions in response
+ *     responses:
+ *       200:
+ *         description: List of connections
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 allOf:
+ *                   - $ref: '#/components/schemas/Connection'
+ *                   - type: object
+ *                     properties:
+ *                       conditions:
+ *                         type: array
+ *                         items:
+ *                           $ref: '#/components/schemas/ConnectionCondition'
+ *       400:
+ *         description: Invalid matrix ID
+ *       404:
+ *         description: Matrix not found
+ *       500:
+ *         description: Internal server error
+ */
 router.get('/matrix/:matrixId', async (req, res) => {
   try {
     const matrixId = parseInt(req.params.matrixId);
@@ -84,6 +168,33 @@ router.get('/matrix/:matrixId', async (req, res) => {
 });
 
 // GET /connections/:connectionId
+/**
+ * @swagger
+ * /api/connections/{connectionId}:
+ *   get:
+ *     summary: Get a connection by ID
+ *     tags: [Connections]
+ *     parameters:
+ *       - in: path
+ *         name: connectionId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Connection ID
+ *     responses:
+ *       200:
+ *         description: Connection found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Connection'
+ *       400:
+ *         description: Invalid connection ID
+ *       404:
+ *         description: Connection not found
+ *       500:
+ *         description: Internal server error
+ */
 router.get('/:connectionId', async (req, res) => {
   try {
     const connectionId = parseInt(req.params.connectionId);
@@ -118,6 +229,60 @@ router.get('/:connectionId', async (req, res) => {
 });
 
 // POST /matrix/:matrixId/connections
+/**
+ * @swagger
+ * /api/matrix/{matrixId}/connections:
+ *   post:
+ *     summary: Create a new connection
+ *     tags: [Connections]
+ *     parameters:
+ *       - in: path
+ *         name: matrixId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Matrix ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - sourceId
+ *               - targetId
+ *             properties:
+ *               sourceId:
+ *                 type: integer
+ *               targetId:
+ *                 type: integer
+ *               type:
+ *                 type: string
+ *                 enum: [default, success, error, condition]
+ *                 default: default
+ *               config:
+ *                 type: object
+ *               conditions:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     condition:
+ *                       type: object
+ *     responses:
+ *       201:
+ *         description: Connection created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Connection'
+ *       400:
+ *         description: Invalid request body
+ *       404:
+ *         description: Matrix not found
+ *       500:
+ *         description: Internal server error
+ */
 router.post('/matrix/:matrixId', async (req, res) => {
   try {
     const matrixId = parseInt(req.params.matrixId);
@@ -192,6 +357,52 @@ router.post('/matrix/:matrixId', async (req, res) => {
 });
 
 // PATCH /connections/:connectionId
+/**
+ * @swagger
+ * /api/connections/{connectionId}:
+ *   patch:
+ *     summary: Update a connection
+ *     tags: [Connections]
+ *     parameters:
+ *       - in: path
+ *         name: connectionId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Connection ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               type:
+ *                 type: string
+ *                 enum: [default, success, error, condition]
+ *               config:
+ *                 type: object
+ *               conditions:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     condition:
+ *                       type: object
+ *     responses:
+ *       200:
+ *         description: Connection updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Connection'
+ *       400:
+ *         description: Invalid request parameters
+ *       404:
+ *         description: Connection not found
+ *       500:
+ *         description: Internal server error
+ */
 router.patch('/:connectionId', async (req, res) => {
   try {
     const connectionId = parseInt(req.params.connectionId);
@@ -259,6 +470,29 @@ router.patch('/:connectionId', async (req, res) => {
 });
 
 // DELETE /connections/:connectionId
+/**
+ * @swagger
+ * /api/connections/{connectionId}:
+ *   delete:
+ *     summary: Delete a connection
+ *     tags: [Connections]
+ *     parameters:
+ *       - in: path
+ *         name: connectionId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Connection ID
+ *     responses:
+ *       204:
+ *         description: Connection deleted successfully
+ *       400:
+ *         description: Invalid connection ID
+ *       404:
+ *         description: Connection not found
+ *       500:
+ *         description: Internal server error
+ */
 router.delete('/:connectionId', async (req, res) => {
   try {
     const connectionId = parseInt(req.params.connectionId);

@@ -32,7 +32,126 @@ const queryParamsSchema = z.object({
   includeConnections: z.coerce.boolean().default(false),
 });
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Matrix:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: The matrix ID
+ *         projectId:
+ *           type: integer
+ *           description: The project ID this matrix belongs to
+ *         name:
+ *           type: string
+ *           description: Matrix name
+ *         description:
+ *           type: string
+ *           nullable: true
+ *           description: Matrix description
+ *         status:
+ *           type: string
+ *           enum: [active, inactive, draft, error]
+ *           description: Matrix status
+ *         config:
+ *           type: object
+ *           description: Matrix configuration
+ *         version:
+ *           type: integer
+ *           description: Matrix version number
+ *         parentMatrixId:
+ *           type: integer
+ *           nullable: true
+ *           description: ID of the parent matrix (if this is a sub-matrix)
+ *         created:
+ *           type: string
+ *           format: date-time
+ *         updated:
+ *           type: string
+ *           format: date-time
+ *       required:
+ *         - id
+ *         - projectId
+ *         - name
+ *         - status
+ *         - version
+ *         - created
+ *         - updated
+ */
+
 // GET /projects/:projectId/matrix
+/**
+ * @swagger
+ * /api/project/{projectId}/matrix:
+ *   get:
+ *     summary: Get all matrices for a project
+ *     tags: [Matrix]
+ *     parameters:
+ *       - in: path
+ *         name: projectId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Project ID
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Items per page
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [active, inactive, draft, error]
+ *         description: Filter by status
+ *       - in: query
+ *         name: version
+ *         schema:
+ *           type: integer
+ *         description: Filter by version
+ *     responses:
+ *       200:
+ *         description: List of matrices
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Matrix'
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     total:
+ *                       type: integer
+ *                     page:
+ *                       type: integer
+ *                     limit:
+ *                       type: integer
+ *                     totalPages:
+ *                       type: integer
+ *       400:
+ *         description: Invalid request parameters
+ *       404:
+ *         description: Project not found
+ *       500:
+ *         description: Internal server error
+ */
 router.get('/project/:projectId', async (req, res) => {
   try {
     const projectId = parseInt(req.params.projectId);
@@ -90,6 +209,56 @@ router.get('/project/:projectId', async (req, res) => {
 });
 
 // GET /matrix/:matrixId
+/**
+ * @swagger
+ * /api/matrix/{matrixId}:
+ *   get:
+ *     summary: Get a matrix by ID
+ *     tags: [Matrix]
+ *     parameters:
+ *       - in: path
+ *         name: matrixId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Matrix ID
+ *       - in: query
+ *         name: includeNodes
+ *         schema:
+ *           type: boolean
+ *           default: false
+ *         description: Include nodes in response
+ *       - in: query
+ *         name: includeConnections
+ *         schema:
+ *           type: boolean
+ *           default: false
+ *         description: Include connections in response
+ *     responses:
+ *       200:
+ *         description: Matrix found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/Matrix'
+ *                 - type: object
+ *                   properties:
+ *                     nodes:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Node'
+ *                     connections:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Connection'
+ *       400:
+ *         description: Invalid matrix ID
+ *       404:
+ *         description: Matrix not found
+ *       500:
+ *         description: Internal server error
+ */
 router.get('/:matrixId', async (req, res) => {
   try {
     const matrixId = parseInt(req.params.matrixId);
@@ -128,6 +297,56 @@ router.get('/:matrixId', async (req, res) => {
 });
 
 // POST /projects/:projectId/matrix
+/**
+ * @swagger
+ * /api/project/{projectId}/matrix:
+ *   post:
+ *     summary: Create a new matrix
+ *     tags: [Matrix]
+ *     parameters:
+ *       - in: path
+ *         name: projectId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Project ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 minLength: 1
+ *                 maxLength: 255
+ *               description:
+ *                 type: string
+ *               status:
+ *                 type: string
+ *                 enum: [active, inactive, draft, error]
+ *                 default: draft
+ *               config:
+ *                 type: object
+ *               parentMatrixId:
+ *                 type: integer
+ *     responses:
+ *       201:
+ *         description: Matrix created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Matrix'
+ *       400:
+ *         description: Invalid request body
+ *       404:
+ *         description: Project or parent matrix not found
+ *       500:
+ *         description: Internal server error
+ */
 router.post('/project/:projectId', async (req, res) => {
   try {
     const projectId = parseInt(req.params.projectId);
@@ -177,6 +396,53 @@ router.post('/project/:projectId', async (req, res) => {
 });
 
 // PATCH /matrix/:matrixId
+/**
+ * @swagger
+ * /api/matrix/{matrixId}:
+ *   patch:
+ *     summary: Update a matrix
+ *     tags: [Matrix]
+ *     parameters:
+ *       - in: path
+ *         name: matrixId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Matrix ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 minLength: 1
+ *                 maxLength: 255
+ *               description:
+ *                 type: string
+ *               status:
+ *                 type: string
+ *                 enum: [active, inactive, draft, error]
+ *               config:
+ *                 type: object
+ *               version:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Matrix updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Matrix'
+ *       400:
+ *         description: Invalid request parameters
+ *       404:
+ *         description: Matrix not found
+ *       500:
+ *         description: Internal server error
+ */
 router.patch('/:matrixId', async (req, res) => {
   try {
     const matrixId = parseInt(req.params.matrixId);
@@ -213,6 +479,29 @@ router.patch('/:matrixId', async (req, res) => {
 });
 
 // DELETE /matrix/:matrixId
+/**
+ * @swagger
+ * /api/matrix/{matrixId}:
+ *   delete:
+ *     summary: Delete a matrix
+ *     tags: [Matrix]
+ *     parameters:
+ *       - in: path
+ *         name: matrixId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Matrix ID
+ *     responses:
+ *       204:
+ *         description: Matrix deleted successfully
+ *       400:
+ *         description: Invalid matrix ID or matrix has child matrices
+ *       404:
+ *         description: Matrix not found
+ *       500:
+ *         description: Internal server error
+ */
 router.delete('/:matrixId', async (req, res) => {
   try {
     const matrixId = parseInt(req.params.matrixId);
@@ -248,6 +537,33 @@ router.delete('/:matrixId', async (req, res) => {
 });
 
 // POST /matrix/:matrixId/clone
+/**
+ * @swagger
+ * /api/matrix/{matrixId}/clone:
+ *   post:
+ *     summary: Clone a matrix
+ *     tags: [Matrix]
+ *     parameters:
+ *       - in: path
+ *         name: matrixId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Matrix ID to clone
+ *     responses:
+ *       201:
+ *         description: Matrix cloned successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Matrix'
+ *       400:
+ *         description: Invalid matrix ID
+ *       404:
+ *         description: Matrix not found
+ *       500:
+ *         description: Internal server error
+ */
 router.post('/:matrixId/clone', async (req, res) => {
   try {
     const matrixId = parseInt(req.params.matrixId);

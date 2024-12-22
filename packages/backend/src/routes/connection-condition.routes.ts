@@ -7,6 +7,36 @@ import type { InferModel } from 'drizzle-orm';
 
 const router = Router();
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     ConnectionCondition:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: The condition ID
+ *         connectionId:
+ *           type: integer
+ *           description: The associated connection ID
+ *         condition:
+ *           type: object
+ *           description: The condition configuration object
+ *         created:
+ *           type: string
+ *           format: date-time
+ *         updated:
+ *           type: string
+ *           format: date-time
+ *       required:
+ *         - id
+ *         - connectionId
+ *         - condition
+ *         - created
+ *         - updated
+ */
+
 // Types
 type ConditionWithConnection = InferModel<typeof connectionConditions, 'select'> & {
   connection?: InferModel<typeof connections, 'select'>;
@@ -43,7 +73,35 @@ const queryParamsSchema = z.object({
   includeConnection: z.coerce.boolean().default(false),
 });
 
-// GET /connections/:connectionId/conditions
+/**
+ * @swagger
+ * /api/connections/{connectionId}/conditions:
+ *   get:
+ *     summary: Get all conditions for a connection
+ *     tags: [Connection Conditions]
+ *     parameters:
+ *       - in: path
+ *         name: connectionId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Connection ID
+ *     responses:
+ *       200:
+ *         description: List of conditions
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/ConnectionCondition'
+ *       400:
+ *         description: Invalid connection ID
+ *       404:
+ *         description: Connection not found
+ *       500:
+ *         description: Internal server error
+ */
 router.get('/connections/:connectionId/conditions', async (req, res) => {
   try {
     const connectionId = parseInt(req.params.connectionId);
@@ -79,7 +137,44 @@ router.get('/connections/:connectionId/conditions', async (req, res) => {
   }
 });
 
-// GET /connection-conditions/:id
+/**
+ * @swagger
+ * /api/connection-conditions/{id}:
+ *   get:
+ *     summary: Get a condition by ID
+ *     tags: [Connection Conditions]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Condition ID
+ *       - in: query
+ *         name: includeConnection
+ *         schema:
+ *           type: boolean
+ *           default: false
+ *         description: Include connection details in response
+ *     responses:
+ *       200:
+ *         description: Condition found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ConnectionCondition'
+ *                 - type: object
+ *                   properties:
+ *                     connection:
+ *                       $ref: '#/components/schemas/Connection'
+ *       400:
+ *         description: Invalid condition ID
+ *       404:
+ *         description: Condition not found
+ *       500:
+ *         description: Internal server error
+ */
 router.get('/:id', async (req, res) => {
   try {
     const conditionId = parseInt(req.params.id);
@@ -119,7 +214,45 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST /connections/:connectionId/conditions
+/**
+ * @swagger
+ * /api/connections/{connectionId}/conditions:
+ *   post:
+ *     summary: Create a new condition
+ *     tags: [Connection Conditions]
+ *     parameters:
+ *       - in: path
+ *         name: connectionId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Connection ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - condition
+ *             properties:
+ *               condition:
+ *                 type: object
+ *                 description: Condition configuration object
+ *     responses:
+ *       201:
+ *         description: Condition created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ConnectionCondition'
+ *       400:
+ *         description: Invalid request body or connection ID
+ *       404:
+ *         description: Connection not found
+ *       500:
+ *         description: Internal server error
+ */
 router.post('/connections/:connectionId/conditions', async (req, res) => {
   try {
     const connectionId = parseInt(req.params.connectionId);
@@ -163,7 +296,43 @@ router.post('/connections/:connectionId/conditions', async (req, res) => {
   }
 });
 
-// PATCH /connection-conditions/:id
+/**
+ * @swagger
+ * /api/connection-conditions/{id}:
+ *   patch:
+ *     summary: Update a condition
+ *     tags: [Connection Conditions]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Condition ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               condition:
+ *                 type: object
+ *                 description: Updated condition configuration
+ *     responses:
+ *       200:
+ *         description: Condition updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ConnectionCondition'
+ *       400:
+ *         description: Invalid request body or condition ID
+ *       404:
+ *         description: Condition not found
+ *       500:
+ *         description: Internal server error
+ */
 router.patch('/:id', async (req, res) => {
   try {
     const conditionId = parseInt(req.params.id);
@@ -204,7 +373,29 @@ router.patch('/:id', async (req, res) => {
   }
 });
 
-// DELETE /connection-conditions/:id
+/**
+ * @swagger
+ * /api/connection-conditions/{id}:
+ *   delete:
+ *     summary: Delete a condition
+ *     tags: [Connection Conditions]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Condition ID
+ *     responses:
+ *       204:
+ *         description: Condition deleted successfully
+ *       400:
+ *         description: Invalid condition ID
+ *       404:
+ *         description: Condition not found
+ *       500:
+ *         description: Internal server error
+ */
 router.delete('/:id', async (req, res) => {
   try {
     const conditionId = parseInt(req.params.id);

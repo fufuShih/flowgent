@@ -29,7 +29,86 @@ const updateTriggerSchema = z.object({
   nextTrigger: z.date().optional(),
 });
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Trigger:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: The trigger ID
+ *         nodeId:
+ *           type: integer
+ *           description: The associated node ID
+ *         type:
+ *           type: string
+ *           enum: [webhook, schedule, event, manual, email, database]
+ *           description: Trigger type
+ *         name:
+ *           type: string
+ *           description: Trigger name
+ *         config:
+ *           type: object
+ *           description: Trigger configuration
+ *         status:
+ *           type: string
+ *           enum: [active, inactive, error]
+ *           description: Trigger status
+ *         lastTriggered:
+ *           type: string
+ *           format: date-time
+ *           nullable: true
+ *         nextTrigger:
+ *           type: string
+ *           format: date-time
+ *           nullable: true
+ *         created:
+ *           type: string
+ *           format: date-time
+ *         updated:
+ *           type: string
+ *           format: date-time
+ *       required:
+ *         - id
+ *         - nodeId
+ *         - type
+ *         - name
+ *         - status
+ *         - created
+ *         - updated
+ */
+
 // GET /nodes/:nodeId/trigger
+
+/**
+ * @swagger
+ * /api/nodes/{nodeId}/trigger:
+ *   get:
+ *     summary: Get trigger for a node
+ *     tags: [Triggers]
+ *     parameters:
+ *       - in: path
+ *         name: nodeId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Node ID
+ *     responses:
+ *       200:
+ *         description: Trigger found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Trigger'
+ *       400:
+ *         description: Invalid node ID or node is not a trigger
+ *       404:
+ *         description: Node or trigger not found
+ *       500:
+ *         description: Internal server error
+ */
 router.get('/nodes/:nodeId/trigger', async (req, res) => {
   try {
     const nodeId = parseInt(req.params.nodeId);
@@ -63,6 +142,38 @@ router.get('/nodes/:nodeId/trigger', async (req, res) => {
 });
 
 // GET /triggers/:triggerId
+/**
+ * @swagger
+ * /api/triggers/{triggerId}:
+ *   get:
+ *     summary: Get a trigger by ID
+ *     tags: [Triggers]
+ *     parameters:
+ *       - in: path
+ *         name: triggerId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Trigger ID
+ *     responses:
+ *       200:
+ *         description: Trigger found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/Trigger'
+ *                 - type: object
+ *                   properties:
+ *                     node:
+ *                       $ref: '#/components/schemas/Node'
+ *       400:
+ *         description: Invalid trigger ID
+ *       404:
+ *         description: Trigger not found
+ *       500:
+ *         description: Internal server error
+ */
 router.get('/:triggerId', async (req, res) => {
   try {
     const triggerId = parseInt(req.params.triggerId);
@@ -92,6 +203,58 @@ router.get('/:triggerId', async (req, res) => {
 });
 
 // POST /nodes/:nodeId/trigger
+/**
+ * @swagger
+ * /api/nodes/{nodeId}/trigger:
+ *   post:
+ *     summary: Create a new trigger
+ *     tags: [Triggers]
+ *     parameters:
+ *       - in: path
+ *         name: nodeId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Node ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - type
+ *               - name
+ *             properties:
+ *               type:
+ *                 type: string
+ *                 enum: [webhook, schedule, event, manual, email, database]
+ *               name:
+ *                 type: string
+ *                 minLength: 1
+ *                 maxLength: 255
+ *               config:
+ *                 type: object
+ *               status:
+ *                 type: string
+ *                 enum: [active, inactive, error]
+ *                 default: inactive
+ *     responses:
+ *       201:
+ *         description: Trigger created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Trigger'
+ *       400:
+ *         description: Invalid request body or node is not a trigger
+ *       404:
+ *         description: Node not found
+ *       409:
+ *         description: Trigger already exists for this node
+ *       500:
+ *         description: Internal server error
+ */
 router.post('/nodes/:nodeId/trigger', async (req, res) => {
   try {
     const nodeId = parseInt(req.params.nodeId);
@@ -150,6 +313,58 @@ router.post('/nodes/:nodeId/trigger', async (req, res) => {
 });
 
 // PATCH /triggers/:triggerId
+/**
+ * @swagger
+ * /api/triggers/{triggerId}:
+ *   patch:
+ *     summary: Update a trigger
+ *     tags: [Triggers]
+ *     parameters:
+ *       - in: path
+ *         name: triggerId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Trigger ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               type:
+ *                 type: string
+ *                 enum: [webhook, schedule, event, manual, email, database]
+ *               name:
+ *                 type: string
+ *                 minLength: 1
+ *                 maxLength: 255
+ *               config:
+ *                 type: object
+ *               status:
+ *                 type: string
+ *                 enum: [active, inactive, error]
+ *               lastTriggered:
+ *                 type: string
+ *                 format: date-time
+ *               nextTrigger:
+ *                 type: string
+ *                 format: date-time
+ *     responses:
+ *       200:
+ *         description: Trigger updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Trigger'
+ *       400:
+ *         description: Invalid request parameters
+ *       404:
+ *         description: Trigger not found
+ *       500:
+ *         description: Internal server error
+ */
 router.patch('/:triggerId', async (req, res) => {
   try {
     const triggerId = parseInt(req.params.triggerId);
@@ -195,6 +410,29 @@ router.patch('/:triggerId', async (req, res) => {
 });
 
 // DELETE /triggers/:triggerId
+/**
+ * @swagger
+ * /api/triggers/{triggerId}:
+ *   delete:
+ *     summary: Delete a trigger
+ *     tags: [Triggers]
+ *     parameters:
+ *       - in: path
+ *         name: triggerId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Trigger ID
+ *     responses:
+ *       204:
+ *         description: Trigger deleted successfully
+ *       400:
+ *         description: Invalid trigger ID
+ *       404:
+ *         description: Trigger not found
+ *       500:
+ *         description: Internal server error
+ */
 router.delete('/:triggerId', async (req, res) => {
   try {
     const triggerId = parseInt(req.params.triggerId);

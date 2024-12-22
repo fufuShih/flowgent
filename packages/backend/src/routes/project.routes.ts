@@ -23,7 +23,59 @@ const queryParamsSchema = z.object({
   search: z.string().optional(),
 });
 
-// GET /projects
+/**
+ * @swagger
+ * /api/projects:
+ *   get:
+ *     summary: Get a paginated list of projects
+ *     tags: [Projects]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Number of items per page
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search term for project name
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved projects
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Project'
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     total:
+ *                       type: integer
+ *                     page:
+ *                       type: integer
+ *                     limit:
+ *                       type: integer
+ *                     totalPages:
+ *                       type: integer
+ *       400:
+ *         description: Invalid request parameters
+ */
 router.get('/', async (req, res) => {
   try {
     const { page, limit, search } = queryParamsSchema.parse(req.query);
@@ -65,7 +117,33 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /projects/:projectId
+/**
+ * @swagger
+ * /api/projects/{projectId}:
+ *   get:
+ *     summary: Get a project by ID
+ *     tags: [Projects]
+ *     parameters:
+ *       - in: path
+ *         name: projectId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Project ID
+ *     responses:
+ *       200:
+ *         description: Project found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Project'
+ *       400:
+ *         description: Invalid project ID
+ *       404:
+ *         description: Project not found
+ *       500:
+ *         description: Internal server error
+ */
 router.get('/:projectId', async (req, res) => {
   try {
     const projectId = parseInt(req.params.projectId);
@@ -86,7 +164,41 @@ router.get('/:projectId', async (req, res) => {
   }
 });
 
-// POST /projects
+/**
+ * @swagger
+ * /api/projects:
+ *   post:
+ *     summary: Create a new project
+ *     tags: [Projects]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 minLength: 1
+ *                 maxLength: 255
+ *               description:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Project created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Project'
+ *       400:
+ *         description: Invalid request body
+ *       409:
+ *         description: Project name already exists
+ *       500:
+ *         description: Internal server error
+ */
 router.post('/', async (req, res) => {
   try {
     const validatedData = createProjectSchema.parse(req.body);
@@ -120,7 +232,48 @@ router.post('/', async (req, res) => {
   }
 });
 
-// PATCH /projects/:projectId
+/**
+ * @swagger
+ * /api/projects/{projectId}:
+ *   patch:
+ *     summary: Update a project
+ *     tags: [Projects]
+ *     parameters:
+ *       - in: path
+ *         name: projectId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Project ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 minLength: 1
+ *                 maxLength: 255
+ *               description:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Project updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Project'
+ *       400:
+ *         description: Invalid request parameters
+ *       404:
+ *         description: Project not found
+ *       409:
+ *         description: Project name already exists
+ *       500:
+ *         description: Internal server error
+ */
 router.patch('/:projectId', async (req, res) => {
   try {
     const projectId = parseInt(req.params.projectId);
@@ -173,7 +326,29 @@ router.patch('/:projectId', async (req, res) => {
   }
 });
 
-// DELETE /projects/:projectId
+/**
+ * @swagger
+ * /api/projects/{projectId}:
+ *   delete:
+ *     summary: Delete a project
+ *     tags: [Projects]
+ *     parameters:
+ *       - in: path
+ *         name: projectId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Project ID
+ *     responses:
+ *       204:
+ *         description: Project deleted successfully
+ *       400:
+ *         description: Invalid project ID
+ *       404:
+ *         description: Project not found
+ *       500:
+ *         description: Internal server error
+ */
 router.delete('/:projectId', async (req, res) => {
   try {
     const projectId = parseInt(req.params.projectId);
@@ -201,5 +376,37 @@ router.delete('/:projectId', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Project:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: The project ID
+ *         name:
+ *           type: string
+ *           description: The project name
+ *         description:
+ *           type: string
+ *           nullable: true
+ *           description: The project description
+ *         created:
+ *           type: string
+ *           format: date-time
+ *           description: Creation timestamp
+ *         updated:
+ *           type: string
+ *           format: date-time
+ *           description: Last update timestamp
+ *       required:
+ *         - id
+ *         - name
+ *         - created
+ *         - updated
+ */
 
 export default router;
