@@ -1,9 +1,66 @@
 {
   "version": "5",
   "dialect": "pg",
-  "id": "22dbd553-489f-4b16-b49a-0763feeb9320",
+  "id": "a0cd58bf-ebf0-43a0-816b-17096f427b7a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
+    "connection_conditions": {
+      "name": "connection_conditions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "connection_id": {
+          "name": "connection_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "condition": {
+          "name": "condition",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::jsonb"
+        },
+        "created": {
+          "name": "created",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated": {
+          "name": "updated",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "connection_conditions_connection_id_connections_id_fk": {
+          "name": "connection_conditions_connection_id_connections_id_fk",
+          "tableFrom": "connection_conditions",
+          "tableTo": "connections",
+          "columnsFrom": [
+            "connection_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
     "connections": {
       "name": "connections",
       "schema": "",
@@ -39,12 +96,12 @@
           "notNull": true,
           "default": "'default'"
         },
-        "condition": {
-          "name": "condition",
+        "config": {
+          "name": "config",
           "type": "jsonb",
           "primaryKey": false,
-          "notNull": false,
-          "default": "'{}'"
+          "notNull": true,
+          "default": "'{}'::jsonb"
         },
         "created": {
           "name": "created",
@@ -116,11 +173,24 @@
           "primaryKey": true,
           "notNull": true
         },
+        "parent_matrix_id": {
+          "name": "parent_matrix_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
         "project_id": {
           "name": "project_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
+        },
+        "version": {
+          "name": "version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
         },
         "name": {
           "name": "name",
@@ -141,19 +211,12 @@
           "notNull": true,
           "default": "'draft'"
         },
-        "is_sub_matrix": {
-          "name": "is_sub_matrix",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
         "config": {
           "name": "config",
           "type": "jsonb",
           "primaryKey": false,
           "notNull": true,
-          "default": "'{}'"
+          "default": "'{}'::jsonb"
         },
         "created": {
           "name": "created",
@@ -172,6 +235,19 @@
       },
       "indexes": {},
       "foreignKeys": {
+        "matrix_parent_matrix_id_matrix_id_fk": {
+          "name": "matrix_parent_matrix_id_matrix_id_fk",
+          "tableFrom": "matrix",
+          "tableTo": "matrix",
+          "columnsFrom": [
+            "parent_matrix_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
         "matrix_project_id_projects_id_fk": {
           "name": "matrix_project_id_projects_id_fk",
           "tableFrom": "matrix",
@@ -228,14 +304,14 @@
           "type": "jsonb",
           "primaryKey": false,
           "notNull": true,
-          "default": "'{}'"
+          "default": "'{}'::jsonb"
         },
         "position": {
           "name": "position",
           "type": "jsonb",
           "primaryKey": false,
           "notNull": true,
-          "default": "'{\"x\": 0, \"y\": 0}'"
+          "default": "'{\"x\":0,\"y\":0}'::jsonb"
         },
         "sub_matrix_id": {
           "name": "sub_matrix_id",
@@ -283,7 +359,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -372,7 +448,7 @@
           "type": "jsonb",
           "primaryKey": false,
           "notNull": true,
-          "default": "'{}'"
+          "default": "'{}'::jsonb"
         },
         "last_triggered": {
           "name": "last_triggered",
@@ -418,7 +494,15 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {
+        "triggers_node_id_unique": {
+          "name": "triggers_node_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "node_id"
+          ]
+        }
+      }
     }
   },
   "enums": {

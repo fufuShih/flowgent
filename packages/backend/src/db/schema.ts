@@ -6,10 +6,14 @@ import {
   integer,
   jsonb,
   pgEnum,
-  boolean,
+  AnyPgColumn,
 } from 'drizzle-orm/pg-core';
+import { relations } from 'drizzle-orm';
 
-// Projects table
+/**
+ * Projects table
+ * Stores basic project information
+ */
 export const projects = pgTable('projects', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
@@ -18,25 +22,46 @@ export const projects = pgTable('projects', {
   updated: timestamp('updated').defaultNow().notNull(),
 });
 
-// Matrix (Flow) Status enum
+/**
+ * Matrix (Flow) Status enum
+ * Represents possible states of a flow
+ */
 export const matrixStatusEnum = pgEnum('matrix_status', ['active', 'inactive', 'draft', 'error']);
 
-// Matrix table (Workflow/Flow)
+/**
+ * Matrix (Flow) table
+ * Main table for storing workflow/flow information
+ */
 export const matrix = pgTable('matrix', {
   id: serial('id').primaryKey(),
-  projectId: integer('project_id')
-    .notNull()
-    .references(() => projects.id, { onDelete: 'cascade' }),
+  parentMatrixId: integer('parent_matrix_id').references((): AnyPgColumn => matrix.id, {
+    onDelete: 'cascade',
+  }),
+  projectId: integer('project_id').references(() => projects.id, { onDelete: 'cascade' }),
+  version: integer('version').default(1).notNull(),
   name: text('name').notNull(),
   description: text('description'),
   status: matrixStatusEnum('status').notNull().default('draft'),
-  isSubMatrix: boolean('is_sub_matrix').default(false).notNull(),
-  config: jsonb('config').notNull().default('{}'),
+  config: jsonb('config').notNull().default({}),
   created: timestamp('created').defaultNow().notNull(),
   updated: timestamp('updated').defaultNow().notNull(),
 });
 
-// Node types enum
+export const projectsRelations = relations(projects, ({ many }) => ({
+  posts: many(matrix),
+}));
+
+export const matrixRelations = relations(matrix, ({ one }) => ({
+  author: one(projects, {
+    fields: [matrix.projectId],
+    references: [projects.id],
+  }),
+}));
+
+/**
+ * Node types enum
+ * Defines different types of nodes available in the system
+ */
 export const nodeTypeEnum = pgEnum('node_type', [
   'trigger',
   'action',
@@ -46,7 +71,10 @@ export const nodeTypeEnum = pgEnum('node_type', [
   'loop',
 ]);
 
-// Nodes table (previously blocks)
+/**
+ * Nodes table
+ * Stores node information for each flow
+ */
 export const nodes = pgTable('nodes', {
   id: serial('id').primaryKey(),
   matrixId: integer('matrix_id')
@@ -55,15 +83,19 @@ export const nodes = pgTable('nodes', {
   type: nodeTypeEnum('type').notNull(),
   name: text('name').notNull(),
   description: text('description'),
-  config: jsonb('config').notNull().default('{}'),
-  position: jsonb('position').notNull().default('{"x": 0, "y": 0}'),
-  // For subMatrix type, reference to another matrix
-  subMatrixId: integer('sub_matrix_id').references(() => matrix.id),
+  config: jsonb('config').notNull().default({}),
+  position: jsonb('position').notNull().default({ x: 0, y: 0 }),
+  subMatrixId: integer('sub_matrix_id').references(() => matrix.id, {
+    onDelete: 'cascade',
+  }),
   created: timestamp('created').defaultNow().notNull(),
   updated: timestamp('updated').defaultNow().notNull(),
 });
 
-// Connection types enum
+/**
+ * Connection types enum
+ * Defines types of connections (default, success, error, condition)
+ */
 export const connectionTypeEnum = pgEnum('connection_type', [
   'default',
   'success',
@@ -71,7 +103,10 @@ export const connectionTypeEnum = pgEnum('connection_type', [
   'condition',
 ]);
 
-// Connections table (previously edges)
+/**
+ * Connections table
+ * Stores connection information between nodes
+ */
 export const connections = pgTable('connections', {
   id: serial('id').primaryKey(),
   matrixId: integer('matrix_id')
@@ -84,12 +119,29 @@ export const connections = pgTable('connections', {
     .notNull()
     .references(() => nodes.id, { onDelete: 'cascade' }),
   type: connectionTypeEnum('type').notNull().default('default'),
-  condition: jsonb('condition').default('{}'),
+  config: jsonb('config').default({}).notNull(),
   created: timestamp('created').defaultNow().notNull(),
   updated: timestamp('updated').defaultNow().notNull(),
 });
 
-// Trigger types enum
+/**
+ * ConnectionConditions table
+ * Supports multiple conditions per connection (one-to-many)
+ */
+export const connectionConditions = pgTable('connection_conditions', {
+  id: serial('id').primaryKey(),
+  connectionId: integer('connection_id')
+    .notNull()
+    .references(() => connections.id, { onDelete: 'cascade' }),
+  condition: jsonb('condition').default({}).notNull(),
+  created: timestamp('created').defaultNow().notNull(),
+  updated: timestamp('updated').defaultNow().notNull(),
+});
+
+/**
+ * Trigger types enum
+ * Defines available trigger types (webhook, schedule, event, etc.)
+ */
 export const triggerTypeEnum = pgEnum('trigger_type', [
   'webhook',
   'schedule',
@@ -99,19 +151,26 @@ export const triggerTypeEnum = pgEnum('trigger_type', [
   'database',
 ]);
 
-// Trigger status enum
+/**
+ * Trigger status enum
+ * Represents possible trigger states
+ */
 export const triggerStatusEnum = pgEnum('trigger_status', ['active', 'inactive', 'error']);
 
-// Triggers table
+/**
+ * Triggers table
+ * One-to-one relationship with nodes (each node can have one trigger)
+ */
 export const triggers = pgTable('triggers', {
   id: serial('id').primaryKey(),
   nodeId: integer('node_id')
     .notNull()
+    .unique()
     .references(() => nodes.id, { onDelete: 'cascade' }),
   type: triggerTypeEnum('type').notNull(),
   name: text('name').notNull(),
   status: triggerStatusEnum('status').notNull().default('inactive'),
-  config: jsonb('config').notNull().default('{}'),
+  config: jsonb('config').notNull().default({}),
   lastTriggered: timestamp('last_triggered'),
   nextTrigger: timestamp('next_trigger'),
   created: timestamp('created').defaultNow().notNull(),
