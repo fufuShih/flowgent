@@ -123,4 +123,25 @@ export class NodeService {
       };
     }
   }
+
+  static async getBaseNodes(): Promise<ServiceResponse<Node[]>> {
+    try {
+      const response = await getApiNodesMatrixByMatrixId({
+        path: { matrixId: 0 },
+        query: {
+          includeTrigger: true,
+        },
+      });
+
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch base nodes',
+      };
+    }
+  }
 }

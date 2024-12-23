@@ -99,6 +99,8 @@ export const MatrixEditor = ({ projectId, matrixId }: { projectId: string; matri
   const [isSaving, setIsSaving] = useState(false);
   const [selectedNode, setSelectedNode] = useState<ReactFlowNode<Node> | null>(null);
   const [isExecuting, setIsExecuting] = useState(false);
+  const [baseNodes, setBaseNodes] = useState<Node[]>([]);
+  const [isLoadingNodes, setIsLoadingNodes] = useState(false);
 
   useEffect(() => {
     const loadMatrix = async () => {
@@ -197,19 +199,37 @@ export const MatrixEditor = ({ projectId, matrixId }: { projectId: string; matri
     };
   }, [nodes]);
 
+  const loadBaseNodes = useCallback(async () => {
+    setIsLoadingNodes(true);
+    try {
+      const response = await NodeService.getBaseNodes();
+      if (response.success && response.data) {
+        setBaseNodes(response.data);
+      }
+    } catch (error) {
+      console.error('Failed to load base nodes:', error);
+    } finally {
+      setIsLoadingNodes(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isDialogOpen) {
+      loadBaseNodes();
+    }
+  }, [isDialogOpen, loadBaseNodes]);
+
   const handleAddNode = useCallback(
-    async (templateId: string) => {
-      if (!isValidTemplateId(templateId)) return;
-
-      const template = nodeTemplates[templateId];
-      const position = calculateNewNodePosition();
-
+    async (baseNode: Node) => {
       try {
+        const position = calculateNewNodePosition();
+
         const response = await NodeService.createNode(parseInt(matrixId), {
-          type: template.type as Node['type'],
-          name: `${template.data.name} ${nodes.length + 1}`,
+          type: baseNode.type,
+          name: `${baseNode.name} ${nodes.length + 1}`,
+          description: baseNode.description ?? undefined,
           position: position,
-          config: template.data.config,
+          config: baseNode.config,
         });
 
         if (response.success && response.data) {
@@ -320,11 +340,15 @@ export const MatrixEditor = ({ projectId, matrixId }: { projectId: string; matri
                     <DialogTitle>Select Node Type</DialogTitle>
                   </DialogHeader>
                   <div className="grid grid-cols-2 gap-4 py-4">
-                    {Object.entries(nodeTemplates).map(([id, template]) => (
-                      <Button key={id} variant="outline" onClick={() => handleAddNode(id)}>
-                        {template.data.label}
-                      </Button>
-                    ))}
+                    {isLoadingNodes ? (
+                      <div className="col-span-2 text-center">Loading nodes...</div>
+                    ) : (
+                      baseNodes.map((node) => (
+                        <Button key={node.id} variant="outline" onClick={() => handleAddNode(node)}>
+                          {node.name}
+                        </Button>
+                      ))
+                    )}
                   </div>
                 </DialogContent>
               </Dialog>
