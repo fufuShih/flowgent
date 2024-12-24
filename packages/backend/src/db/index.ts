@@ -158,7 +158,7 @@ export const closeDatabase = async (): Promise<void> => {
 
 async function initializeTemplateNodes(): Promise<void> {
   try {
-    // 檢查是否已經存在基礎 matrix
+    // Check if the base matrix already exists
     const baseMatrix = await db
       .select()
       .from(matrix)
@@ -166,7 +166,7 @@ async function initializeTemplateNodes(): Promise<void> {
 
     let matrixId = 0;
 
-    // 如果基礎 matrix 不存在，創建它
+    // If the base matrix doesn't exist, create it
     if (baseMatrix.length === 0) {
       const result = await db
         .insert(matrix)
@@ -182,7 +182,7 @@ async function initializeTemplateNodes(): Promise<void> {
       matrixId = result[0].id;
     }
 
-    // 檢查是否已經存在基礎節點
+    // Check if the base nodes already exist
     const existingNodes = await db
       .select()
       .from(nodes)
