@@ -1409,6 +1409,29 @@
         }
       }
     },
+    "/api/nodes": {
+      "get": {
+        "summary": "Get all nodes",
+        "tags": [
+          "Nodes"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of nodes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Node"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/nodes/{nodeId}": {
       "get": {
         "summary": "Get a node by ID",

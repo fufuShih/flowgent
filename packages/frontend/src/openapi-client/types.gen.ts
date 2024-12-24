@@ -567,6 +567,10 @@ export type GetApiNodesMatrixByMatrixIdResponse = (Array<(Node & {
 
 export type GetApiNodesMatrixByMatrixIdError = (unknown);
 
+export type GetApiNodesResponse = (Array<Node>);
+
+export type GetApiNodesError = unknown;
+
 export type GetApiNodesByNodeIdData = {
     path: {
         /**
@@ -938,7 +942,7 @@ export const PostApiMatrixByMatrixIdCloneResponseTransformer: PostApiMatrixByMat
     return data;
 };
 
-export type PatchApiNodesByNodeIdResponseTransformer = (data: any) => Promise<PatchApiNodesByNodeIdResponse>;
+export type GetApiNodesResponseTransformer = (data: any) => Promise<GetApiNodesResponse>;
 
 export type NodeModelResponseTransformer = (data: any) => Node;
 
@@ -951,6 +955,15 @@ export const NodeModelResponseTransformer: NodeModelResponseTransformer = data =
     }
     return data;
 };
+
+export const GetApiNodesResponseTransformer: GetApiNodesResponseTransformer = async (data) => {
+    if (Array.isArray(data)) {
+        data.forEach(NodeModelResponseTransformer);
+    }
+    return data;
+};
+
+export type PatchApiNodesByNodeIdResponseTransformer = (data: any) => Promise<PatchApiNodesByNodeIdResponse>;
 
 export const PatchApiNodesByNodeIdResponseTransformer: PatchApiNodesByNodeIdResponseTransformer = async (data) => {
     NodeModelResponseTransformer(data);
