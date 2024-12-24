@@ -213,7 +213,22 @@ router.get('/matrix/:matrixId', async (req, res) => {
   }
 });
 
-// TODO: get all nodes
+/**
+ * @swagger
+ * /api/nodes:
+ *   get:
+ *     summary: Get all nodes
+ *     tags: [Nodes]
+ *     responses:
+ *       200:
+ *         description: List of nodes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Node'
+ */
 router.get('/', async (req, res) => {
   try {
     const selectedNodes = await db.select().from(nodes);
