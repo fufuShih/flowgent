@@ -4,6 +4,7 @@
     "source.fixAll.eslint": "explicit"
   },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.foldingHighlight": true,
   "sqltools.connections": [
     {
       "previewLimit": 50,
