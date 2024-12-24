@@ -213,6 +213,17 @@ router.get('/matrix/:matrixId', async (req, res) => {
   }
 });
 
+// TODO: get all nodes
+router.get('/', async (req, res) => {
+  try {
+    const selectedNodes = await db.select().from(nodes);
+    res.json(selectedNodes);
+  } catch (error) {
+    console.error('Error fetching nodes:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 /**
  * @swagger
  * /api/nodes/{nodeId}:
