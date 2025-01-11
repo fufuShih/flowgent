@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { CreateMatrixDialog } from '@/components/matrix/CreateMatrixDialog';
 import { MatrixService } from '@/services';
 import type { Matrix } from '../openapi-client/types.gen';
 
@@ -13,21 +14,18 @@ const MatrixListPage = () => {
 
   useEffect(() => {
     const fetchMatrices = async () => {
-      if (!projectId) {
-        setError('Invalid project ID');
-        setLoading(false);
-        return;
-      }
+      if (!projectId) return;
 
       try {
-        const response = await MatrixService.getMatricesByProject(Number(projectId));
+        const response = await MatrixService.getMatrices(parseInt(projectId));
         if (response.success && response.data) {
           setMatrices(response.data);
+          setError(null);
         } else {
           setError(response.error || 'Failed to fetch matrices');
         }
-      } catch (err) {
-        setError('Failed to fetch matrices');
+      } catch (error) {
+        setError(error instanceof Error ? error.message : 'Failed to fetch matrices');
       } finally {
         setLoading(false);
       }
@@ -35,6 +33,27 @@ const MatrixListPage = () => {
 
     fetchMatrices();
   }, [projectId]);
+
+  const handleCreateMatrix = async (data: { name: string; description?: string }) => {
+    if (!projectId) return;
+
+    try {
+      const response = await MatrixService.createMatrix(parseInt(projectId), {
+        name: data.name,
+        description: data.description,
+        status: 'draft',
+      });
+
+      if (response.success && response.data) {
+        setMatrices([...matrices, response.data]);
+        setError(null);
+      } else {
+        setError(response.error || 'Failed to create matrix');
+      }
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to create matrix');
+    }
+  };
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
@@ -44,7 +63,7 @@ const MatrixListPage = () => {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">Matrices</h2>
-        {/* <CreateMatrixDialog onSubmit={handleCreateMatrix} /> */}
+        <CreateMatrixDialog onSubmit={handleCreateMatrix} />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {matrices.map((matrix) => (

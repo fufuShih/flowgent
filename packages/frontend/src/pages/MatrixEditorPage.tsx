@@ -1,4 +1,4 @@
-// import MatrixEditor from '@/components/matrix/MatrixEditor';
+import { MatrixEditor } from '@/components/MatrixEditor/MatrixEditor';
 import { useParams } from 'react-router';
 
 const MatrixEditorPage = () => {
@@ -15,7 +15,7 @@ const MatrixEditorPage = () => {
         <p className="text-sm text-gray-500">Matrix ID: {matrixId}</p>
       </div>
       <div className="h-[calc(100vh-200px)]">
-        {/* <MatrixEditor projectId={projectId} matrixId={matrixId} /> */}
+        <MatrixEditor projectId={projectId} matrixId={matrixId} />
       </div>
     </div>
   );
