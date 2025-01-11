@@ -27,67 +27,39 @@ import {
 } from '@/components/ui/dialog';
 import { MatrixService, NodeService, ConnectionService } from '@/services';
 import type { Node, GetApiMatrixByMatrixIdResponse } from '../../openapi-client/types.gen';
+import { CustomNode } from './CustomNode';
 
 import { nodeTemplates } from './nodeTemplates';
-interface CustomNodeProps {
-  data: Node;
-  type: Node['type'];
-  projectId: string;
-  matrixId: string;
-}
-
-const CustomNode = ({ data, type }: CustomNodeProps) => {
-  const bgColors: Record<Node['type'], string> = {
-    trigger: 'bg-emerald-500',
-    action: 'bg-orange-500',
-    condition: 'bg-blue-500',
-    subMatrix: 'bg-purple-500',
-    transformer: 'bg-yellow-500',
-    loop: 'bg-pink-500',
-  };
-
-  const handleExecute = async () => {
-    if (!data.id) return;
-
-    try {
-      // Note: Node execution endpoint is not available in the API spec
-      // You might need to implement this functionality
-      console.log('Execute node:', data.id);
-    } catch (error) {
-      console.error(`Error executing node ${data.name}:`, error);
-    }
-  };
-
-  return (
-    <div className={`px-4 py-2 shadow-md rounded-md border ${bgColors[type]}`}>
-      <div className="text-white font-bold">{data.name}</div>
-      {data.description && <div className="text-white text-xs mt-1">{data.description}</div>}
-      {data.config && Object.entries(data.config).length > 0 && (
-        <div className="text-white text-xs mt-1 space-y-1">
-          {Object.entries(data.config).map(([key, value]) => (
-            <div key={key} className="truncate">
-              {key}: {String(value)}
-            </div>
-          ))}
-        </div>
-      )}
-      <Button
-        variant="ghost"
-        size="sm"
-        className="mt-2 text-white hover:text-white hover:bg-white/20"
-        onClick={(e) => {
-          e.stopPropagation();
-          handleExecute();
-        }}
-      >
-        Execute
-      </Button>
-    </div>
-  );
-};
 
 const isValidTemplateId = (id: string): id is keyof typeof nodeTemplates => {
   return id in nodeTemplates;
+};
+
+// Define nodeTypes outside the component
+const nodeTypes = {
+  trigger: (props: any) => (
+    <CustomNode {...props} type="trigger" projectId={props.projectId} matrixId={props.matrixId} />
+  ),
+  action: (props: any) => (
+    <CustomNode {...props} type="action" projectId={props.projectId} matrixId={props.matrixId} />
+  ),
+  condition: (props: any) => (
+    <CustomNode {...props} type="condition" projectId={props.projectId} matrixId={props.matrixId} />
+  ),
+  subMatrix: (props: any) => (
+    <CustomNode {...props} type="subMatrix" projectId={props.projectId} matrixId={props.matrixId} />
+  ),
+  transformer: (props: any) => (
+    <CustomNode
+      {...props}
+      type="transformer"
+      projectId={props.projectId}
+      matrixId={props.matrixId}
+    />
+  ),
+  loop: (props: any) => (
+    <CustomNode {...props} type="loop" projectId={props.projectId} matrixId={props.matrixId} />
+  ),
 };
 
 export const MatrixEditor = ({ projectId, matrixId }: { projectId: string; matrixId: string }) => {
@@ -380,41 +352,7 @@ export const MatrixEditor = ({ projectId, matrixId }: { projectId: string; matri
               onPaneClick={() => setSelectedNode(null)}
               fitView
               className="bg-slate-50 dark:bg-slate-900"
-              nodeTypes={{
-                trigger: (props) => (
-                  <CustomNode {...props} type="trigger" projectId={projectId} matrixId={matrixId} />
-                ),
-                action: (props) => (
-                  <CustomNode {...props} type="action" projectId={projectId} matrixId={matrixId} />
-                ),
-                condition: (props) => (
-                  <CustomNode
-                    {...props}
-                    type="condition"
-                    projectId={projectId}
-                    matrixId={matrixId}
-                  />
-                ),
-                subMatrix: (props) => (
-                  <CustomNode
-                    {...props}
-                    type="subMatrix"
-                    projectId={projectId}
-                    matrixId={matrixId}
-                  />
-                ),
-                transformer: (props) => (
-                  <CustomNode
-                    {...props}
-                    type="transformer"
-                    projectId={projectId}
-                    matrixId={matrixId}
-                  />
-                ),
-                loop: (props) => (
-                  <CustomNode {...props} type="loop" projectId={projectId} matrixId={matrixId} />
-                ),
-              }}
+              nodeTypes={nodeTypes}
               snapToGrid={true}
               snapGrid={[15, 15]}
               connectionMode={ConnectionMode.Loose}
