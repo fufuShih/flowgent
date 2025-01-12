@@ -4,7 +4,7 @@ import * as schema from './schema';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import path from 'path';
 import { sql } from 'drizzle-orm';
-import { nodes, type NodeType, matrix } from './schema';
+import { nodes, type NodeType, matrix, INodeConfig } from './schema';
 
 // Database configuration interface
 interface DatabaseConfig extends PoolConfig {
@@ -194,79 +194,188 @@ async function initializeTemplateNodes(): Promise<void> {
         type: NodeType;
         name: string;
         description: string;
-        config: Record<string, unknown>;
-        position: { x: number; y: number };
+        config: INodeConfig;
       }[] = [
         {
           matrixId: 0,
-          type: 'trigger' as NodeType,
+          type: 'trigger',
           name: 'HTTP Trigger',
           description: 'Triggers flow on HTTP request',
           config: {
+            x: 0,
+            y: 0,
+            inPorts: [],
+            outPorts: [
+              {
+                id: '1',
+                schema: {
+                  type: 'object',
+                  properties: {
+                    body: { type: 'object' },
+                    headers: { type: 'object' },
+                    method: { type: 'string' },
+                    query: { type: 'object' },
+                  },
+                },
+              },
+            ],
             type: 'webhook',
             method: 'POST',
             path: '/webhook',
             headers: {},
           },
-          position: { x: 0, y: 0 },
         },
         {
           matrixId: 0,
-          type: 'trigger' as NodeType,
-          name: 'Schedule Trigger',
-          description: 'Triggers flow on schedule',
-          config: {
-            type: 'schedule',
-            cron: '0 0 * * *',
-            timezone: 'UTC',
-          },
-          position: { x: 0, y: 0 },
-        },
-        {
-          matrixId: 0,
-          type: 'action' as NodeType,
+          type: 'action',
           name: 'HTTP Request',
           description: 'Make HTTP request to external service',
           config: {
+            x: 0,
+            y: 0,
+            inPorts: [
+              {
+                id: '1',
+                accepts: ['trigger', 'transformer', 'action'],
+                schema: {
+                  type: 'object',
+                  properties: {
+                    url: { type: 'string' },
+                    method: { type: 'string' },
+                    headers: { type: 'object' },
+                    body: { type: 'object' },
+                  },
+                },
+              },
+            ],
+            outPorts: [
+              {
+                id: '1',
+                schema: {
+                  type: 'object',
+                  properties: {
+                    status: { type: 'number' },
+                    data: { type: 'object' },
+                    headers: { type: 'object' },
+                  },
+                },
+              },
+            ],
             method: 'GET',
             url: '',
             headers: {},
             body: {},
           },
-          position: { x: 0, y: 0 },
         },
         {
           matrixId: 0,
-          type: 'condition' as NodeType,
+          type: 'condition',
           name: 'Data Condition',
           description: 'Check data conditions',
           config: {
+            x: 0,
+            y: 0,
+            inPorts: [
+              {
+                id: '1',
+                accepts: ['trigger', 'action', 'transformer'],
+                schema: {
+                  type: 'object',
+                },
+              },
+            ],
+            outPorts: [
+              {
+                id: '1',
+                label: 'true',
+                schema: {
+                  type: 'object',
+                },
+              },
+              {
+                id: '2',
+                label: 'false',
+                schema: {
+                  type: 'object',
+                },
+              },
+            ],
             operator: 'equals',
             field: '',
             value: '',
           },
-          position: { x: 0, y: 0 },
         },
         {
           matrixId: 0,
-          type: 'transformer' as NodeType,
+          type: 'transformer',
           name: 'Data Mapper',
           description: 'Transform data structure',
           config: {
+            x: 0,
+            y: 0,
+            inPorts: [
+              {
+                id: '1',
+                accepts: ['trigger', 'action', 'condition', 'loop'],
+                schema: {
+                  type: 'object',
+                },
+              },
+            ],
+            outPorts: [
+              {
+                id: '1',
+                schema: {
+                  type: 'object',
+                },
+              },
+            ],
             mappings: {},
           },
-          position: { x: 0, y: 0 },
         },
         {
           matrixId: 0,
-          type: 'loop' as NodeType,
+          type: 'loop',
           name: 'For Each',
           description: 'Iterate over array items',
           config: {
+            x: 0,
+            y: 0,
+            inPorts: [
+              {
+                id: '1',
+                accepts: ['trigger', 'action', 'transformer'],
+                schema: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                  },
+                },
+              },
+            ],
+            outPorts: [
+              {
+                id: '1',
+                label: 'item',
+                schema: {
+                  type: 'object',
+                },
+              },
+              {
+                id: '2',
+                label: 'completed',
+                schema: {
+                  type: 'object',
+                  properties: {
+                    totalItems: { type: 'number' },
+                    results: { type: 'array' },
+                  },
+                },
+              },
+            ],
             arrayPath: '',
             maxIterations: 100,
           },
-          position: { x: 0, y: 0 },
         },
       ];
 

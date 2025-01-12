@@ -70,9 +70,34 @@ export const nodeTypeEnum = pgEnum('node_type', [
   'subMatrix',
   'transformer',
   'loop',
+  'monitor',
 ]);
 
 export type NodeType = (typeof nodeTypeEnum.enumValues)[number];
+
+export type JSONSchema = {
+  [key: string]: any;
+};
+
+export type InPortType = {
+  id: string;
+  accepts: NodeType[]; // Accepts the output of which node type
+  schema: JSONSchema; // Describe the expected data structure
+};
+
+export type OutPortType = {
+  id: string;
+  label?: string; // Optional label, used to describe the purpose of the output
+  schema: JSONSchema; // Describe the output data structure
+};
+
+export interface INodeConfig {
+  x: number;
+  y: number;
+  inPorts: InPortType[];
+  outPorts: OutPortType[];
+  [key: string]: any;
+}
 
 /**
  * Nodes table
@@ -86,11 +111,17 @@ export const nodes = pgTable('nodes', {
   type: nodeTypeEnum('type').notNull(),
   name: text('name').notNull(),
   description: text('description'),
-  config: jsonb('config').notNull().default({}),
-  position: jsonb('position').notNull().default({ x: 0, y: 0 }),
+  config: jsonb('config').$type<INodeConfig>().notNull().default({
+    x: 0,
+    y: 0,
+    inPorts: [],
+    outPorts: [],
+  }),
   subMatrixId: integer('sub_matrix_id').references(() => matrix.id, {
     onDelete: 'cascade',
   }),
+  typeVersion: integer('type_version').notNull().default(1),
+  disabled: boolean('disabled').notNull().default(false),
   created: timestamp('created').defaultNow().notNull(),
   updated: timestamp('updated').defaultNow().notNull(),
 });
@@ -105,6 +136,10 @@ export const connectionTypeEnum = pgEnum('connection_type', [
   'error',
   'condition',
 ]);
+
+export interface IConnectionConfig {
+  [key: string]: any;
+}
 
 /**
  * Connections table
@@ -122,60 +157,7 @@ export const connections = pgTable('connections', {
     .notNull()
     .references(() => nodes.id, { onDelete: 'cascade' }),
   type: connectionTypeEnum('type').notNull().default('default'),
-  config: jsonb('config').default({}).notNull(),
-  created: timestamp('created').defaultNow().notNull(),
-  updated: timestamp('updated').defaultNow().notNull(),
-});
-
-/**
- * ConnectionConditions table
- * Supports multiple conditions per connection (one-to-many)
- */
-export const connectionConditions = pgTable('connection_conditions', {
-  id: serial('id').primaryKey(),
-  connectionId: integer('connection_id')
-    .notNull()
-    .references(() => connections.id, { onDelete: 'cascade' }),
-  condition: jsonb('condition').default({}).notNull(),
-  created: timestamp('created').defaultNow().notNull(),
-  updated: timestamp('updated').defaultNow().notNull(),
-});
-
-/**
- * Trigger types enum
- * Defines available trigger types (webhook, schedule, event, etc.)
- */
-export const triggerTypeEnum = pgEnum('trigger_type', [
-  'webhook',
-  'schedule',
-  'event',
-  'manual',
-  'email',
-  'database',
-]);
-
-/**
- * Trigger status enum
- * Represents possible trigger states
- */
-export const triggerStatusEnum = pgEnum('trigger_status', ['active', 'inactive', 'error']);
-
-/**
- * Triggers table
- * One-to-one relationship with nodes (each node can have one trigger)
- */
-export const triggers = pgTable('triggers', {
-  id: serial('id').primaryKey(),
-  nodeId: integer('node_id')
-    .notNull()
-    .unique()
-    .references(() => nodes.id, { onDelete: 'cascade' }),
-  type: triggerTypeEnum('type').notNull(),
-  name: text('name').notNull(),
-  status: triggerStatusEnum('status').notNull().default('inactive'),
-  config: jsonb('config').notNull().default({}),
-  lastTriggered: timestamp('last_triggered'),
-  nextTrigger: timestamp('next_trigger'),
+  config: jsonb('config').$type<IConnectionConfig>().default({}).notNull(),
   created: timestamp('created').defaultNow().notNull(),
   updated: timestamp('updated').defaultNow().notNull(),
 });
