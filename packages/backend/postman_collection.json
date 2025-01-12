@@ -1,291 +1,2839 @@
 {
-  "info": {
-    "name": "Flow Engine API",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-  },
-  "item": [
-    {
-      "name": "Projects",
-      "item": [
-        {
-          "name": "Get All Projects",
-          "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/projects"
-          }
-        },
-        {
-          "name": "Get Project by ID",
-          "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/projects/:id",
-            "path": {
-              "id": "1"
-            }
-          }
-        },
-        {
-          "name": "Create Project",
-          "request": {
-            "method": "POST",
-            "url": "{{baseUrl}}/projects",
-            "header": {
-              "Content-Type": "application/json"
-            },
-            "body": {
-              "mode": "raw",
-              "raw": {
-                "name": "My Project",
-                "description": "Project description"
-              }
-            }
-          }
-        },
-        {
-          "name": "Update Project",
-          "request": {
-            "method": "PUT",
-            "url": "{{baseUrl}}/projects/:id",
-            "path": {
-              "id": "1"
-            },
-            "header": {
-              "Content-Type": "application/json"
-            },
-            "body": {
-              "mode": "raw",
-              "raw": {
-                "name": "Updated Project",
-                "description": "Updated description"
-              }
-            }
-          }
-        },
-        {
-          "name": "Delete Project",
-          "request": {
-            "method": "DELETE",
-            "url": "{{baseUrl}}/projects/:id",
-            "path": {
-              "id": "1"
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Matrix",
-      "item": [
-        {
-          "name": "Get All Matrices",
-          "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/matrix"
-          }
-        },
-        {
-          "name": "Get Matrix by ID",
-          "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/matrix/:id",
-            "path": {
-              "id": "1"
-            }
-          }
-        },
-        {
-          "name": "Create Matrix",
-          "request": {
-            "method": "POST",
-            "url": "{{baseUrl}}/matrix",
-            "header": {
-              "Content-Type": "application/json"
-            },
-            "body": {
-              "mode": "raw",
-              "raw": {
-                "name": "My Matrix",
-                "description": "Matrix description",
-                "projectId": 1,
-                "isSubMatrix": false,
-                "config": {}
-              }
-            }
-          }
-        },
-        {
-          "name": "Update Matrix",
-          "request": {
-            "method": "PUT",
-            "url": "{{baseUrl}}/matrix/:id",
-            "path": {
-              "id": "1"
-            },
-            "header": {
-              "Content-Type": "application/json"
-            },
-            "body": {
-              "mode": "raw",
-              "raw": {
-                "name": "Updated Matrix",
-                "description": "Updated description",
-                "projectId": 1,
-                "isSubMatrix": false,
-                "config": {}
-              }
-            }
-          }
-        },
-        {
-          "name": "Delete Matrix",
-          "request": {
-            "method": "DELETE",
-            "url": "{{baseUrl}}/matrix/:id",
-            "path": {
-              "id": "1"
-            }
-          }
-        },
-        {
-          "name": "Get Matrix Nodes",
-          "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/matrix/:id/nodes",
-            "path": {
-              "id": "1"
-            }
-          }
-        },
-        {
-          "name": "Get Matrix Connections",
-          "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/matrix/:id/connections",
-            "path": {
-              "id": "1"
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Execute",
-      "item": [
-        {
-          "name": "Execute Matrix",
-          "request": {
-            "method": "POST",
-            "url": "{{baseUrl}}/execute/matrix/:id",
-            "path": {
-              "id": "1"
-            },
-            "header": {
-              "Content-Type": "application/json"
-            },
-            "body": {
-              "mode": "raw",
-              "raw": {
-                "input": {}
-              }
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Node Types",
-      "item": [
-        {
-          "name": "Get Node Types",
-          "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/node-types"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Triggers",
-      "item": [
-        {
-          "name": "Get All Triggers",
-          "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/triggers"
-          }
-        },
-        {
-          "name": "Get Trigger by ID",
-          "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/triggers/:id",
-            "path": {
-              "id": "1"
-            }
-          }
-        },
-        {
-          "name": "Create Trigger",
-          "request": {
-            "method": "POST",
-            "url": "{{baseUrl}}/triggers",
-            "header": {
-              "Content-Type": "application/json"
-            },
-            "body": {
-              "mode": "raw",
-              "raw": {
-                "nodeId": 1,
-                "type": "schedule",
-                "name": "My Trigger",
-                "config": {
-                  "cronExpression": "*/5 * * * *"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "Update Trigger",
-          "request": {
-            "method": "PUT",
-            "url": "{{baseUrl}}/triggers/:id",
-            "path": {
-              "id": "1"
-            },
-            "header": {
-              "Content-Type": "application/json"
-            },
-            "body": {
-              "mode": "raw",
-              "raw": {
-                "name": "Updated Trigger",
-                "config": {
-                  "cronExpression": "*/10 * * * *"
-                },
-                "status": "active"
-              }
-            }
-          }
-        },
-        {
-          "name": "Delete Trigger",
-          "request": {
-            "method": "DELETE",
-            "url": "{{baseUrl}}/triggers/:id",
-            "path": {
-              "id": "1"
-            }
-          }
-        }
-      ]
-    }
-  ],
-  "variable": [
-    {
-      "key": "baseUrl",
-      "value": "http://localhost:3004/api",
-      "type": "string"
-    }
-  ]
+	"info": {
+		"_postman_id": "5697903d-d182-4d76-b25b-56f264dd3d0d",
+		"name": "Matrix Flow API",
+		"description": "API documentation for Matrix Flow application\n\nContact Support:\n Name: API Support",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "4961505"
+	},
+	"item": [
+		{
+			"name": "api",
+			"item": [
+				{
+					"name": "matrix",
+					"item": [
+						{
+							"name": "project",
+							"item": [
+								{
+									"name": "{projectId}",
+									"item": [
+										{
+											"name": "Get all matrices for a project",
+											"request": {
+												"method": "GET",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "application/json"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/matrix/project/:projectId?page=1&limit=10&status=error&version=<integer>",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"matrix",
+														"project",
+														":projectId"
+													],
+													"query": [
+														{
+															"key": "page",
+															"value": "1",
+															"description": "Page number"
+														},
+														{
+															"key": "limit",
+															"value": "10",
+															"description": "Items per page"
+														},
+														{
+															"key": "status",
+															"value": "error",
+															"description": "Filter by status"
+														},
+														{
+															"key": "version",
+															"value": "<integer>",
+															"description": "Filter by version"
+														}
+													],
+													"variable": [
+														{
+															"key": "projectId",
+															"value": "<integer>",
+															"description": "(Required) Project ID"
+														}
+													]
+												}
+											},
+											"response": [
+												{
+													"name": "List of matrices",
+													"originalRequest": {
+														"method": "GET",
+														"header": [
+															{
+																"key": "Accept",
+																"value": "application/json"
+															},
+															{
+																"description": "Added as a part of security scheme: bearer",
+																"key": "Authorization",
+																"value": "Bearer <token>"
+															}
+														],
+														"url": {
+															"raw": "{{baseUrl}}/api/matrix/project/:projectId?page=1&limit=10&status=error&version=<integer>",
+															"host": [
+																"{{baseUrl}}"
+															],
+															"path": [
+																"api",
+																"matrix",
+																"project",
+																":projectId"
+															],
+															"query": [
+																{
+																	"key": "page",
+																	"value": "1",
+																	"description": "Page number"
+																},
+																{
+																	"key": "limit",
+																	"value": "10",
+																	"description": "Items per page"
+																},
+																{
+																	"key": "status",
+																	"value": "error",
+																	"description": "Filter by status"
+																},
+																{
+																	"key": "version",
+																	"value": "<integer>",
+																	"description": "Filter by version"
+																}
+															],
+															"variable": [
+																{
+																	"key": "projectId"
+																}
+															]
+														}
+													},
+													"status": "OK",
+													"code": 200,
+													"_postman_previewlanguage": "json",
+													"header": [
+														{
+															"key": "Content-Type",
+															"value": "application/json"
+														}
+													],
+													"cookie": [],
+													"body": "{\n  \"data\": [\n    {\n      \"id\": \"<integer>\",\n      \"projectId\": \"<integer>\",\n      \"name\": \"<string>\",\n      \"status\": \"draft\",\n      \"version\": \"<integer>\",\n      \"created\": \"<dateTime>\",\n      \"updated\": \"<dateTime>\",\n      \"description\": \"<string>\",\n      \"config\": {},\n      \"parentMatrixId\": \"<integer>\"\n    },\n    {\n      \"id\": \"<integer>\",\n      \"projectId\": \"<integer>\",\n      \"name\": \"<string>\",\n      \"status\": \"draft\",\n      \"version\": \"<integer>\",\n      \"created\": \"<dateTime>\",\n      \"updated\": \"<dateTime>\",\n      \"description\": \"<string>\",\n      \"config\": {},\n      \"parentMatrixId\": \"<integer>\"\n    }\n  ],\n  \"pagination\": {\n    \"total\": \"<integer>\",\n    \"page\": \"<integer>\",\n    \"limit\": \"<integer>\",\n    \"totalPages\": \"<integer>\"\n  }\n}"
+												},
+												{
+													"name": "Invalid request parameters",
+													"originalRequest": {
+														"method": "GET",
+														"header": [
+															{
+																"description": "Added as a part of security scheme: bearer",
+																"key": "Authorization",
+																"value": "Bearer <token>"
+															}
+														],
+														"url": {
+															"raw": "{{baseUrl}}/api/matrix/project/:projectId?page=1&limit=10&status=error&version=<integer>",
+															"host": [
+																"{{baseUrl}}"
+															],
+															"path": [
+																"api",
+																"matrix",
+																"project",
+																":projectId"
+															],
+															"query": [
+																{
+																	"key": "page",
+																	"value": "1",
+																	"description": "Page number"
+																},
+																{
+																	"key": "limit",
+																	"value": "10",
+																	"description": "Items per page"
+																},
+																{
+																	"key": "status",
+																	"value": "error",
+																	"description": "Filter by status"
+																},
+																{
+																	"key": "version",
+																	"value": "<integer>",
+																	"description": "Filter by version"
+																}
+															],
+															"variable": [
+																{
+																	"key": "projectId"
+																}
+															]
+														}
+													},
+													"status": "Bad Request",
+													"code": 400,
+													"_postman_previewlanguage": "text",
+													"header": [],
+													"cookie": [],
+													"body": null
+												},
+												{
+													"name": "Project not found",
+													"originalRequest": {
+														"method": "GET",
+														"header": [
+															{
+																"description": "Added as a part of security scheme: bearer",
+																"key": "Authorization",
+																"value": "Bearer <token>"
+															}
+														],
+														"url": {
+															"raw": "{{baseUrl}}/api/matrix/project/:projectId?page=1&limit=10&status=error&version=<integer>",
+															"host": [
+																"{{baseUrl}}"
+															],
+															"path": [
+																"api",
+																"matrix",
+																"project",
+																":projectId"
+															],
+															"query": [
+																{
+																	"key": "page",
+																	"value": "1",
+																	"description": "Page number"
+																},
+																{
+																	"key": "limit",
+																	"value": "10",
+																	"description": "Items per page"
+																},
+																{
+																	"key": "status",
+																	"value": "error",
+																	"description": "Filter by status"
+																},
+																{
+																	"key": "version",
+																	"value": "<integer>",
+																	"description": "Filter by version"
+																}
+															],
+															"variable": [
+																{
+																	"key": "projectId"
+																}
+															]
+														}
+													},
+													"status": "Not Found",
+													"code": 404,
+													"_postman_previewlanguage": "text",
+													"header": [],
+													"cookie": [],
+													"body": null
+												},
+												{
+													"name": "Internal server error",
+													"originalRequest": {
+														"method": "GET",
+														"header": [
+															{
+																"description": "Added as a part of security scheme: bearer",
+																"key": "Authorization",
+																"value": "Bearer <token>"
+															}
+														],
+														"url": {
+															"raw": "{{baseUrl}}/api/matrix/project/:projectId?page=1&limit=10&status=error&version=<integer>",
+															"host": [
+																"{{baseUrl}}"
+															],
+															"path": [
+																"api",
+																"matrix",
+																"project",
+																":projectId"
+															],
+															"query": [
+																{
+																	"key": "page",
+																	"value": "1",
+																	"description": "Page number"
+																},
+																{
+																	"key": "limit",
+																	"value": "10",
+																	"description": "Items per page"
+																},
+																{
+																	"key": "status",
+																	"value": "error",
+																	"description": "Filter by status"
+																},
+																{
+																	"key": "version",
+																	"value": "<integer>",
+																	"description": "Filter by version"
+																}
+															],
+															"variable": [
+																{
+																	"key": "projectId"
+																}
+															]
+														}
+													},
+													"status": "Internal Server Error",
+													"code": 500,
+													"_postman_previewlanguage": "text",
+													"header": [],
+													"cookie": [],
+													"body": null
+												}
+											]
+										},
+										{
+											"name": "Create a new matrix",
+											"request": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													},
+													{
+														"key": "Accept",
+														"value": "application/json"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"name\": \"<string>\",\n  \"description\": \"<string>\",\n  \"status\": \"draft\",\n  \"config\": {},\n  \"parentMatrixId\": \"<integer>\"\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/api/matrix/project/:projectId",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"matrix",
+														"project",
+														":projectId"
+													],
+													"variable": [
+														{
+															"key": "projectId",
+															"value": "<integer>",
+															"description": "(Required) Project ID"
+														}
+													]
+												}
+											},
+											"response": [
+												{
+													"name": "Matrix created successfully",
+													"originalRequest": {
+														"method": "POST",
+														"header": [
+															{
+																"key": "Content-Type",
+																"value": "application/json"
+															},
+															{
+																"key": "Accept",
+																"value": "application/json"
+															},
+															{
+																"description": "Added as a part of security scheme: bearer",
+																"key": "Authorization",
+																"value": "Bearer <token>"
+															}
+														],
+														"body": {
+															"mode": "raw",
+															"raw": "{\n  \"name\": \"<string>\",\n  \"description\": \"<string>\",\n  \"status\": \"draft\",\n  \"config\": {},\n  \"parentMatrixId\": \"<integer>\"\n}",
+															"options": {
+																"raw": {
+																	"headerFamily": "json",
+																	"language": "json"
+																}
+															}
+														},
+														"url": {
+															"raw": "{{baseUrl}}/api/matrix/project/:projectId",
+															"host": [
+																"{{baseUrl}}"
+															],
+															"path": [
+																"api",
+																"matrix",
+																"project",
+																":projectId"
+															],
+															"variable": [
+																{
+																	"key": "projectId"
+																}
+															]
+														}
+													},
+													"status": "Created",
+													"code": 201,
+													"_postman_previewlanguage": "json",
+													"header": [
+														{
+															"key": "Content-Type",
+															"value": "application/json"
+														}
+													],
+													"cookie": [],
+													"body": "{\n  \"id\": \"<integer>\",\n  \"projectId\": \"<integer>\",\n  \"name\": \"<string>\",\n  \"status\": \"error\",\n  \"version\": \"<integer>\",\n  \"created\": \"<dateTime>\",\n  \"updated\": \"<dateTime>\",\n  \"description\": \"<string>\",\n  \"config\": {},\n  \"parentMatrixId\": \"<integer>\"\n}"
+												},
+												{
+													"name": "Invalid request body",
+													"originalRequest": {
+														"method": "POST",
+														"header": [
+															{
+																"key": "Content-Type",
+																"value": "application/json"
+															},
+															{
+																"description": "Added as a part of security scheme: bearer",
+																"key": "Authorization",
+																"value": "Bearer <token>"
+															}
+														],
+														"body": {
+															"mode": "raw",
+															"raw": "{\n  \"name\": \"<string>\",\n  \"description\": \"<string>\",\n  \"status\": \"draft\",\n  \"config\": {},\n  \"parentMatrixId\": \"<integer>\"\n}",
+															"options": {
+																"raw": {
+																	"headerFamily": "json",
+																	"language": "json"
+																}
+															}
+														},
+														"url": {
+															"raw": "{{baseUrl}}/api/matrix/project/:projectId",
+															"host": [
+																"{{baseUrl}}"
+															],
+															"path": [
+																"api",
+																"matrix",
+																"project",
+																":projectId"
+															],
+															"variable": [
+																{
+																	"key": "projectId"
+																}
+															]
+														}
+													},
+													"status": "Bad Request",
+													"code": 400,
+													"_postman_previewlanguage": "text",
+													"header": [],
+													"cookie": [],
+													"body": null
+												},
+												{
+													"name": "Project or parent matrix not found",
+													"originalRequest": {
+														"method": "POST",
+														"header": [
+															{
+																"key": "Content-Type",
+																"value": "application/json"
+															},
+															{
+																"description": "Added as a part of security scheme: bearer",
+																"key": "Authorization",
+																"value": "Bearer <token>"
+															}
+														],
+														"body": {
+															"mode": "raw",
+															"raw": "{\n  \"name\": \"<string>\",\n  \"description\": \"<string>\",\n  \"status\": \"draft\",\n  \"config\": {},\n  \"parentMatrixId\": \"<integer>\"\n}",
+															"options": {
+																"raw": {
+																	"headerFamily": "json",
+																	"language": "json"
+																}
+															}
+														},
+														"url": {
+															"raw": "{{baseUrl}}/api/matrix/project/:projectId",
+															"host": [
+																"{{baseUrl}}"
+															],
+															"path": [
+																"api",
+																"matrix",
+																"project",
+																":projectId"
+															],
+															"variable": [
+																{
+																	"key": "projectId"
+																}
+															]
+														}
+													},
+													"status": "Not Found",
+													"code": 404,
+													"_postman_previewlanguage": "text",
+													"header": [],
+													"cookie": [],
+													"body": null
+												},
+												{
+													"name": "Internal server error",
+													"originalRequest": {
+														"method": "POST",
+														"header": [
+															{
+																"key": "Content-Type",
+																"value": "application/json"
+															},
+															{
+																"description": "Added as a part of security scheme: bearer",
+																"key": "Authorization",
+																"value": "Bearer <token>"
+															}
+														],
+														"body": {
+															"mode": "raw",
+															"raw": "{\n  \"name\": \"<string>\",\n  \"description\": \"<string>\",\n  \"status\": \"draft\",\n  \"config\": {},\n  \"parentMatrixId\": \"<integer>\"\n}",
+															"options": {
+																"raw": {
+																	"headerFamily": "json",
+																	"language": "json"
+																}
+															}
+														},
+														"url": {
+															"raw": "{{baseUrl}}/api/matrix/project/:projectId",
+															"host": [
+																"{{baseUrl}}"
+															],
+															"path": [
+																"api",
+																"matrix",
+																"project",
+																":projectId"
+															],
+															"variable": [
+																{
+																	"key": "projectId"
+																}
+															]
+														}
+													},
+													"status": "Internal Server Error",
+													"code": 500,
+													"_postman_previewlanguage": "text",
+													"header": [],
+													"cookie": [],
+													"body": null
+												}
+											]
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "{matrixId}",
+							"item": [
+								{
+									"name": "clone",
+									"item": [
+										{
+											"name": "Clone a matrix",
+											"request": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "application/json"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/matrix/:matrixId/clone",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"matrix",
+														":matrixId",
+														"clone"
+													],
+													"variable": [
+														{
+															"key": "matrixId",
+															"value": "<integer>",
+															"description": "(Required) Matrix ID to clone"
+														}
+													]
+												}
+											},
+											"response": [
+												{
+													"name": "Matrix cloned successfully",
+													"originalRequest": {
+														"method": "POST",
+														"header": [
+															{
+																"key": "Accept",
+																"value": "application/json"
+															},
+															{
+																"description": "Added as a part of security scheme: bearer",
+																"key": "Authorization",
+																"value": "Bearer <token>"
+															}
+														],
+														"url": {
+															"raw": "{{baseUrl}}/api/matrix/:matrixId/clone",
+															"host": [
+																"{{baseUrl}}"
+															],
+															"path": [
+																"api",
+																"matrix",
+																":matrixId",
+																"clone"
+															],
+															"variable": [
+																{
+																	"key": "matrixId"
+																}
+															]
+														}
+													},
+													"status": "Created",
+													"code": 201,
+													"_postman_previewlanguage": "json",
+													"header": [
+														{
+															"key": "Content-Type",
+															"value": "application/json"
+														}
+													],
+													"cookie": [],
+													"body": "{\n  \"id\": \"<integer>\",\n  \"projectId\": \"<integer>\",\n  \"name\": \"<string>\",\n  \"status\": \"error\",\n  \"version\": \"<integer>\",\n  \"created\": \"<dateTime>\",\n  \"updated\": \"<dateTime>\",\n  \"description\": \"<string>\",\n  \"config\": {},\n  \"parentMatrixId\": \"<integer>\"\n}"
+												},
+												{
+													"name": "Invalid matrix ID",
+													"originalRequest": {
+														"method": "POST",
+														"header": [
+															{
+																"description": "Added as a part of security scheme: bearer",
+																"key": "Authorization",
+																"value": "Bearer <token>"
+															}
+														],
+														"url": {
+															"raw": "{{baseUrl}}/api/matrix/:matrixId/clone",
+															"host": [
+																"{{baseUrl}}"
+															],
+															"path": [
+																"api",
+																"matrix",
+																":matrixId",
+																"clone"
+															],
+															"variable": [
+																{
+																	"key": "matrixId"
+																}
+															]
+														}
+													},
+													"status": "Bad Request",
+													"code": 400,
+													"_postman_previewlanguage": "text",
+													"header": [],
+													"cookie": [],
+													"body": null
+												},
+												{
+													"name": "Matrix not found",
+													"originalRequest": {
+														"method": "POST",
+														"header": [
+															{
+																"description": "Added as a part of security scheme: bearer",
+																"key": "Authorization",
+																"value": "Bearer <token>"
+															}
+														],
+														"url": {
+															"raw": "{{baseUrl}}/api/matrix/:matrixId/clone",
+															"host": [
+																"{{baseUrl}}"
+															],
+															"path": [
+																"api",
+																"matrix",
+																":matrixId",
+																"clone"
+															],
+															"variable": [
+																{
+																	"key": "matrixId"
+																}
+															]
+														}
+													},
+													"status": "Not Found",
+													"code": 404,
+													"_postman_previewlanguage": "text",
+													"header": [],
+													"cookie": [],
+													"body": null
+												},
+												{
+													"name": "Internal server error",
+													"originalRequest": {
+														"method": "POST",
+														"header": [
+															{
+																"description": "Added as a part of security scheme: bearer",
+																"key": "Authorization",
+																"value": "Bearer <token>"
+															}
+														],
+														"url": {
+															"raw": "{{baseUrl}}/api/matrix/:matrixId/clone",
+															"host": [
+																"{{baseUrl}}"
+															],
+															"path": [
+																"api",
+																"matrix",
+																":matrixId",
+																"clone"
+															],
+															"variable": [
+																{
+																	"key": "matrixId"
+																}
+															]
+														}
+													},
+													"status": "Internal Server Error",
+													"code": 500,
+													"_postman_previewlanguage": "text",
+													"header": [],
+													"cookie": [],
+													"body": null
+												}
+											]
+										}
+									]
+								},
+								{
+									"name": "workflow",
+									"item": [
+										{
+											"name": "Get workflow data for a matrix",
+											"request": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "{{baseUrl}}/api/matrix/:matrixId/workflow",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"matrix",
+														":matrixId",
+														"workflow"
+													],
+													"variable": [
+														{
+															"key": "matrixId",
+															"value": "<integer>",
+															"description": "(Required) "
+														}
+													]
+												}
+											},
+											"response": []
+										}
+									]
+								},
+								{
+									"name": "nodes",
+									"item": [
+										{
+											"name": "Create new nodes in the matrix",
+											"request": {
+												"method": "POST",
+												"header": [],
+												"url": {
+													"raw": "{{baseUrl}}/api/matrix/:matrixId/nodes",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"matrix",
+														":matrixId",
+														"nodes"
+													],
+													"variable": [
+														{
+															"key": "matrixId"
+														}
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "Update existing nodes in the matrix",
+											"request": {
+												"method": "PATCH",
+												"header": [],
+												"url": {
+													"raw": "{{baseUrl}}/api/matrix/:matrixId/nodes",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"matrix",
+														":matrixId",
+														"nodes"
+													],
+													"variable": [
+														{
+															"key": "matrixId"
+														}
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "Delete nodes from the matrix",
+											"request": {
+												"method": "DELETE",
+												"header": [],
+												"url": {
+													"raw": "{{baseUrl}}/api/matrix/:matrixId/nodes",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"matrix",
+														":matrixId",
+														"nodes"
+													],
+													"variable": [
+														{
+															"key": "matrixId"
+														}
+													]
+												}
+											},
+											"response": []
+										}
+									]
+								},
+								{
+									"name": "connections",
+									"item": [
+										{
+											"name": "Create new connections in the matrix",
+											"request": {
+												"method": "POST",
+												"header": [],
+												"url": {
+													"raw": "{{baseUrl}}/api/matrix/:matrixId/connections",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"matrix",
+														":matrixId",
+														"connections"
+													],
+													"variable": [
+														{
+															"key": "matrixId"
+														}
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "Update existing connections in the matrix",
+											"request": {
+												"method": "PATCH",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "[\n  {\n    \"id\": \"<integer>\",\n    \"sourceId\": \"<integer>\",\n    \"targetId\": \"<integer>\",\n    \"type\": \"condition\",\n    \"matrixId\": \"<integer>\",\n    \"config\": {},\n    \"created\": \"<dateTime>\",\n    \"updated\": \"<dateTime>\"\n  },\n  {\n    \"id\": \"<integer>\",\n    \"sourceId\": \"<integer>\",\n    \"targetId\": \"<integer>\",\n    \"type\": \"condition\",\n    \"matrixId\": \"<integer>\",\n    \"config\": {},\n    \"created\": \"<dateTime>\",\n    \"updated\": \"<dateTime>\"\n  }\n]",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/api/matrix/:matrixId/connections",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"matrix",
+														":matrixId",
+														"connections"
+													],
+													"variable": [
+														{
+															"key": "matrixId",
+															"value": "<integer>",
+															"description": "(Required) "
+														}
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "Delete connections from the matrix",
+											"request": {
+												"method": "DELETE",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"connectionIds\": [\n    \"<integer>\",\n    \"<integer>\"\n  ]\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/api/matrix/:matrixId/connections",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"matrix",
+														":matrixId",
+														"connections"
+													],
+													"variable": [
+														{
+															"key": "matrixId",
+															"value": "<integer>",
+															"description": "(Required) "
+														}
+													]
+												}
+											},
+											"response": []
+										}
+									]
+								},
+								{
+									"name": "triggers",
+									"item": [
+										{
+											"name": ":nodeId",
+											"item": [
+												{
+													"name": "activate",
+													"item": [
+														{
+															"name": "Activate trigger",
+															"request": {
+																"method": "POST",
+																"header": [],
+																"url": {
+																	"raw": "{{baseUrl}}/api/matrix/:matrixId/triggers/:nodeId/activate",
+																	"host": [
+																		"{{baseUrl}}"
+																	],
+																	"path": [
+																		"api",
+																		"matrix",
+																		":matrixId",
+																		"triggers",
+																		":nodeId",
+																		"activate"
+																	],
+																	"variable": [
+																		{
+																			"key": "matrixId"
+																		},
+																		{
+																			"key": "nodeId"
+																		}
+																	]
+																}
+															},
+															"response": []
+														}
+													]
+												},
+												{
+													"name": "deactivate",
+													"item": [
+														{
+															"name": "Deactivate trigger",
+															"request": {
+																"method": "POST",
+																"header": [],
+																"url": {
+																	"raw": "{{baseUrl}}/api/matrix/:matrixId/triggers/:nodeId/deactivate",
+																	"host": [
+																		"{{baseUrl}}"
+																	],
+																	"path": [
+																		"api",
+																		"matrix",
+																		":matrixId",
+																		"triggers",
+																		":nodeId",
+																		"deactivate"
+																	],
+																	"variable": [
+																		{
+																			"key": "matrixId"
+																		},
+																		{
+																			"key": "nodeId"
+																		}
+																	]
+																}
+															},
+															"response": []
+														}
+													]
+												},
+												{
+													"name": "execute",
+													"item": [
+														{
+															"name": "Execute trigger",
+															"request": {
+																"method": "POST",
+																"header": [],
+																"url": {
+																	"raw": "{{baseUrl}}/api/matrix/:matrixId/triggers/:nodeId/execute",
+																	"host": [
+																		"{{baseUrl}}"
+																	],
+																	"path": [
+																		"api",
+																		"matrix",
+																		":matrixId",
+																		"triggers",
+																		":nodeId",
+																		"execute"
+																	],
+																	"variable": [
+																		{
+																			"key": "matrixId"
+																		},
+																		{
+																			"key": "nodeId"
+																		}
+																	]
+																}
+															},
+															"response": []
+														}
+													]
+												}
+											]
+										},
+										{
+											"name": "Create trigger node",
+											"request": {
+												"method": "POST",
+												"header": [],
+												"url": {
+													"raw": "{{baseUrl}}/api/matrix/:matrixId/triggers",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"matrix",
+														":matrixId",
+														"triggers"
+													],
+													"variable": [
+														{
+															"key": "matrixId"
+														}
+													]
+												}
+											},
+											"response": []
+										}
+									]
+								},
+								{
+									"name": "Get a matrix by ID",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/matrix/:matrixId?includeNodes=false&includeConnections=false",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"matrix",
+												":matrixId"
+											],
+											"query": [
+												{
+													"key": "includeNodes",
+													"value": "false",
+													"description": "Include nodes in response"
+												},
+												{
+													"key": "includeConnections",
+													"value": "false",
+													"description": "Include connections in response"
+												}
+											],
+											"variable": [
+												{
+													"key": "matrixId",
+													"value": "<integer>",
+													"description": "(Required) Matrix ID"
+												}
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "Matrix found",
+											"originalRequest": {
+												"method": "GET",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "application/json"
+													},
+													{
+														"description": "Added as a part of security scheme: bearer",
+														"key": "Authorization",
+														"value": "Bearer <token>"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/matrix/:matrixId?includeNodes=false&includeConnections=false",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"matrix",
+														":matrixId"
+													],
+													"query": [
+														{
+															"key": "includeNodes",
+															"value": "false",
+															"description": "Include nodes in response"
+														},
+														{
+															"key": "includeConnections",
+															"value": "false",
+															"description": "Include connections in response"
+														}
+													],
+													"variable": [
+														{
+															"key": "matrixId"
+														}
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"id\": \"<integer>\",\n  \"projectId\": \"<integer>\",\n  \"name\": \"<string>\",\n  \"status\": \"active\",\n  \"version\": \"<integer>\",\n  \"created\": \"<dateTime>\",\n  \"updated\": \"<dateTime>\",\n  \"description\": \"<string>\",\n  \"config\": {},\n  \"parentMatrixId\": \"<integer>\",\n  \"nodes\": [\n    {\n      \"value\": \"reference #/components/schemas/Node not found in the OpenAPI spec\"\n    },\n    {\n      \"value\": \"reference #/components/schemas/Node not found in the OpenAPI spec\"\n    }\n  ],\n  \"connections\": [\n    {\n      \"sourceId\": \"<integer>\",\n      \"targetId\": \"<integer>\",\n      \"type\": \"default\",\n      \"id\": \"<integer>\",\n      \"matrixId\": \"<integer>\",\n      \"config\": {},\n      \"created\": \"<dateTime>\",\n      \"updated\": \"<dateTime>\"\n    },\n    {\n      \"sourceId\": \"<integer>\",\n      \"targetId\": \"<integer>\",\n      \"type\": \"success\",\n      \"id\": \"<integer>\",\n      \"matrixId\": \"<integer>\",\n      \"config\": {},\n      \"created\": \"<dateTime>\",\n      \"updated\": \"<dateTime>\"\n    }\n  ]\n}"
+										},
+										{
+											"name": "Invalid matrix ID",
+											"originalRequest": {
+												"method": "GET",
+												"header": [
+													{
+														"description": "Added as a part of security scheme: bearer",
+														"key": "Authorization",
+														"value": "Bearer <token>"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/matrix/:matrixId?includeNodes=false&includeConnections=false",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"matrix",
+														":matrixId"
+													],
+													"query": [
+														{
+															"key": "includeNodes",
+															"value": "false",
+															"description": "Include nodes in response"
+														},
+														{
+															"key": "includeConnections",
+															"value": "false",
+															"description": "Include connections in response"
+														}
+													],
+													"variable": [
+														{
+															"key": "matrixId"
+														}
+													]
+												}
+											},
+											"status": "Bad Request",
+											"code": 400,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": null
+										},
+										{
+											"name": "Matrix not found",
+											"originalRequest": {
+												"method": "GET",
+												"header": [
+													{
+														"description": "Added as a part of security scheme: bearer",
+														"key": "Authorization",
+														"value": "Bearer <token>"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/matrix/:matrixId?includeNodes=false&includeConnections=false",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"matrix",
+														":matrixId"
+													],
+													"query": [
+														{
+															"key": "includeNodes",
+															"value": "false",
+															"description": "Include nodes in response"
+														},
+														{
+															"key": "includeConnections",
+															"value": "false",
+															"description": "Include connections in response"
+														}
+													],
+													"variable": [
+														{
+															"key": "matrixId"
+														}
+													]
+												}
+											},
+											"status": "Not Found",
+											"code": 404,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": null
+										},
+										{
+											"name": "Internal server error",
+											"originalRequest": {
+												"method": "GET",
+												"header": [
+													{
+														"description": "Added as a part of security scheme: bearer",
+														"key": "Authorization",
+														"value": "Bearer <token>"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/matrix/:matrixId?includeNodes=false&includeConnections=false",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"matrix",
+														":matrixId"
+													],
+													"query": [
+														{
+															"key": "includeNodes",
+															"value": "false",
+															"description": "Include nodes in response"
+														},
+														{
+															"key": "includeConnections",
+															"value": "false",
+															"description": "Include connections in response"
+														}
+													],
+													"variable": [
+														{
+															"key": "matrixId"
+														}
+													]
+												}
+											},
+											"status": "Internal Server Error",
+											"code": 500,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": null
+										}
+									]
+								},
+								{
+									"name": "Update a matrix",
+									"request": {
+										"method": "PATCH",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"name\": \"<string>\",\n  \"description\": \"<string>\",\n  \"status\": \"inactive\",\n  \"config\": {},\n  \"version\": \"<integer>\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/matrix/:matrixId",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"matrix",
+												":matrixId"
+											],
+											"variable": [
+												{
+													"key": "matrixId",
+													"value": "<integer>",
+													"description": "(Required) Matrix ID"
+												}
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "Matrix updated successfully",
+											"originalRequest": {
+												"method": "PATCH",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													},
+													{
+														"key": "Accept",
+														"value": "application/json"
+													},
+													{
+														"description": "Added as a part of security scheme: bearer",
+														"key": "Authorization",
+														"value": "Bearer <token>"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"name\": \"<string>\",\n  \"description\": \"<string>\",\n  \"status\": \"inactive\",\n  \"config\": {},\n  \"version\": \"<integer>\"\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/api/matrix/:matrixId",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"matrix",
+														":matrixId"
+													],
+													"variable": [
+														{
+															"key": "matrixId"
+														}
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"id\": \"<integer>\",\n  \"projectId\": \"<integer>\",\n  \"name\": \"<string>\",\n  \"status\": \"error\",\n  \"version\": \"<integer>\",\n  \"created\": \"<dateTime>\",\n  \"updated\": \"<dateTime>\",\n  \"description\": \"<string>\",\n  \"config\": {},\n  \"parentMatrixId\": \"<integer>\"\n}"
+										},
+										{
+											"name": "Invalid request parameters",
+											"originalRequest": {
+												"method": "PATCH",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													},
+													{
+														"description": "Added as a part of security scheme: bearer",
+														"key": "Authorization",
+														"value": "Bearer <token>"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"name\": \"<string>\",\n  \"description\": \"<string>\",\n  \"status\": \"inactive\",\n  \"config\": {},\n  \"version\": \"<integer>\"\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/api/matrix/:matrixId",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"matrix",
+														":matrixId"
+													],
+													"variable": [
+														{
+															"key": "matrixId"
+														}
+													]
+												}
+											},
+											"status": "Bad Request",
+											"code": 400,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": null
+										},
+										{
+											"name": "Matrix not found",
+											"originalRequest": {
+												"method": "PATCH",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													},
+													{
+														"description": "Added as a part of security scheme: bearer",
+														"key": "Authorization",
+														"value": "Bearer <token>"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"name\": \"<string>\",\n  \"description\": \"<string>\",\n  \"status\": \"inactive\",\n  \"config\": {},\n  \"version\": \"<integer>\"\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/api/matrix/:matrixId",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"matrix",
+														":matrixId"
+													],
+													"variable": [
+														{
+															"key": "matrixId"
+														}
+													]
+												}
+											},
+											"status": "Not Found",
+											"code": 404,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": null
+										},
+										{
+											"name": "Internal server error",
+											"originalRequest": {
+												"method": "PATCH",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													},
+													{
+														"description": "Added as a part of security scheme: bearer",
+														"key": "Authorization",
+														"value": "Bearer <token>"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"name\": \"<string>\",\n  \"description\": \"<string>\",\n  \"status\": \"inactive\",\n  \"config\": {},\n  \"version\": \"<integer>\"\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/api/matrix/:matrixId",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"matrix",
+														":matrixId"
+													],
+													"variable": [
+														{
+															"key": "matrixId"
+														}
+													]
+												}
+											},
+											"status": "Internal Server Error",
+											"code": 500,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": null
+										}
+									]
+								},
+								{
+									"name": "Delete a matrix",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/api/matrix/:matrixId",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"matrix",
+												":matrixId"
+											],
+											"variable": [
+												{
+													"key": "matrixId",
+													"value": "<integer>",
+													"description": "(Required) Matrix ID"
+												}
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "Matrix deleted successfully",
+											"originalRequest": {
+												"method": "DELETE",
+												"header": [
+													{
+														"description": "Added as a part of security scheme: bearer",
+														"key": "Authorization",
+														"value": "Bearer <token>"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/matrix/:matrixId",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"matrix",
+														":matrixId"
+													],
+													"variable": [
+														{
+															"key": "matrixId"
+														}
+													]
+												}
+											},
+											"status": "No Content",
+											"code": 204,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": null
+										},
+										{
+											"name": "Invalid matrix ID or matrix has child matrices",
+											"originalRequest": {
+												"method": "DELETE",
+												"header": [
+													{
+														"description": "Added as a part of security scheme: bearer",
+														"key": "Authorization",
+														"value": "Bearer <token>"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/matrix/:matrixId",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"matrix",
+														":matrixId"
+													],
+													"variable": [
+														{
+															"key": "matrixId"
+														}
+													]
+												}
+											},
+											"status": "Bad Request",
+											"code": 400,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": null
+										},
+										{
+											"name": "Matrix not found",
+											"originalRequest": {
+												"method": "DELETE",
+												"header": [
+													{
+														"description": "Added as a part of security scheme: bearer",
+														"key": "Authorization",
+														"value": "Bearer <token>"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/matrix/:matrixId",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"matrix",
+														":matrixId"
+													],
+													"variable": [
+														{
+															"key": "matrixId"
+														}
+													]
+												}
+											},
+											"status": "Not Found",
+											"code": 404,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": null
+										},
+										{
+											"name": "Internal server error",
+											"originalRequest": {
+												"method": "DELETE",
+												"header": [
+													{
+														"description": "Added as a part of security scheme: bearer",
+														"key": "Authorization",
+														"value": "Bearer <token>"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/matrix/:matrixId",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"matrix",
+														":matrixId"
+													],
+													"variable": [
+														{
+															"key": "matrixId"
+														}
+													]
+												}
+											},
+											"status": "Internal Server Error",
+											"code": 500,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": null
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "projects",
+					"item": [
+						{
+							"name": "{projectId}",
+							"item": [
+								{
+									"name": "Get a project by ID",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/projects/:projectId",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"projects",
+												":projectId"
+											],
+											"variable": [
+												{
+													"key": "projectId",
+													"value": "<integer>",
+													"description": "(Required) Project ID"
+												}
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "Project found",
+											"originalRequest": {
+												"method": "GET",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "application/json"
+													},
+													{
+														"description": "Added as a part of security scheme: bearer",
+														"key": "Authorization",
+														"value": "Bearer <token>"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/projects/:projectId",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"projects",
+														":projectId"
+													],
+													"variable": [
+														{
+															"key": "projectId"
+														}
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"id\": \"<integer>\",\n  \"name\": \"<string>\",\n  \"created\": \"<dateTime>\",\n  \"updated\": \"<dateTime>\",\n  \"description\": \"<string>\"\n}"
+										},
+										{
+											"name": "Invalid project ID",
+											"originalRequest": {
+												"method": "GET",
+												"header": [
+													{
+														"description": "Added as a part of security scheme: bearer",
+														"key": "Authorization",
+														"value": "Bearer <token>"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/projects/:projectId",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"projects",
+														":projectId"
+													],
+													"variable": [
+														{
+															"key": "projectId"
+														}
+													]
+												}
+											},
+											"status": "Bad Request",
+											"code": 400,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": null
+										},
+										{
+											"name": "Project not found",
+											"originalRequest": {
+												"method": "GET",
+												"header": [
+													{
+														"description": "Added as a part of security scheme: bearer",
+														"key": "Authorization",
+														"value": "Bearer <token>"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/projects/:projectId",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"projects",
+														":projectId"
+													],
+													"variable": [
+														{
+															"key": "projectId"
+														}
+													]
+												}
+											},
+											"status": "Not Found",
+											"code": 404,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": null
+										},
+										{
+											"name": "Internal server error",
+											"originalRequest": {
+												"method": "GET",
+												"header": [
+													{
+														"description": "Added as a part of security scheme: bearer",
+														"key": "Authorization",
+														"value": "Bearer <token>"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/projects/:projectId",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"projects",
+														":projectId"
+													],
+													"variable": [
+														{
+															"key": "projectId"
+														}
+													]
+												}
+											},
+											"status": "Internal Server Error",
+											"code": 500,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": null
+										}
+									]
+								},
+								{
+									"name": "Update a project",
+									"request": {
+										"method": "PATCH",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"name\": \"<string>\",\n  \"description\": \"<string>\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/projects/:projectId",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"projects",
+												":projectId"
+											],
+											"variable": [
+												{
+													"key": "projectId",
+													"value": "<integer>",
+													"description": "(Required) Project ID"
+												}
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "Project updated successfully",
+											"originalRequest": {
+												"method": "PATCH",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													},
+													{
+														"key": "Accept",
+														"value": "application/json"
+													},
+													{
+														"description": "Added as a part of security scheme: bearer",
+														"key": "Authorization",
+														"value": "Bearer <token>"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"name\": \"<string>\",\n  \"description\": \"<string>\"\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/api/projects/:projectId",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"projects",
+														":projectId"
+													],
+													"variable": [
+														{
+															"key": "projectId"
+														}
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"id\": \"<integer>\",\n  \"name\": \"<string>\",\n  \"created\": \"<dateTime>\",\n  \"updated\": \"<dateTime>\",\n  \"description\": \"<string>\"\n}"
+										},
+										{
+											"name": "Invalid request parameters",
+											"originalRequest": {
+												"method": "PATCH",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													},
+													{
+														"description": "Added as a part of security scheme: bearer",
+														"key": "Authorization",
+														"value": "Bearer <token>"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"name\": \"<string>\",\n  \"description\": \"<string>\"\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/api/projects/:projectId",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"projects",
+														":projectId"
+													],
+													"variable": [
+														{
+															"key": "projectId"
+														}
+													]
+												}
+											},
+											"status": "Bad Request",
+											"code": 400,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": null
+										},
+										{
+											"name": "Project not found",
+											"originalRequest": {
+												"method": "PATCH",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													},
+													{
+														"description": "Added as a part of security scheme: bearer",
+														"key": "Authorization",
+														"value": "Bearer <token>"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"name\": \"<string>\",\n  \"description\": \"<string>\"\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/api/projects/:projectId",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"projects",
+														":projectId"
+													],
+													"variable": [
+														{
+															"key": "projectId"
+														}
+													]
+												}
+											},
+											"status": "Not Found",
+											"code": 404,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": null
+										},
+										{
+											"name": "Project name already exists",
+											"originalRequest": {
+												"method": "PATCH",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													},
+													{
+														"description": "Added as a part of security scheme: bearer",
+														"key": "Authorization",
+														"value": "Bearer <token>"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"name\": \"<string>\",\n  \"description\": \"<string>\"\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/api/projects/:projectId",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"projects",
+														":projectId"
+													],
+													"variable": [
+														{
+															"key": "projectId"
+														}
+													]
+												}
+											},
+											"status": "Conflict",
+											"code": 409,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": null
+										},
+										{
+											"name": "Internal server error",
+											"originalRequest": {
+												"method": "PATCH",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													},
+													{
+														"description": "Added as a part of security scheme: bearer",
+														"key": "Authorization",
+														"value": "Bearer <token>"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"name\": \"<string>\",\n  \"description\": \"<string>\"\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/api/projects/:projectId",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"projects",
+														":projectId"
+													],
+													"variable": [
+														{
+															"key": "projectId"
+														}
+													]
+												}
+											},
+											"status": "Internal Server Error",
+											"code": 500,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": null
+										}
+									]
+								},
+								{
+									"name": "Delete a project",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/api/projects/:projectId",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"projects",
+												":projectId"
+											],
+											"variable": [
+												{
+													"key": "projectId",
+													"value": "<integer>",
+													"description": "(Required) Project ID"
+												}
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "Project deleted successfully",
+											"originalRequest": {
+												"method": "DELETE",
+												"header": [
+													{
+														"description": "Added as a part of security scheme: bearer",
+														"key": "Authorization",
+														"value": "Bearer <token>"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/projects/:projectId",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"projects",
+														":projectId"
+													],
+													"variable": [
+														{
+															"key": "projectId"
+														}
+													]
+												}
+											},
+											"status": "No Content",
+											"code": 204,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": null
+										},
+										{
+											"name": "Invalid project ID",
+											"originalRequest": {
+												"method": "DELETE",
+												"header": [
+													{
+														"description": "Added as a part of security scheme: bearer",
+														"key": "Authorization",
+														"value": "Bearer <token>"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/projects/:projectId",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"projects",
+														":projectId"
+													],
+													"variable": [
+														{
+															"key": "projectId"
+														}
+													]
+												}
+											},
+											"status": "Bad Request",
+											"code": 400,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": null
+										},
+										{
+											"name": "Project not found",
+											"originalRequest": {
+												"method": "DELETE",
+												"header": [
+													{
+														"description": "Added as a part of security scheme: bearer",
+														"key": "Authorization",
+														"value": "Bearer <token>"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/projects/:projectId",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"projects",
+														":projectId"
+													],
+													"variable": [
+														{
+															"key": "projectId"
+														}
+													]
+												}
+											},
+											"status": "Not Found",
+											"code": 404,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": null
+										},
+										{
+											"name": "Internal server error",
+											"originalRequest": {
+												"method": "DELETE",
+												"header": [
+													{
+														"description": "Added as a part of security scheme: bearer",
+														"key": "Authorization",
+														"value": "Bearer <token>"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/projects/:projectId",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"projects",
+														":projectId"
+													],
+													"variable": [
+														{
+															"key": "projectId"
+														}
+													]
+												}
+											},
+											"status": "Internal Server Error",
+											"code": 500,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": null
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "Get a paginated list of projects",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/projects?page=1&limit=10&search=<string>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"projects"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1",
+											"description": "Page number"
+										},
+										{
+											"key": "limit",
+											"value": "10",
+											"description": "Number of items per page"
+										},
+										{
+											"key": "search",
+											"value": "<string>",
+											"description": "Search term for project name"
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Successfully retrieved projects",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json"
+											},
+											{
+												"description": "Added as a part of security scheme: bearer",
+												"key": "Authorization",
+												"value": "Bearer <token>"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/projects?page=1&limit=10&search=<string>",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"projects"
+											],
+											"query": [
+												{
+													"key": "page",
+													"value": "1",
+													"description": "Page number"
+												},
+												{
+													"key": "limit",
+													"value": "10",
+													"description": "Number of items per page"
+												},
+												{
+													"key": "search",
+													"value": "<string>",
+													"description": "Search term for project name"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"data\": [\n    {\n      \"id\": \"<integer>\",\n      \"name\": \"<string>\",\n      \"created\": \"<dateTime>\",\n      \"updated\": \"<dateTime>\",\n      \"description\": \"<string>\"\n    },\n    {\n      \"id\": \"<integer>\",\n      \"name\": \"<string>\",\n      \"created\": \"<dateTime>\",\n      \"updated\": \"<dateTime>\",\n      \"description\": \"<string>\"\n    }\n  ],\n  \"pagination\": {\n    \"total\": \"<integer>\",\n    \"page\": \"<integer>\",\n    \"limit\": \"<integer>\",\n    \"totalPages\": \"<integer>\"\n  }\n}"
+								},
+								{
+									"name": "Invalid request parameters",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"description": "Added as a part of security scheme: bearer",
+												"key": "Authorization",
+												"value": "Bearer <token>"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/projects?page=1&limit=10&search=<string>",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"projects"
+											],
+											"query": [
+												{
+													"key": "page",
+													"value": "1",
+													"description": "Page number"
+												},
+												{
+													"key": "limit",
+													"value": "10",
+													"description": "Number of items per page"
+												},
+												{
+													"key": "search",
+													"value": "<string>",
+													"description": "Search term for project name"
+												}
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "text",
+									"header": [],
+									"cookie": [],
+									"body": null
+								}
+							]
+						},
+						{
+							"name": "Create a new project",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"<string>\",\n  \"description\": \"<string>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/projects",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"projects"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Project created successfully",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											},
+											{
+												"description": "Added as a part of security scheme: bearer",
+												"key": "Authorization",
+												"value": "Bearer <token>"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"name\": \"<string>\",\n  \"description\": \"<string>\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/projects",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"projects"
+											]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"id\": \"<integer>\",\n  \"name\": \"<string>\",\n  \"created\": \"<dateTime>\",\n  \"updated\": \"<dateTime>\",\n  \"description\": \"<string>\"\n}"
+								},
+								{
+									"name": "Invalid request body",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"description": "Added as a part of security scheme: bearer",
+												"key": "Authorization",
+												"value": "Bearer <token>"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"name\": \"<string>\",\n  \"description\": \"<string>\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/projects",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"projects"
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "text",
+									"header": [],
+									"cookie": [],
+									"body": null
+								},
+								{
+									"name": "Project name already exists",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"description": "Added as a part of security scheme: bearer",
+												"key": "Authorization",
+												"value": "Bearer <token>"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"name\": \"<string>\",\n  \"description\": \"<string>\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/projects",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"projects"
+											]
+										}
+									},
+									"status": "Conflict",
+									"code": 409,
+									"_postman_previewlanguage": "text",
+									"header": [],
+									"cookie": [],
+									"body": null
+								},
+								{
+									"name": "Internal server error",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"description": "Added as a part of security scheme: bearer",
+												"key": "Authorization",
+												"value": "Bearer <token>"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"name\": \"<string>\",\n  \"description\": \"<string>\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/projects",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"projects"
+											]
+										}
+									},
+									"status": "Internal Server Error",
+									"code": 500,
+									"_postman_previewlanguage": "text",
+									"header": [],
+									"cookie": [],
+									"body": null
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{bearerToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3004"
+		}
+	]
 }
