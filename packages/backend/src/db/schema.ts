@@ -161,3 +161,18 @@ export const connections = pgTable('connections', {
   created: timestamp('created').defaultNow().notNull(),
   updated: timestamp('updated').defaultNow().notNull(),
 });
+
+export const triggers = pgTable('triggers', {
+  id: serial('id').primaryKey(),
+  nodeId: integer('node_id')
+    .notNull()
+    .references(() => nodes.id, { onDelete: 'cascade' }),
+  type: text('type').notNull(),
+  name: text('name').notNull(),
+  config: jsonb('config').default({}).notNull(),
+  status: text('status').default('inactive').notNull(),
+  lastTriggered: timestamp('last_triggered'),
+  nextTrigger: timestamp('next_trigger'),
+  created: timestamp('created').defaultNow().notNull(),
+  updated: timestamp('updated').defaultNow().notNull(),
+});
