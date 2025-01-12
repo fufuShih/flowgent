@@ -3,7 +3,8 @@ import { and, desc, eq, sql, inArray } from 'drizzle-orm';
 import { db } from '../db';
 import { matrix, matrixStatusEnum, nodes, connections, projects } from '../db/schema';
 import { z } from 'zod';
-import { workflowService } from '../services/matrix/workflow.service';
+import { workflowService } from '../services/workflow.service';
+import { triggerService } from '../services/trigger.service';
 
 const router = Router();
 
@@ -919,6 +920,94 @@ router.delete('/:matrixId/connections', async (req, res) => {
       return res.status(400).json({ error: error.errors });
     }
     console.error('Error deleting connections:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+/**
+ * @swagger
+ * /api/matrix/{matrixId}/triggers:
+ *   post:
+ *     summary: Create trigger node
+ */
+router.post('/:matrixId/triggers', async (req, res) => {
+  try {
+    const matrixId = parseInt(req.params.matrixId);
+    if (isNaN(matrixId)) {
+      return res.status(400).json({ error: 'Invalid matrix ID' });
+    }
+
+    const data = z
+      .object({
+        name: z.string(),
+        triggerType: z.enum(['manual', 'cron', 'webhook']),
+        config: z.record(z.any()).optional(),
+      })
+      .parse(req.body);
+
+    const trigger = await triggerService.createTriggerNode(matrixId, data);
+    res.status(201).json(trigger);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+/**
+ * @swagger
+ * /api/matrix/{matrixId}/triggers/:nodeId/activate:
+ *   post:
+ *     summary: Activate trigger
+ */
+router.post('/:matrixId/triggers/:nodeId/activate', async (req, res) => {
+  try {
+    const nodeId = parseInt(req.params.nodeId);
+    if (isNaN(nodeId)) {
+      return res.status(400).json({ error: 'Invalid node ID' });
+    }
+
+    const trigger = await triggerService.activateTrigger(nodeId);
+    res.json(trigger);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+/**
+ * @swagger
+ * /api/matrix/{matrixId}/triggers/:nodeId/deactivate:
+ *   post:
+ *     summary: Deactivate trigger
+ */
+router.post('/:matrixId/triggers/:nodeId/deactivate', async (req, res) => {
+  try {
+    const nodeId = parseInt(req.params.nodeId);
+    if (isNaN(nodeId)) {
+      return res.status(400).json({ error: 'Invalid node ID' });
+    }
+
+    const trigger = await triggerService.deactivateTrigger(nodeId);
+    res.json(trigger);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+/**
+ * @swagger
+ * /api/matrix/{matrixId}/triggers/:nodeId/execute:
+ *   post:
+ *     summary: Execute trigger
+ */
+router.post('/:matrixId/triggers/:nodeId/execute', async (req, res) => {
+  try {
+    const nodeId = parseInt(req.params.nodeId);
+    if (isNaN(nodeId)) {
+      return res.status(400).json({ error: 'Invalid node ID' });
+    }
+
+    await triggerService.executeTrigger(nodeId);
+    res.status(204).send();
+  } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
