@@ -3,6 +3,7 @@ import { and, desc, eq, sql, inArray } from 'drizzle-orm';
 import { db } from '../db';
 import { matrix, matrixStatusEnum, nodes, connections, projects } from '../db/schema';
 import { z } from 'zod';
+import { workflowService } from '../services/matrix/workflow.service';
 
 const router = Router();
 
@@ -30,6 +31,32 @@ const queryParamsSchema = z.object({
   version: z.coerce.number().optional(),
   includeNodes: z.coerce.boolean().default(false),
   includeConnections: z.coerce.boolean().default(false),
+});
+
+const nodeSchema = z.object({
+  type: z.enum(['trigger', 'action', 'condition', 'subMatrix', 'transformer', 'loop', 'monitor']),
+  name: z.string(),
+  description: z.string().nullable(),
+  config: z
+    .object({
+      x: z.number(),
+      y: z.number(),
+      inPorts: z.array(z.any()).default([]),
+      outPorts: z.array(z.any()).default([]),
+    })
+    .default(() => ({ x: 0, y: 0, inPorts: [], outPorts: [] })),
+  subMatrixId: z.number().nullable(),
+  typeVersion: z.number().default(1),
+  disabled: z.boolean().default(false),
+  matrixId: z.number(),
+});
+
+const connectionSchema = z.object({
+  sourceId: z.number(),
+  targetId: z.number(),
+  type: z.enum(['default', 'success', 'error', 'condition']).default('default'),
+  config: z.record(z.any()).default({}),
+  matrixId: z.number(),
 });
 
 /**
@@ -80,6 +107,38 @@ const queryParamsSchema = z.object({
  *         - version
  *         - created
  *         - updated
+ *     Connection:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: The connection ID
+ *         matrixId:
+ *           type: integer
+ *           description: The matrix ID this connection belongs to
+ *         sourceId:
+ *           type: integer
+ *           description: Source node ID
+ *         targetId:
+ *           type: integer
+ *           description: Target node ID
+ *         type:
+ *           type: string
+ *           enum: [default, success, error, condition]
+ *           description: Connection type
+ *         config:
+ *           type: object
+ *           description: Connection configuration
+ *         created:
+ *           type: string
+ *           format: date-time
+ *         updated:
+ *           type: string
+ *           format: date-time
+ *       required:
+ *         - sourceId
+ *         - targetId
+ *         - type
  */
 
 /**
@@ -643,6 +702,223 @@ router.post('/:matrixId/clone', async (req, res) => {
     res.status(201).json(clonedMatrix);
   } catch (error) {
     console.error('Error cloning matrix:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+/**
+ * @swagger
+ * /api/matrix/{matrixId}/workflow:
+ *   get:
+ *     summary: Get workflow data for a matrix
+ *     tags: [Matrix]
+ *     parameters:
+ *       - in: path
+ *         name: matrixId
+ *         required: true
+ *         schema:
+ *           type: integer
+ */
+router.get('/:matrixId/workflow', async (req, res) => {
+  try {
+    const matrixId = parseInt(req.params.matrixId);
+    if (isNaN(matrixId)) {
+      return res.status(400).json({ error: 'Invalid matrix ID' });
+    }
+
+    const workflow = await workflowService.getWorkflow(matrixId);
+    res.json(workflow);
+  } catch (error) {
+    console.error('Error fetching workflow:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+/**
+ * @swagger
+ * /api/matrix/{matrixId}/nodes:
+ *   post:
+ *     summary: Create new nodes in the matrix
+ */
+router.post('/:matrixId/nodes', async (req, res) => {
+  try {
+    const matrixId = parseInt(req.params.matrixId);
+    if (isNaN(matrixId)) {
+      return res.status(400).json({ error: 'Invalid matrix ID' });
+    }
+
+    const nodes = z.array(nodeSchema).parse(req.body);
+    const createdNodes = await workflowService.createNodes(matrixId, nodes);
+    res.status(201).json(createdNodes);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: error.errors });
+    }
+    console.error('Error creating nodes:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+/**
+ * @swagger
+ * /api/matrix/{matrixId}/nodes:
+ *   patch:
+ *     summary: Update existing nodes in the matrix
+ */
+router.patch('/:matrixId/nodes', async (req, res) => {
+  try {
+    const matrixId = parseInt(req.params.matrixId);
+    if (isNaN(matrixId)) {
+      return res.status(400).json({ error: 'Invalid matrix ID' });
+    }
+
+    const nodes = z.array(nodeSchema.extend({ id: z.number() })).parse(req.body);
+    const updatedNodes = await workflowService.updateNodes(matrixId, nodes);
+    res.json(updatedNodes);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: error.errors });
+    }
+    console.error('Error updating nodes:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+/**
+ * @swagger
+ * /api/matrix/{matrixId}/nodes:
+ *   delete:
+ *     summary: Delete nodes from the matrix
+ */
+router.delete('/:matrixId/nodes', async (req, res) => {
+  try {
+    const matrixId = parseInt(req.params.matrixId);
+    if (isNaN(matrixId)) {
+      return res.status(400).json({ error: 'Invalid matrix ID' });
+    }
+
+    const { nodeIds } = z.object({ nodeIds: z.array(z.number()) }).parse(req.body);
+    await workflowService.deleteNodes(matrixId, nodeIds);
+    res.status(204).send();
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: error.errors });
+    }
+    console.error('Error deleting nodes:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Similar routes for connections
+/**
+ * @swagger
+ * /api/matrix/{matrixId}/connections:
+ *   post:
+ *     summary: Create new connections in the matrix
+ */
+router.post('/:matrixId/connections', async (req, res) => {
+  try {
+    const matrixId = parseInt(req.params.matrixId);
+    if (isNaN(matrixId)) {
+      return res.status(400).json({ error: 'Invalid matrix ID' });
+    }
+
+    const connections = z.array(connectionSchema).parse(req.body);
+    const createdConnections = await workflowService.createConnections(matrixId, connections);
+    res.status(201).json(createdConnections);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: error.errors });
+    }
+    console.error('Error creating connections:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+/**
+ * @swagger
+ * /api/matrix/{matrixId}/connections:
+ *   patch:
+ *     summary: Update existing connections in the matrix
+ *     tags: [Matrix]
+ *     parameters:
+ *       - in: path
+ *         name: matrixId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: array
+ *             items:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/Connection'
+ *                 - required:
+ *                   - id
+ */
+router.patch('/:matrixId/connections', async (req, res) => {
+  try {
+    const matrixId = parseInt(req.params.matrixId);
+    if (isNaN(matrixId)) {
+      return res.status(400).json({ error: 'Invalid matrix ID' });
+    }
+
+    const connections = z.array(connectionSchema.extend({ id: z.number() })).parse(req.body);
+    const updatedConnections = await workflowService.updateConnections(matrixId, connections);
+    res.json(updatedConnections);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: error.errors });
+    }
+    console.error('Error updating connections:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+/**
+ * @swagger
+ * /api/matrix/{matrixId}/connections:
+ *   delete:
+ *     summary: Delete connections from the matrix
+ *     tags: [Matrix]
+ *     parameters:
+ *       - in: path
+ *         name: matrixId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - connectionIds
+ *             properties:
+ *               connectionIds:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ */
+router.delete('/:matrixId/connections', async (req, res) => {
+  try {
+    const matrixId = parseInt(req.params.matrixId);
+    if (isNaN(matrixId)) {
+      return res.status(400).json({ error: 'Invalid matrix ID' });
+    }
+
+    const { connectionIds } = z.object({ connectionIds: z.array(z.number()) }).parse(req.body);
+    await workflowService.deleteConnections(matrixId, connectionIds);
+    res.status(204).send();
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: error.errors });
+    }
+    console.error('Error deleting connections:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
