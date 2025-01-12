@@ -96,6 +96,22 @@ export interface INodeConfig {
   y: number;
   inPorts: InPortType[];
   outPorts: OutPortType[];
+
+  // Trigger specific configurations
+  triggerType?: 'manual' | 'cron' | 'webhook';
+  triggerStatus?: 'active' | 'inactive';
+  lastTriggered?: Date;
+  nextTrigger?: Date;
+
+  // Cron trigger config
+  cronExpression?: string;
+  timezone?: string;
+
+  // Webhook trigger config
+  path?: string;
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  secret?: string;
+
   [key: string]: any;
 }
 
@@ -111,7 +127,7 @@ export const nodes = pgTable('nodes', {
   type: nodeTypeEnum('type').notNull(),
   name: text('name').notNull(),
   description: text('description'),
-  config: jsonb('config').$type<INodeConfig>().notNull().default({
+  config: jsonb('config').$type<INodeConfig | ITriggerConfig>().notNull().default({
     x: 0,
     y: 0,
     inPorts: [],
@@ -162,17 +178,18 @@ export const connections = pgTable('connections', {
   updated: timestamp('updated').defaultNow().notNull(),
 });
 
-export const triggers = pgTable('triggers', {
-  id: serial('id').primaryKey(),
-  nodeId: integer('node_id')
-    .notNull()
-    .references(() => nodes.id, { onDelete: 'cascade' }),
-  type: text('type').notNull(),
-  name: text('name').notNull(),
-  config: jsonb('config').default({}).notNull(),
-  status: text('status').default('inactive').notNull(),
-  lastTriggered: timestamp('last_triggered'),
-  nextTrigger: timestamp('next_trigger'),
-  created: timestamp('created').defaultNow().notNull(),
-  updated: timestamp('updated').defaultNow().notNull(),
-});
+export interface ITriggerConfig extends INodeConfig {
+  triggerType: 'manual' | 'cron' | 'webhook';
+  triggerStatus: 'active' | 'inactive';
+  lastTriggered?: Date;
+  nextTrigger?: Date;
+
+  // Cron trigger 配置
+  cronExpression?: string;
+  timezone?: string;
+
+  // Webhook trigger 配置
+  path?: string;
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  secret?: string;
+}

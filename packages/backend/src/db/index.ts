@@ -5,6 +5,7 @@ import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import path from 'path';
 import { sql } from 'drizzle-orm';
 import { nodes, type NodeType, matrix, INodeConfig } from './schema';
+import crypto from 'crypto';
 
 // Database configuration interface
 interface DatabaseConfig extends PoolConfig {
@@ -72,7 +73,6 @@ export const initDatabase = async (): Promise<boolean> => {
  */
 async function createEnums(): Promise<void> {
   try {
-    // Create each enum separately to better handle errors
     const enumStatements = [
       `DO $$
        BEGIN
@@ -92,20 +92,6 @@ async function createEnums(): Promise<void> {
        BEGIN
          IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'connection_type') THEN
            CREATE TYPE connection_type AS ENUM ('default', 'success', 'error', 'condition');
-         END IF;
-       END $$;`,
-
-      `DO $$
-       BEGIN
-         IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'trigger_type') THEN
-           CREATE TYPE trigger_type AS ENUM ('webhook', 'schedule', 'event', 'manual', 'email', 'database');
-         END IF;
-       END $$;`,
-
-      `DO $$
-       BEGIN
-         IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'trigger_status') THEN
-           CREATE TYPE trigger_status AS ENUM ('active', 'inactive', 'error');
          END IF;
        END $$;`,
     ];
@@ -219,10 +205,64 @@ async function initializeTemplateNodes(): Promise<void> {
                 },
               },
             ],
-            type: 'webhook',
+            triggerType: 'webhook',
+            triggerStatus: 'inactive',
             method: 'POST',
             path: '/webhook',
-            headers: {},
+            secret: crypto.randomBytes(32).toString('hex'),
+          },
+        },
+        {
+          matrixId: 0,
+          type: 'trigger',
+          name: 'Cron Trigger',
+          description: 'Schedule-based trigger',
+          config: {
+            x: 0,
+            y: 0,
+            inPorts: [],
+            outPorts: [
+              {
+                id: '1',
+                schema: {
+                  type: 'object',
+                  properties: {
+                    timestamp: { type: 'string' },
+                    triggerType: { type: 'string' },
+                  },
+                },
+              },
+            ],
+            triggerType: 'cron',
+            triggerStatus: 'inactive',
+            cronExpression: '0 * * * *',
+            timezone: 'UTC',
+          },
+        },
+        {
+          matrixId: 0,
+          type: 'trigger',
+          name: 'Manual Trigger',
+          description: 'Manually triggered flow',
+          config: {
+            x: 0,
+            y: 0,
+            inPorts: [],
+            outPorts: [
+              {
+                id: '1',
+                schema: {
+                  type: 'object',
+                  properties: {
+                    timestamp: { type: 'string' },
+                    triggerType: { type: 'string' },
+                    payload: { type: 'object' },
+                  },
+                },
+              },
+            ],
+            triggerType: 'manual',
+            triggerStatus: 'inactive',
           },
         },
         {
