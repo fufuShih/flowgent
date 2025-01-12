@@ -1017,6 +1017,38 @@ router.delete('/:matrixId/connections', async (req, res) => {
  * /api/matrix/{matrixId}/triggers:
  *   post:
  *     summary: Create trigger node
+ *     tags: [Matrix]
+ *     parameters:
+ *       - in: path
+ *         name: matrixId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Matrix ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - triggerType
+ *             properties:
+ *               name:
+ *                 type: string
+ *               triggerType:
+ *                 type: string
+ *                 enum: [manual, cron, webhook]
+ *               config:
+ *                 type: object
+ *     responses:
+ *       201:
+ *         description: Trigger created successfully
+ *       400:
+ *         description: Invalid request parameters
+ *       500:
+ *         description: Internal server error
  */
 router.post('/:matrixId/triggers', async (req, res) => {
   try {
@@ -1042,9 +1074,30 @@ router.post('/:matrixId/triggers', async (req, res) => {
 
 /**
  * @swagger
- * /api/matrix/{matrixId}/triggers/:nodeId/activate:
+ * /api/matrix/{matrixId}/triggers/{nodeId}/activate:
  *   post:
  *     summary: Activate trigger
+ *     tags: [Matrix]
+ *     parameters:
+ *       - in: path
+ *         name: matrixId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Matrix ID
+ *       - in: path
+ *         name: nodeId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Node ID
+ *     responses:
+ *       200:
+ *         description: Trigger activated successfully
+ *       400:
+ *         description: Invalid request parameters
+ *       500:
+ *         description: Internal server error
  */
 router.post('/:matrixId/triggers/:nodeId/activate', async (req, res) => {
   try {
@@ -1062,9 +1115,30 @@ router.post('/:matrixId/triggers/:nodeId/activate', async (req, res) => {
 
 /**
  * @swagger
- * /api/matrix/{matrixId}/triggers/:nodeId/deactivate:
+ * /api/matrix/{matrixId}/triggers/{nodeId}/deactivate:
  *   post:
  *     summary: Deactivate trigger
+ *     tags: [Matrix]
+ *     parameters:
+ *       - in: path
+ *         name: matrixId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Matrix ID
+ *       - in: path
+ *         name: nodeId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Node ID
+ *     responses:
+ *       200:
+ *         description: Trigger deactivated successfully
+ *       400:
+ *         description: Invalid request parameters
+ *       500:
+ *         description: Internal server error
  */
 router.post('/:matrixId/triggers/:nodeId/deactivate', async (req, res) => {
   try {
@@ -1082,9 +1156,30 @@ router.post('/:matrixId/triggers/:nodeId/deactivate', async (req, res) => {
 
 /**
  * @swagger
- * /api/matrix/{matrixId}/triggers/:nodeId/execute:
+ * /api/matrix/{matrixId}/triggers/{nodeId}/execute:
  *   post:
  *     summary: Execute trigger
+ *     tags: [Matrix]
+ *     parameters:
+ *       - in: path
+ *         name: matrixId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Matrix ID
+ *       - in: path
+ *         name: nodeId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Node ID
+ *     responses:
+ *       204:
+ *         description: Trigger executed successfully
+ *       400:
+ *         description: Invalid request parameters
+ *       500:
+ *         description: Internal server error
  */
 router.post('/:matrixId/triggers/:nodeId/execute', async (req, res) => {
   try {
