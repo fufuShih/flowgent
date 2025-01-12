@@ -1195,4 +1195,52 @@ router.post('/:matrixId/triggers/:nodeId/execute', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/matrix/{matrixId}/workflow/execute:
+ *   post:
+ *     summary: Execute all triggers in the workflow
+ *     tags: [Matrix]
+ *     parameters:
+ *       - in: path
+ *         name: matrixId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Matrix ID
+ *     responses:
+ *       204:
+ *         description: Workflow execution started successfully
+ *       400:
+ *         description: Invalid matrix ID
+ *       404:
+ *         description: Matrix not found or no trigger nodes found
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/:matrixId/workflow/execute', async (req, res) => {
+  try {
+    const matrixId = parseInt(req.params.matrixId);
+    if (isNaN(matrixId)) {
+      return res.status(400).json({ error: 'Invalid matrix ID' });
+    }
+
+    // Verify matrix exists
+    const matrixExists = await db.select().from(matrix).where(eq(matrix.id, matrixId)).limit(1);
+
+    if (!matrixExists.length) {
+      return res.status(404).json({ error: 'Matrix not found' });
+    }
+
+    await workflowService.executeWorkflow(matrixId);
+    res.status(204).send();
+  } catch (error) {
+    if (error instanceof Error && error.message === 'No trigger nodes found in this matrix') {
+      return res.status(404).json({ error: error.message });
+    }
+    console.error('Error executing workflow:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 export default router;

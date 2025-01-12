@@ -2,6 +2,7 @@ import { db } from '../db';
 import { and, eq, inArray, or } from 'drizzle-orm';
 import { nodes, connections, matrix } from '../db/schema';
 import type { InferModel } from 'drizzle-orm';
+import { triggerService } from './trigger.service';
 
 export type Node = InferModel<typeof nodes>;
 export type Connection = InferModel<typeof connections>;
@@ -10,6 +11,8 @@ export interface WorkflowData {
   nodes: Node[];
   connections: Connection[];
 }
+
+type NodeExecutionResult = boolean | Record<string, any> | void;
 
 export class WorkflowService {
   /**
@@ -178,6 +181,120 @@ export class WorkflowService {
     await db
       .delete(connections)
       .where(and(eq(connections.matrixId, matrixId), inArray(connections.id, connectionIds)));
+  }
+
+  /**
+   * Execute a workflow by matrix ID
+   * This will find all trigger nodes and execute the workflow
+   */
+  async executeWorkflow(matrixId: number): Promise<void> {
+    // Get all nodes and connections for this matrix
+    const [workflowNodes, workflowConnections] = await Promise.all([
+      db.select().from(nodes).where(eq(nodes.matrixId, matrixId)),
+      db.select().from(connections).where(eq(connections.matrixId, matrixId)),
+    ]);
+
+    // Get trigger nodes
+    const triggerNodes = workflowNodes.filter((node) => node.type === 'trigger');
+    if (triggerNodes.length === 0) {
+      throw new Error('No trigger nodes found in this matrix');
+    }
+
+    // Create a map of nodes by their IDs for quick lookup
+    const nodesMap = new Map(workflowNodes.map((node) => [node.id, node]));
+
+    // Create an adjacency list representation of the workflow graph
+    const adjacencyList = new Map<number, Connection[]>();
+    workflowConnections.forEach((conn) => {
+      if (!adjacencyList.has(conn.sourceId)) {
+        adjacencyList.set(conn.sourceId, []);
+      }
+      adjacencyList.get(conn.sourceId)!.push(conn);
+    });
+
+    // Function to execute a single node and its downstream nodes
+    const executeNode = async (nodeId: number, executionContext: any = {}) => {
+      const node = nodesMap.get(nodeId);
+      if (!node) return;
+
+      try {
+        let result: NodeExecutionResult = undefined;
+        switch (node.type) {
+          case 'trigger':
+            result = await triggerService.executeTrigger(node.id);
+            break;
+          case 'action':
+            // TODO: Implement action execution
+            result = await this.executeAction(node, executionContext);
+            break;
+          case 'condition':
+            // TODO: Implement condition evaluation
+            result = await this.evaluateCondition(node, executionContext);
+            break;
+          case 'transformer':
+            // TODO: Implement data transformation
+            result = await this.executeTransformer(node, executionContext);
+            break;
+          // Add other node types as needed
+        }
+
+        // Update execution context with the result
+        executionContext[node.id] = result;
+
+        // Get downstream connections
+        const downstreamConnections = adjacencyList.get(node.id) || [];
+
+        // For conditions, only follow the appropriate path
+        if (node.type === 'condition' && typeof result === 'boolean') {
+          const successConnections = downstreamConnections.filter(
+            (conn) => conn.type === (result ? 'success' : 'error')
+          );
+          await Promise.all(
+            successConnections.map((conn) => executeNode(conn.targetId, executionContext))
+          );
+        } else {
+          // For other nodes, execute all downstream nodes
+          await Promise.all(
+            downstreamConnections.map((conn) => executeNode(conn.targetId, executionContext))
+          );
+        }
+      } catch (error) {
+        console.error(`Error executing node ${node.id}:`, error);
+        // Handle error connections if they exist
+        const errorConnections = (adjacencyList.get(node.id) || []).filter(
+          (conn) => conn.type === 'error'
+        );
+
+        if (errorConnections.length > 0) {
+          await Promise.all(
+            errorConnections.map((conn) =>
+              executeNode(conn.targetId, { ...executionContext, error })
+            )
+          );
+        } else {
+          throw error; // Re-throw if no error handling is defined
+        }
+      }
+    };
+
+    // Execute workflow starting from each trigger node
+    await Promise.all(triggerNodes.map((node) => executeNode(node.id, {})));
+  }
+
+  // TODO: Implement these methods based on your node execution requirements
+  private async executeAction(node: Node, context: any) {
+    // Implement action execution logic
+    throw new Error('Action execution not implemented');
+  }
+
+  private async evaluateCondition(node: Node, context: any) {
+    // Implement condition evaluation logic
+    throw new Error('Condition evaluation not implemented');
+  }
+
+  private async executeTransformer(node: Node, context: any) {
+    // Implement transformer execution logic
+    throw new Error('Transformer execution not implemented');
   }
 }
 
