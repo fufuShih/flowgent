@@ -4,11 +4,11 @@ export type Connection = {
     /**
      * The connection ID
      */
-    id: number;
+    id?: number;
     /**
      * The matrix ID this connection belongs to
      */
-    matrixId: number;
+    matrixId?: number;
     /**
      * Source node ID
      */
@@ -27,33 +27,14 @@ export type Connection = {
     config?: {
         [key: string]: unknown;
     };
-    created: Date;
-    updated: Date;
+    created?: Date;
+    updated?: Date;
 };
 
 /**
  * Connection type
  */
 export type type = 'default' | 'success' | 'error' | 'condition';
-
-export type ConnectionCondition = {
-    /**
-     * The condition ID
-     */
-    id: number;
-    /**
-     * The associated connection ID
-     */
-    connectionId: number;
-    /**
-     * The condition configuration object
-     */
-    condition: {
-        [key: string]: unknown;
-    };
-    created: Date;
-    updated: Date;
-};
 
 export type Error = {
     success?: boolean;
@@ -108,7 +89,7 @@ export type Node = {
     /**
      * The node ID
      */
-    id: number;
+    id?: number;
     /**
      * The matrix ID this node belongs to
      */
@@ -116,7 +97,7 @@ export type Node = {
     /**
      * Node type
      */
-    type: 'trigger' | 'action' | 'condition' | 'subMatrix' | 'transformer' | 'loop';
+    type: 'trigger' | 'action' | 'condition' | 'subMatrix' | 'transformer' | 'loop' | 'monitor';
     /**
      * Node name
      */
@@ -125,28 +106,36 @@ export type Node = {
      * Node description
      */
     description?: (string) | null;
-    /**
-     * Node configuration
-     */
     config?: {
-        [key: string]: unknown;
-    };
-    position: {
         x?: number;
         y?: number;
+        inPorts?: Array<{
+            [key: string]: unknown;
+        }>;
+        outPorts?: Array<{
+            [key: string]: unknown;
+        }>;
     };
     /**
-     * ID of the sub-matrix (if type is subMatrix)
+     * ID of sub-matrix (if type is subMatrix)
      */
     subMatrixId?: (number) | null;
-    created: Date;
-    updated: Date;
+    /**
+     * Version of the node type
+     */
+    typeVersion?: number;
+    /**
+     * Whether the node is disabled
+     */
+    disabled?: boolean;
+    created?: Date;
+    updated?: Date;
 };
 
 /**
  * Node type
  */
-export type type2 = 'trigger' | 'action' | 'condition' | 'subMatrix' | 'transformer' | 'loop';
+export type type2 = 'trigger' | 'action' | 'condition' | 'subMatrix' | 'transformer' | 'loop' | 'monitor';
 
 export type Project = {
     /**
@@ -177,235 +166,6 @@ export type Success = {
         [key: string]: unknown;
     };
 };
-
-export type Trigger = {
-    /**
-     * The trigger ID
-     */
-    id: number;
-    /**
-     * The associated node ID
-     */
-    nodeId: number;
-    /**
-     * Trigger type
-     */
-    type: 'webhook' | 'schedule' | 'event' | 'manual' | 'email' | 'database';
-    /**
-     * Trigger name
-     */
-    name: string;
-    /**
-     * Trigger configuration
-     */
-    config?: {
-        [key: string]: unknown;
-    };
-    /**
-     * Trigger status
-     */
-    status: 'active' | 'inactive' | 'error';
-    lastTriggered?: (Date) | null;
-    nextTrigger?: (Date) | null;
-    created: Date;
-    updated: Date;
-};
-
-/**
- * Trigger type
- */
-export type type3 = 'webhook' | 'schedule' | 'event' | 'manual' | 'email' | 'database';
-
-/**
- * Trigger status
- */
-export type status2 = 'active' | 'inactive' | 'error';
-
-export type GetApiConnectionsByConnectionIdConditionsData = {
-    path: {
-        /**
-         * Connection ID
-         */
-        connectionId: number;
-    };
-};
-
-export type GetApiConnectionsByConnectionIdConditionsResponse = (Array<ConnectionCondition>);
-
-export type GetApiConnectionsByConnectionIdConditionsError = (unknown);
-
-export type PostApiConnectionsByConnectionIdConditionsData = {
-    body: {
-        /**
-         * Condition configuration object
-         */
-        condition: {
-            [key: string]: unknown;
-        };
-    };
-    path: {
-        /**
-         * Connection ID
-         */
-        connectionId: number;
-    };
-};
-
-export type PostApiConnectionsByConnectionIdConditionsResponse = (ConnectionCondition);
-
-export type PostApiConnectionsByConnectionIdConditionsError = (unknown);
-
-export type GetApiConnectionConditionsByIdData = {
-    path: {
-        /**
-         * Condition ID
-         */
-        id: number;
-    };
-    query?: {
-        /**
-         * Include connection details in response
-         */
-        includeConnection?: boolean;
-    };
-};
-
-export type GetApiConnectionConditionsByIdResponse = ((ConnectionCondition & {
-    connection?: Connection;
-}));
-
-export type GetApiConnectionConditionsByIdError = (unknown);
-
-export type PatchApiConnectionConditionsByIdData = {
-    body: {
-        /**
-         * Updated condition configuration
-         */
-        condition?: {
-            [key: string]: unknown;
-        };
-    };
-    path: {
-        /**
-         * Condition ID
-         */
-        id: number;
-    };
-};
-
-export type PatchApiConnectionConditionsByIdResponse = (ConnectionCondition);
-
-export type PatchApiConnectionConditionsByIdError = (unknown);
-
-export type DeleteApiConnectionConditionsByIdData = {
-    path: {
-        /**
-         * Condition ID
-         */
-        id: number;
-    };
-};
-
-export type DeleteApiConnectionConditionsByIdResponse = (void);
-
-export type DeleteApiConnectionConditionsByIdError = (unknown);
-
-export type GetApiMatrixByMatrixIdConnectionsData = {
-    path: {
-        /**
-         * Matrix ID
-         */
-        matrixId: number;
-    };
-    query?: {
-        /**
-         * Include conditions in response
-         */
-        includeConditions?: boolean;
-    };
-};
-
-export type GetApiMatrixByMatrixIdConnectionsResponse = (Array<(Connection & {
-    conditions?: Array<ConnectionCondition>;
-})>);
-
-export type GetApiMatrixByMatrixIdConnectionsError = (unknown);
-
-export type PostApiMatrixByMatrixIdConnectionsData = {
-    body: {
-        sourceId: number;
-        targetId: number;
-        type?: 'default' | 'success' | 'error' | 'condition';
-        config?: {
-            [key: string]: unknown;
-        };
-        conditions?: Array<{
-            condition?: {
-                [key: string]: unknown;
-            };
-        }>;
-    };
-    path: {
-        /**
-         * Matrix ID
-         */
-        matrixId: number;
-    };
-};
-
-export type PostApiMatrixByMatrixIdConnectionsResponse = (Connection);
-
-export type PostApiMatrixByMatrixIdConnectionsError = (unknown);
-
-export type GetApiConnectionsByConnectionIdData = {
-    path: {
-        /**
-         * Connection ID
-         */
-        connectionId: number;
-    };
-};
-
-export type GetApiConnectionsByConnectionIdResponse = (Connection);
-
-export type GetApiConnectionsByConnectionIdError = (unknown);
-
-export type PatchApiConnectionsByConnectionIdData = {
-    body: {
-        type?: 'default' | 'success' | 'error' | 'condition';
-        config?: {
-            [key: string]: unknown;
-        };
-        conditions?: Array<{
-            condition?: {
-                [key: string]: unknown;
-            };
-        }>;
-    };
-    path: {
-        /**
-         * Connection ID
-         */
-        connectionId: number;
-    };
-};
-
-export type PatchApiConnectionsByConnectionIdResponse = (Connection);
-
-export type PatchApiConnectionsByConnectionIdError = (unknown);
-
-export type DeleteApiConnectionsByConnectionIdData = {
-    path: {
-        /**
-         * Connection ID
-         */
-        connectionId: number;
-    };
-};
-
-export type DeleteApiConnectionsByConnectionIdResponse = (void);
-
-export type DeleteApiConnectionsByConnectionIdError = (unknown);
 
 export type GetApiMatrixProjectByProjectIdData = {
     path: {
@@ -542,116 +302,14 @@ export type PostApiMatrixByMatrixIdCloneResponse = (Matrix);
 
 export type PostApiMatrixByMatrixIdCloneError = (unknown);
 
-export type GetApiNodesMatrixByMatrixIdData = {
+export type GetApiMatrixByMatrixIdWorkflowData = {
     path: {
-        /**
-         * Matrix ID
-         */
         matrixId: number;
     };
-    query?: {
-        /**
-         * Include trigger details for trigger nodes
-         */
-        includeTrigger?: boolean;
-        /**
-         * Filter nodes by type
-         */
-        type?: 'trigger' | 'action' | 'condition' | 'subMatrix' | 'transformer' | 'loop';
-    };
 };
 
-export type GetApiNodesMatrixByMatrixIdResponse = (Array<(Node & {
-    trigger?: Trigger;
-})>);
-
-export type GetApiNodesMatrixByMatrixIdError = (unknown);
-
-export type GetApiNodesResponse = (Array<Node>);
-
-export type GetApiNodesError = unknown;
-
-export type GetApiNodesByNodeIdData = {
-    path: {
-        /**
-         * Node ID
-         */
-        nodeId: number;
-    };
-};
-
-export type GetApiNodesByNodeIdResponse = ((Node & {
-    trigger?: Trigger;
-}));
-
-export type GetApiNodesByNodeIdError = (unknown);
-
-export type PatchApiNodesByNodeIdData = {
-    body: {
-        name?: string;
-        description?: string;
-        config?: {
-            [key: string]: unknown;
-        };
-        position?: {
-            x?: number;
-            y?: number;
-        };
-        trigger?: {
-            type?: 'webhook' | 'schedule' | 'event' | 'manual' | 'email' | 'database';
-            name?: string;
-            config?: {
-                [key: string]: unknown;
-            };
-            status?: 'active' | 'inactive' | 'error';
-        };
-    };
-    path: {
-        /**
-         * Node ID
-         */
-        nodeId: number;
-    };
-};
-
-export type PatchApiNodesByNodeIdResponse = (Node);
-
-export type PatchApiNodesByNodeIdError = (unknown);
-
-export type DeleteApiNodesByNodeIdData = {
-    path: {
-        /**
-         * Node ID
-         */
-        nodeId: number;
-    };
-};
-
-export type DeleteApiNodesByNodeIdResponse = (void);
-
-export type DeleteApiNodesByNodeIdError = (unknown);
-
-export type PostApiNodesMatrixByMatrixIdNodesData = {
-    body: {
-        type: 'trigger' | 'action' | 'condition' | 'subMatrix' | 'transformer' | 'loop';
-        name: string;
-        description?: string;
-        config?: {
-            [key: string]: unknown;
-        };
-        position: {
-            x: number;
-            y: number;
-        };
-        subMatrixId?: number;
-        trigger?: {
-            type?: 'webhook' | 'schedule' | 'event' | 'manual' | 'email' | 'database';
-            name?: string;
-            config?: {
-                [key: string]: unknown;
-            };
-        };
-    };
+export type PostApiMatrixByMatrixIdNodesData = {
+    body: Array<Node>;
     path: {
         /**
          * Matrix ID
@@ -660,9 +318,25 @@ export type PostApiNodesMatrixByMatrixIdNodesData = {
     };
 };
 
-export type PostApiNodesMatrixByMatrixIdNodesResponse = (Node);
+export type PostApiMatrixByMatrixIdNodesResponse = (Array<Node>);
 
-export type PostApiNodesMatrixByMatrixIdNodesError = (unknown);
+export type PostApiMatrixByMatrixIdNodesError = (unknown);
+
+export type PatchApiMatrixByMatrixIdConnectionsData = {
+    body: Array<(Connection & unknown)>;
+    path: {
+        matrixId: number;
+    };
+};
+
+export type DeleteApiMatrixByMatrixIdConnectionsData = {
+    body: {
+        connectionIds: Array<(number)>;
+    };
+    path: {
+        matrixId: number;
+    };
+};
 
 export type GetApiProjectsData = {
     query?: {
@@ -747,159 +421,6 @@ export type DeleteApiProjectsByProjectIdResponse = (void);
 
 export type DeleteApiProjectsByProjectIdError = (unknown);
 
-export type GetApiNodesByNodeIdTriggerData = {
-    path: {
-        /**
-         * Node ID
-         */
-        nodeId: number;
-    };
-};
-
-export type GetApiNodesByNodeIdTriggerResponse = (Trigger);
-
-export type GetApiNodesByNodeIdTriggerError = (unknown);
-
-export type PostApiNodesByNodeIdTriggerData = {
-    body: {
-        type: 'webhook' | 'schedule' | 'event' | 'manual' | 'email' | 'database';
-        name: string;
-        config?: {
-            [key: string]: unknown;
-        };
-        status?: 'active' | 'inactive' | 'error';
-    };
-    path: {
-        /**
-         * Node ID
-         */
-        nodeId: number;
-    };
-};
-
-export type PostApiNodesByNodeIdTriggerResponse = (Trigger);
-
-export type PostApiNodesByNodeIdTriggerError = (unknown);
-
-export type GetApiTriggersByTriggerIdData = {
-    path: {
-        /**
-         * Trigger ID
-         */
-        triggerId: number;
-    };
-};
-
-export type GetApiTriggersByTriggerIdResponse = ((Trigger & {
-    node?: Node;
-}));
-
-export type GetApiTriggersByTriggerIdError = (unknown);
-
-export type PatchApiTriggersByTriggerIdData = {
-    body: {
-        type?: 'webhook' | 'schedule' | 'event' | 'manual' | 'email' | 'database';
-        name?: string;
-        config?: {
-            [key: string]: unknown;
-        };
-        status?: 'active' | 'inactive' | 'error';
-        lastTriggered?: Date;
-        nextTrigger?: Date;
-    };
-    path: {
-        /**
-         * Trigger ID
-         */
-        triggerId: number;
-    };
-};
-
-export type PatchApiTriggersByTriggerIdResponse = (Trigger);
-
-export type PatchApiTriggersByTriggerIdError = (unknown);
-
-export type DeleteApiTriggersByTriggerIdData = {
-    path: {
-        /**
-         * Trigger ID
-         */
-        triggerId: number;
-    };
-};
-
-export type DeleteApiTriggersByTriggerIdResponse = (void);
-
-export type DeleteApiTriggersByTriggerIdError = (unknown);
-
-export type GetApiConnectionsByConnectionIdConditionsResponseTransformer = (data: any) => Promise<GetApiConnectionsByConnectionIdConditionsResponse>;
-
-export type ConnectionConditionModelResponseTransformer = (data: any) => ConnectionCondition;
-
-export const ConnectionConditionModelResponseTransformer: ConnectionConditionModelResponseTransformer = data => {
-    if (data?.created) {
-        data.created = new Date(data.created);
-    }
-    if (data?.updated) {
-        data.updated = new Date(data.updated);
-    }
-    return data;
-};
-
-export const GetApiConnectionsByConnectionIdConditionsResponseTransformer: GetApiConnectionsByConnectionIdConditionsResponseTransformer = async (data) => {
-    if (Array.isArray(data)) {
-        data.forEach(ConnectionConditionModelResponseTransformer);
-    }
-    return data;
-};
-
-export type PostApiConnectionsByConnectionIdConditionsResponseTransformer = (data: any) => Promise<PostApiConnectionsByConnectionIdConditionsResponse>;
-
-export const PostApiConnectionsByConnectionIdConditionsResponseTransformer: PostApiConnectionsByConnectionIdConditionsResponseTransformer = async (data) => {
-    ConnectionConditionModelResponseTransformer(data);
-    return data;
-};
-
-export type PatchApiConnectionConditionsByIdResponseTransformer = (data: any) => Promise<PatchApiConnectionConditionsByIdResponse>;
-
-export const PatchApiConnectionConditionsByIdResponseTransformer: PatchApiConnectionConditionsByIdResponseTransformer = async (data) => {
-    ConnectionConditionModelResponseTransformer(data);
-    return data;
-};
-
-export type PostApiMatrixByMatrixIdConnectionsResponseTransformer = (data: any) => Promise<PostApiMatrixByMatrixIdConnectionsResponse>;
-
-export type ConnectionModelResponseTransformer = (data: any) => Connection;
-
-export const ConnectionModelResponseTransformer: ConnectionModelResponseTransformer = data => {
-    if (data?.created) {
-        data.created = new Date(data.created);
-    }
-    if (data?.updated) {
-        data.updated = new Date(data.updated);
-    }
-    return data;
-};
-
-export const PostApiMatrixByMatrixIdConnectionsResponseTransformer: PostApiMatrixByMatrixIdConnectionsResponseTransformer = async (data) => {
-    ConnectionModelResponseTransformer(data);
-    return data;
-};
-
-export type GetApiConnectionsByConnectionIdResponseTransformer = (data: any) => Promise<GetApiConnectionsByConnectionIdResponse>;
-
-export const GetApiConnectionsByConnectionIdResponseTransformer: GetApiConnectionsByConnectionIdResponseTransformer = async (data) => {
-    ConnectionModelResponseTransformer(data);
-    return data;
-};
-
-export type PatchApiConnectionsByConnectionIdResponseTransformer = (data: any) => Promise<PatchApiConnectionsByConnectionIdResponse>;
-
-export const PatchApiConnectionsByConnectionIdResponseTransformer: PatchApiConnectionsByConnectionIdResponseTransformer = async (data) => {
-    ConnectionModelResponseTransformer(data);
-    return data;
-};
-
 export type GetApiMatrixProjectByProjectIdResponseTransformer = (data: any) => Promise<GetApiMatrixProjectByProjectIdResponse>;
 
 export type MatrixModelResponseTransformer = (data: any) => Matrix;
@@ -942,7 +463,7 @@ export const PostApiMatrixByMatrixIdCloneResponseTransformer: PostApiMatrixByMat
     return data;
 };
 
-export type GetApiNodesResponseTransformer = (data: any) => Promise<GetApiNodesResponse>;
+export type PostApiMatrixByMatrixIdNodesResponseTransformer = (data: any) => Promise<PostApiMatrixByMatrixIdNodesResponse>;
 
 export type NodeModelResponseTransformer = (data: any) => Node;
 
@@ -956,24 +477,10 @@ export const NodeModelResponseTransformer: NodeModelResponseTransformer = data =
     return data;
 };
 
-export const GetApiNodesResponseTransformer: GetApiNodesResponseTransformer = async (data) => {
+export const PostApiMatrixByMatrixIdNodesResponseTransformer: PostApiMatrixByMatrixIdNodesResponseTransformer = async (data) => {
     if (Array.isArray(data)) {
         data.forEach(NodeModelResponseTransformer);
     }
-    return data;
-};
-
-export type PatchApiNodesByNodeIdResponseTransformer = (data: any) => Promise<PatchApiNodesByNodeIdResponse>;
-
-export const PatchApiNodesByNodeIdResponseTransformer: PatchApiNodesByNodeIdResponseTransformer = async (data) => {
-    NodeModelResponseTransformer(data);
-    return data;
-};
-
-export type PostApiNodesMatrixByMatrixIdNodesResponseTransformer = (data: any) => Promise<PostApiNodesMatrixByMatrixIdNodesResponse>;
-
-export const PostApiNodesMatrixByMatrixIdNodesResponseTransformer: PostApiNodesMatrixByMatrixIdNodesResponseTransformer = async (data) => {
-    NodeModelResponseTransformer(data);
     return data;
 };
 
@@ -1016,44 +523,5 @@ export type PatchApiProjectsByProjectIdResponseTransformer = (data: any) => Prom
 
 export const PatchApiProjectsByProjectIdResponseTransformer: PatchApiProjectsByProjectIdResponseTransformer = async (data) => {
     ProjectModelResponseTransformer(data);
-    return data;
-};
-
-export type GetApiNodesByNodeIdTriggerResponseTransformer = (data: any) => Promise<GetApiNodesByNodeIdTriggerResponse>;
-
-export type TriggerModelResponseTransformer = (data: any) => Trigger;
-
-export const TriggerModelResponseTransformer: TriggerModelResponseTransformer = data => {
-    if (data?.lastTriggered) {
-        data.lastTriggered = new Date(data.lastTriggered);
-    }
-    if (data?.nextTrigger) {
-        data.nextTrigger = new Date(data.nextTrigger);
-    }
-    if (data?.created) {
-        data.created = new Date(data.created);
-    }
-    if (data?.updated) {
-        data.updated = new Date(data.updated);
-    }
-    return data;
-};
-
-export const GetApiNodesByNodeIdTriggerResponseTransformer: GetApiNodesByNodeIdTriggerResponseTransformer = async (data) => {
-    TriggerModelResponseTransformer(data);
-    return data;
-};
-
-export type PostApiNodesByNodeIdTriggerResponseTransformer = (data: any) => Promise<PostApiNodesByNodeIdTriggerResponse>;
-
-export const PostApiNodesByNodeIdTriggerResponseTransformer: PostApiNodesByNodeIdTriggerResponseTransformer = async (data) => {
-    TriggerModelResponseTransformer(data);
-    return data;
-};
-
-export type PatchApiTriggersByTriggerIdResponseTransformer = (data: any) => Promise<PatchApiTriggersByTriggerIdResponse>;
-
-export const PatchApiTriggersByTriggerIdResponseTransformer: PatchApiTriggersByTriggerIdResponseTransformer = async (data) => {
-    TriggerModelResponseTransformer(data);
     return data;
 };
