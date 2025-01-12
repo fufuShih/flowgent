@@ -1,66 +1,9 @@
 {
   "version": "5",
   "dialect": "pg",
-  "id": "d5f6fda8-74b2-4522-abbd-6de0c5664ffe",
+  "id": "5a87e6ea-e6b0-4b84-a7db-28bc4bb3302a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
-    "connection_conditions": {
-      "name": "connection_conditions",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "connection_id": {
-          "name": "connection_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "condition": {
-          "name": "condition",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'::jsonb"
-        },
-        "created": {
-          "name": "created",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated": {
-          "name": "updated",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "connection_conditions_connection_id_connections_id_fk": {
-          "name": "connection_conditions_connection_id_connections_id_fk",
-          "tableFrom": "connection_conditions",
-          "tableTo": "connections",
-          "columnsFrom": [
-            "connection_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
     "connections": {
       "name": "connections",
       "schema": "",
@@ -304,20 +247,27 @@
           "type": "jsonb",
           "primaryKey": false,
           "notNull": true,
-          "default": "'{}'::jsonb"
-        },
-        "position": {
-          "name": "position",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{\"x\":0,\"y\":0}'::jsonb"
+          "default": "'{\"x\":0,\"y\":0,\"inPorts\":[],\"outPorts\":[]}'::jsonb"
         },
         "sub_matrix_id": {
           "name": "sub_matrix_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": false
+        },
+        "type_version": {
+          "name": "type_version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "disabled": {
+          "name": "disabled",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         },
         "created": {
           "name": "created",
@@ -407,102 +357,6 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
-    },
-    "triggers": {
-      "name": "triggers",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "node_id": {
-          "name": "node_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "type": {
-          "name": "type",
-          "type": "trigger_type",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "status": {
-          "name": "status",
-          "type": "trigger_status",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'inactive'"
-        },
-        "config": {
-          "name": "config",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'::jsonb"
-        },
-        "last_triggered": {
-          "name": "last_triggered",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "next_trigger": {
-          "name": "next_trigger",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created": {
-          "name": "created",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated": {
-          "name": "updated",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "triggers_node_id_nodes_id_fk": {
-          "name": "triggers_node_id_nodes_id_fk",
-          "tableFrom": "triggers",
-          "tableTo": "nodes",
-          "columnsFrom": [
-            "node_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "triggers_node_id_unique": {
-          "name": "triggers_node_id_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "node_id"
-          ]
-        }
-      }
     }
   },
   "enums": {
@@ -532,26 +386,8 @@
         "condition": "condition",
         "subMatrix": "subMatrix",
         "transformer": "transformer",
-        "loop": "loop"
-      }
-    },
-    "trigger_status": {
-      "name": "trigger_status",
-      "values": {
-        "active": "active",
-        "inactive": "inactive",
-        "error": "error"
-      }
-    },
-    "trigger_type": {
-      "name": "trigger_type",
-      "values": {
-        "webhook": "webhook",
-        "schedule": "schedule",
-        "event": "event",
-        "manual": "manual",
-        "email": "email",
-        "database": "database"
+        "loop": "loop",
+        "monitor": "monitor"
       }
     }
   },

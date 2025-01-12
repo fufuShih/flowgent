@@ -11,30 +11,10 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- CREATE TYPE "node_type" AS ENUM('trigger', 'action', 'condition', 'subMatrix', 'transformer', 'loop');
+ CREATE TYPE "node_type" AS ENUM('trigger', 'action', 'condition', 'subMatrix', 'transformer', 'loop', 'monitor');
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
---> statement-breakpoint
-DO $$ BEGIN
- CREATE TYPE "trigger_status" AS ENUM('active', 'inactive', 'error');
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- CREATE TYPE "trigger_type" AS ENUM('webhook', 'schedule', 'event', 'manual', 'email', 'database');
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "connection_conditions" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"connection_id" integer NOT NULL,
-	"condition" jsonb DEFAULT '{}'::jsonb NOT NULL,
-	"created" timestamp DEFAULT now() NOT NULL,
-	"updated" timestamp DEFAULT now() NOT NULL
-);
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "connections" (
 	"id" serial PRIMARY KEY NOT NULL,
@@ -66,9 +46,10 @@ CREATE TABLE IF NOT EXISTS "nodes" (
 	"type" "node_type" NOT NULL,
 	"name" text NOT NULL,
 	"description" text,
-	"config" jsonb DEFAULT '{}'::jsonb NOT NULL,
-	"position" jsonb DEFAULT '{"x":0,"y":0}'::jsonb NOT NULL,
+	"config" jsonb DEFAULT '{"x":0,"y":0,"inPorts":[],"outPorts":[]}'::jsonb NOT NULL,
 	"sub_matrix_id" integer,
+	"type_version" integer DEFAULT 1 NOT NULL,
+	"disabled" boolean DEFAULT false NOT NULL,
 	"created" timestamp DEFAULT now() NOT NULL,
 	"updated" timestamp DEFAULT now() NOT NULL
 );
@@ -80,26 +61,6 @@ CREATE TABLE IF NOT EXISTS "projects" (
 	"created" timestamp DEFAULT now() NOT NULL,
 	"updated" timestamp DEFAULT now() NOT NULL
 );
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "triggers" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"node_id" integer NOT NULL,
-	"type" "trigger_type" NOT NULL,
-	"name" text NOT NULL,
-	"status" "trigger_status" DEFAULT 'inactive' NOT NULL,
-	"config" jsonb DEFAULT '{}'::jsonb NOT NULL,
-	"last_triggered" timestamp,
-	"next_trigger" timestamp,
-	"created" timestamp DEFAULT now() NOT NULL,
-	"updated" timestamp DEFAULT now() NOT NULL,
-	CONSTRAINT "triggers_node_id_unique" UNIQUE("node_id")
-);
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "connection_conditions" ADD CONSTRAINT "connection_conditions_connection_id_connections_id_fk" FOREIGN KEY ("connection_id") REFERENCES "connections"("id") ON DELETE cascade ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "connections" ADD CONSTRAINT "connections_matrix_id_matrix_id_fk" FOREIGN KEY ("matrix_id") REFERENCES "matrix"("id") ON DELETE cascade ON UPDATE no action;
@@ -139,12 +100,6 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "nodes" ADD CONSTRAINT "nodes_sub_matrix_id_matrix_id_fk" FOREIGN KEY ("sub_matrix_id") REFERENCES "matrix"("id") ON DELETE cascade ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "triggers" ADD CONSTRAINT "triggers_node_id_nodes_id_fk" FOREIGN KEY ("node_id") REFERENCES "nodes"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
