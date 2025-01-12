@@ -64,6 +64,62 @@ const connectionSchema = z.object({
  * @swagger
  * components:
  *   schemas:
+ *     Node:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: The node ID
+ *         matrixId:
+ *           type: integer
+ *           description: The matrix ID this node belongs to
+ *         type:
+ *           type: string
+ *           enum: [trigger, action, condition, subMatrix, transformer, loop, monitor]
+ *           description: Node type
+ *         name:
+ *           type: string
+ *           description: Node name
+ *         description:
+ *           type: string
+ *           nullable: true
+ *           description: Node description
+ *         config:
+ *           type: object
+ *           properties:
+ *             x:
+ *               type: number
+ *             y:
+ *               type: number
+ *             inPorts:
+ *               type: array
+ *               items:
+ *                 type: object
+ *             outPorts:
+ *               type: array
+ *               items:
+ *                 type: object
+ *         subMatrixId:
+ *           type: integer
+ *           nullable: true
+ *           description: ID of sub-matrix (if type is subMatrix)
+ *         typeVersion:
+ *           type: integer
+ *           description: Version of the node type
+ *         disabled:
+ *           type: boolean
+ *           description: Whether the node is disabled
+ *         created:
+ *           type: string
+ *           format: date-time
+ *         updated:
+ *           type: string
+ *           format: date-time
+ *       required:
+ *         - type
+ *         - name
+ *         - matrixId
+ *
  *     Matrix:
  *       type: object
  *       properties:
@@ -108,6 +164,7 @@ const connectionSchema = z.object({
  *         - version
  *         - created
  *         - updated
+ *
  *     Connection:
  *       type: object
  *       properties:
@@ -740,6 +797,37 @@ router.get('/:matrixId/workflow', async (req, res) => {
  * /api/matrix/{matrixId}/nodes:
  *   post:
  *     summary: Create new nodes in the matrix
+ *     tags: [Matrix]
+ *     parameters:
+ *       - in: path
+ *         name: matrixId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Matrix ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: array
+ *             items:
+ *               $ref: '#/components/schemas/Node'
+ *     responses:
+ *       201:
+ *         description: Nodes created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Node'
+ *       400:
+ *         description: Invalid request parameters
+ *       404:
+ *         description: Matrix not found
+ *       500:
+ *         description: Internal server error
  */
 router.post('/:matrixId/nodes', async (req, res) => {
   try {
