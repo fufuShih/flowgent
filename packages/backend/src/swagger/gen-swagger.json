@@ -49,90 +49,6 @@
           }
         }
       },
-      "ConnectionCondition": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "description": "The condition ID"
-          },
-          "connectionId": {
-            "type": "integer",
-            "description": "The associated connection ID"
-          },
-          "condition": {
-            "type": "object",
-            "description": "The condition configuration object"
-          },
-          "created": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updated": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "id",
-          "connectionId",
-          "condition",
-          "created",
-          "updated"
-        ]
-      },
-      "Connection": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "description": "The connection ID"
-          },
-          "matrixId": {
-            "type": "integer",
-            "description": "The matrix ID this connection belongs to"
-          },
-          "sourceId": {
-            "type": "integer",
-            "description": "Source node ID"
-          },
-          "targetId": {
-            "type": "integer",
-            "description": "Target node ID"
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "default",
-              "success",
-              "error",
-              "condition"
-            ],
-            "description": "Connection type"
-          },
-          "config": {
-            "type": "object",
-            "description": "Connection configuration"
-          },
-          "created": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updated": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "id",
-          "matrixId",
-          "sourceId",
-          "targetId",
-          "type",
-          "created",
-          "updated"
-        ]
-      },
       "Matrix": {
         "type": "object",
         "properties": {
@@ -195,57 +111,38 @@
           "updated"
         ]
       },
-      "Node": {
+      "Connection": {
         "type": "object",
         "properties": {
           "id": {
             "type": "integer",
-            "description": "The node ID"
+            "description": "The connection ID"
           },
           "matrixId": {
             "type": "integer",
-            "description": "The matrix ID this node belongs to"
+            "description": "The matrix ID this connection belongs to"
+          },
+          "sourceId": {
+            "type": "integer",
+            "description": "Source node ID"
+          },
+          "targetId": {
+            "type": "integer",
+            "description": "Target node ID"
           },
           "type": {
             "type": "string",
             "enum": [
-              "trigger",
-              "action",
-              "condition",
-              "subMatrix",
-              "transformer",
-              "loop"
+              "default",
+              "success",
+              "error",
+              "condition"
             ],
-            "description": "Node type"
-          },
-          "name": {
-            "type": "string",
-            "description": "Node name"
-          },
-          "description": {
-            "type": "string",
-            "nullable": true,
-            "description": "Node description"
+            "description": "Connection type"
           },
           "config": {
             "type": "object",
-            "description": "Node configuration"
-          },
-          "position": {
-            "type": "object",
-            "properties": {
-              "x": {
-                "type": "number"
-              },
-              "y": {
-                "type": "number"
-              }
-            }
-          },
-          "subMatrixId": {
-            "type": "integer",
-            "nullable": true,
-            "description": "ID of the sub-matrix (if type is subMatrix)"
+            "description": "Connection configuration"
           },
           "created": {
             "type": "string",
@@ -257,13 +154,9 @@
           }
         },
         "required": [
-          "id",
-          "matrixId",
-          "type",
-          "name",
-          "position",
-          "created",
-          "updated"
+          "sourceId",
+          "targetId",
+          "type"
         ]
       },
       "Project": {
@@ -299,75 +192,6 @@
           "created",
           "updated"
         ]
-      },
-      "Trigger": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "description": "The trigger ID"
-          },
-          "nodeId": {
-            "type": "integer",
-            "description": "The associated node ID"
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "webhook",
-              "schedule",
-              "event",
-              "manual",
-              "email",
-              "database"
-            ],
-            "description": "Trigger type"
-          },
-          "name": {
-            "type": "string",
-            "description": "Trigger name"
-          },
-          "config": {
-            "type": "object",
-            "description": "Trigger configuration"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "active",
-              "inactive",
-              "error"
-            ],
-            "description": "Trigger status"
-          },
-          "lastTriggered": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "nextTrigger": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "created": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updated": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "id",
-          "nodeId",
-          "type",
-          "name",
-          "status",
-          "created",
-          "updated"
-        ]
       }
     }
   },
@@ -380,547 +204,6 @@
     "./src/routes/*.ts"
   ],
   "paths": {
-    "/api/connections/{connectionId}/conditions": {
-      "get": {
-        "summary": "Get all conditions for a connection",
-        "tags": [
-          "Connection Conditions"
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "connectionId",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "Connection ID"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of conditions",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ConnectionCondition"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid connection ID"
-          },
-          "404": {
-            "description": "Connection not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      },
-      "post": {
-        "summary": "Create a new condition",
-        "tags": [
-          "Connection Conditions"
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "connectionId",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "Connection ID"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "condition"
-                ],
-                "properties": {
-                  "condition": {
-                    "type": "object",
-                    "description": "Condition configuration object"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Condition created successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ConnectionCondition"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request body or connection ID"
-          },
-          "404": {
-            "description": "Connection not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      }
-    },
-    "/api/connection-conditions/{id}": {
-      "get": {
-        "summary": "Get a condition by ID",
-        "tags": [
-          "Connection Conditions"
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "Condition ID"
-          },
-          {
-            "in": "query",
-            "name": "includeConnection",
-            "schema": {
-              "type": "boolean",
-              "default": false
-            },
-            "description": "Include connection details in response"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Condition found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/ConnectionCondition"
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "connection": {
-                          "$ref": "#/components/schemas/Connection"
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid condition ID"
-          },
-          "404": {
-            "description": "Condition not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      },
-      "patch": {
-        "summary": "Update a condition",
-        "tags": [
-          "Connection Conditions"
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "Condition ID"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "condition": {
-                    "type": "object",
-                    "description": "Updated condition configuration"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Condition updated successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ConnectionCondition"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request body or condition ID"
-          },
-          "404": {
-            "description": "Condition not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      },
-      "delete": {
-        "summary": "Delete a condition",
-        "tags": [
-          "Connection Conditions"
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "Condition ID"
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Condition deleted successfully"
-          },
-          "400": {
-            "description": "Invalid condition ID"
-          },
-          "404": {
-            "description": "Condition not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      }
-    },
-    "/api/matrix/{matrixId}/connections": {
-      "get": {
-        "summary": "Get all connections for a matrix",
-        "tags": [
-          "Connections"
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "matrixId",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "Matrix ID"
-          },
-          {
-            "in": "query",
-            "name": "includeConditions",
-            "schema": {
-              "type": "boolean",
-              "default": false
-            },
-            "description": "Include conditions in response"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of connections",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "allOf": [
-                      {
-                        "$ref": "#/components/schemas/Connection"
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "conditions": {
-                            "type": "array",
-                            "items": {
-                              "$ref": "#/components/schemas/ConnectionCondition"
-                            }
-                          }
-                        }
-                      }
-                    ]
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid matrix ID"
-          },
-          "404": {
-            "description": "Matrix not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      },
-      "post": {
-        "summary": "Create a new connection",
-        "tags": [
-          "Connections"
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "matrixId",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "Matrix ID"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "sourceId",
-                  "targetId"
-                ],
-                "properties": {
-                  "sourceId": {
-                    "type": "integer"
-                  },
-                  "targetId": {
-                    "type": "integer"
-                  },
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "default",
-                      "success",
-                      "error",
-                      "condition"
-                    ],
-                    "default": "default"
-                  },
-                  "config": {
-                    "type": "object"
-                  },
-                  "conditions": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "condition": {
-                          "type": "object"
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Connection created successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Connection"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request body"
-          },
-          "404": {
-            "description": "Matrix not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      }
-    },
-    "/api/connections/{connectionId}": {
-      "get": {
-        "summary": "Get a connection by ID",
-        "tags": [
-          "Connections"
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "connectionId",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "Connection ID"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Connection found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Connection"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid connection ID"
-          },
-          "404": {
-            "description": "Connection not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      },
-      "patch": {
-        "summary": "Update a connection",
-        "tags": [
-          "Connections"
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "connectionId",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "Connection ID"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "default",
-                      "success",
-                      "error",
-                      "condition"
-                    ]
-                  },
-                  "config": {
-                    "type": "object"
-                  },
-                  "conditions": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "condition": {
-                          "type": "object"
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Connection updated successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Connection"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request parameters"
-          },
-          "404": {
-            "description": "Connection not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      },
-      "delete": {
-        "summary": "Delete a connection",
-        "tags": [
-          "Connections"
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "connectionId",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "Connection ID"
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Connection deleted successfully"
-          },
-          "400": {
-            "description": "Invalid connection ID"
-          },
-          "404": {
-            "description": "Connection not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      }
-    },
     "/api/matrix/project/{projectId}": {
       "get": {
         "summary": "Get all matrices for a project",
@@ -1329,11 +612,11 @@
         }
       }
     },
-    "/api/nodes/matrix/{matrixId}": {
+    "/api/matrix/{matrixId}/workflow": {
       "get": {
-        "summary": "Get all nodes for a matrix",
+        "summary": "Get workflow data for a matrix",
         "tags": [
-          "Nodes"
+          "Matrix"
         ],
         "parameters": [
           {
@@ -1342,161 +625,39 @@
             "required": true,
             "schema": {
               "type": "integer"
-            },
-            "description": "Matrix ID"
-          },
-          {
-            "in": "query",
-            "name": "type",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "trigger",
-                "action",
-                "condition",
-                "subMatrix",
-                "transformer",
-                "loop"
-              ]
-            },
-            "description": "Filter nodes by type"
-          },
-          {
-            "in": "query",
-            "name": "includeTrigger",
-            "schema": {
-              "type": "boolean",
-              "default": false
-            },
-            "description": "Include trigger details for trigger nodes"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of nodes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "allOf": [
-                      {
-                        "$ref": "#/components/schemas/Node"
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "trigger": {
-                            "$ref": "#/components/schemas/Trigger"
-                          }
-                        }
-                      }
-                    ]
-                  }
-                }
-              }
             }
-          },
-          "400": {
-            "description": "Invalid matrix ID"
-          },
-          "404": {
-            "description": "Matrix not found"
-          },
-          "500": {
-            "description": "Internal server error"
           }
-        }
+        ]
       }
     },
-    "/api/nodes": {
-      "get": {
-        "summary": "Get all nodes",
-        "tags": [
-          "Nodes"
-        ],
-        "responses": {
-          "200": {
-            "description": "List of nodes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Node"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/nodes/{nodeId}": {
-      "get": {
-        "summary": "Get a node by ID",
-        "tags": [
-          "Nodes"
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "nodeId",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "Node ID"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Node found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/Node"
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "trigger": {
-                          "$ref": "#/components/schemas/Trigger"
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid node ID"
-          },
-          "404": {
-            "description": "Node not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
+    "/api/matrix/{matrixId}/nodes": {
+      "post": {
+        "summary": "Create new nodes in the matrix"
       },
       "patch": {
-        "summary": "Update a node",
+        "summary": "Update existing nodes in the matrix"
+      },
+      "delete": {
+        "summary": "Delete nodes from the matrix"
+      }
+    },
+    "/api/matrix/{matrixId}/connections": {
+      "post": {
+        "summary": "Create new connections in the matrix"
+      },
+      "patch": {
+        "summary": "Update existing connections in the matrix",
         "tags": [
-          "Nodes"
+          "Matrix"
         ],
         "parameters": [
           {
             "in": "path",
-            "name": "nodeId",
+            "name": "matrixId",
             "required": true,
             "schema": {
               "type": "integer"
-            },
-            "description": "Node ID"
+            }
           }
         ],
         "requestBody": {
@@ -1504,124 +665,28 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 255
-                  },
-                  "description": {
-                    "type": "string"
-                  },
-                  "config": {
-                    "type": "object"
-                  },
-                  "position": {
-                    "type": "object",
-                    "properties": {
-                      "x": {
-                        "type": "number"
-                      },
-                      "y": {
-                        "type": "number"
-                      }
+                "type": "array",
+                "items": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Connection"
+                    },
+                    {
+                      "required": [
+                        "id"
+                      ]
                     }
-                  },
-                  "trigger": {
-                    "type": "object",
-                    "properties": {
-                      "type": {
-                        "type": "string",
-                        "enum": [
-                          "webhook",
-                          "schedule",
-                          "event",
-                          "manual",
-                          "email",
-                          "database"
-                        ]
-                      },
-                      "name": {
-                        "type": "string"
-                      },
-                      "config": {
-                        "type": "object"
-                      },
-                      "status": {
-                        "type": "string",
-                        "enum": [
-                          "active",
-                          "inactive",
-                          "error"
-                        ]
-                      }
-                    }
-                  }
+                  ]
                 }
               }
             }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Node updated successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Node"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request parameters"
-          },
-          "404": {
-            "description": "Node not found"
-          },
-          "500": {
-            "description": "Internal server error"
           }
         }
       },
       "delete": {
-        "summary": "Delete a node",
+        "summary": "Delete connections from the matrix",
         "tags": [
-          "Nodes"
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "nodeId",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "Node ID"
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Node deleted successfully"
-          },
-          "400": {
-            "description": "Invalid node ID"
-          },
-          "404": {
-            "description": "Node not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      }
-    },
-    "/api/nodes/matrix/{matrixId}/nodes": {
-      "post": {
-        "summary": "Create a new node",
-        "tags": [
-          "Nodes"
+          "Matrix"
         ],
         "parameters": [
           {
@@ -1630,8 +695,7 @@
             "required": true,
             "schema": {
               "type": "integer"
-            },
-            "description": "Matrix ID"
+            }
           }
         ],
         "requestBody": {
@@ -1641,99 +705,40 @@
               "schema": {
                 "type": "object",
                 "required": [
-                  "type",
-                  "name",
-                  "position"
+                  "connectionIds"
                 ],
                 "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "trigger",
-                      "action",
-                      "condition",
-                      "subMatrix",
-                      "transformer",
-                      "loop"
-                    ]
-                  },
-                  "name": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 255
-                  },
-                  "description": {
-                    "type": "string"
-                  },
-                  "config": {
-                    "type": "object"
-                  },
-                  "position": {
-                    "type": "object",
-                    "required": [
-                      "x",
-                      "y"
-                    ],
-                    "properties": {
-                      "x": {
-                        "type": "number"
-                      },
-                      "y": {
-                        "type": "number"
-                      }
-                    }
-                  },
-                  "subMatrixId": {
-                    "type": "integer"
-                  },
-                  "trigger": {
-                    "type": "object",
-                    "properties": {
-                      "type": {
-                        "type": "string",
-                        "enum": [
-                          "webhook",
-                          "schedule",
-                          "event",
-                          "manual",
-                          "email",
-                          "database"
-                        ]
-                      },
-                      "name": {
-                        "type": "string"
-                      },
-                      "config": {
-                        "type": "object"
-                      }
+                  "connectionIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
                     }
                   }
                 }
               }
             }
           }
-        },
-        "responses": {
-          "201": {
-            "description": "Node created successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Node"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request body"
-          },
-          "404": {
-            "description": "Matrix not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
         }
+      }
+    },
+    "/api/matrix/{matrixId}/triggers": {
+      "post": {
+        "summary": "Create trigger node"
+      }
+    },
+    "/api/matrix/{matrixId}/triggers/:nodeId/activate": {
+      "post": {
+        "summary": "Activate trigger"
+      }
+    },
+    "/api/matrix/{matrixId}/triggers/:nodeId/deactivate": {
+      "post": {
+        "summary": "Deactivate trigger"
+      }
+    },
+    "/api/matrix/{matrixId}/triggers/:nodeId/execute": {
+      "post": {
+        "summary": "Execute trigger"
       }
     },
     "/api/projects": {
@@ -1990,299 +995,6 @@
           },
           "404": {
             "description": "Project not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      }
-    },
-    "/api/nodes/{nodeId}/trigger": {
-      "get": {
-        "summary": "Get trigger for a node",
-        "tags": [
-          "Triggers"
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "nodeId",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "Node ID"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Trigger found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Trigger"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid node ID or node is not a trigger"
-          },
-          "404": {
-            "description": "Node or trigger not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      },
-      "post": {
-        "summary": "Create a new trigger",
-        "tags": [
-          "Triggers"
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "nodeId",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "Node ID"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "type",
-                  "name"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "webhook",
-                      "schedule",
-                      "event",
-                      "manual",
-                      "email",
-                      "database"
-                    ]
-                  },
-                  "name": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 255
-                  },
-                  "config": {
-                    "type": "object"
-                  },
-                  "status": {
-                    "type": "string",
-                    "enum": [
-                      "active",
-                      "inactive",
-                      "error"
-                    ],
-                    "default": "inactive"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Trigger created successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Trigger"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request body or node is not a trigger"
-          },
-          "404": {
-            "description": "Node not found"
-          },
-          "409": {
-            "description": "Trigger already exists for this node"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      }
-    },
-    "/api/triggers/{triggerId}": {
-      "get": {
-        "summary": "Get a trigger by ID",
-        "tags": [
-          "Triggers"
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "triggerId",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "Trigger ID"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Trigger found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/Trigger"
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "node": {
-                          "$ref": "#/components/schemas/Node"
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid trigger ID"
-          },
-          "404": {
-            "description": "Trigger not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      },
-      "patch": {
-        "summary": "Update a trigger",
-        "tags": [
-          "Triggers"
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "triggerId",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "Trigger ID"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "webhook",
-                      "schedule",
-                      "event",
-                      "manual",
-                      "email",
-                      "database"
-                    ]
-                  },
-                  "name": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 255
-                  },
-                  "config": {
-                    "type": "object"
-                  },
-                  "status": {
-                    "type": "string",
-                    "enum": [
-                      "active",
-                      "inactive",
-                      "error"
-                    ]
-                  },
-                  "lastTriggered": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "nextTrigger": {
-                    "type": "string",
-                    "format": "date-time"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Trigger updated successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Trigger"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request parameters"
-          },
-          "404": {
-            "description": "Trigger not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      },
-      "delete": {
-        "summary": "Delete a trigger",
-        "tags": [
-          "Triggers"
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "triggerId",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "Trigger ID"
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Trigger deleted successfully"
-          },
-          "400": {
-            "description": "Invalid trigger ID"
-          },
-          "404": {
-            "description": "Trigger not found"
           },
           "500": {
             "description": "Internal server error"
