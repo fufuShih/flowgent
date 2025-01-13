@@ -102,12 +102,12 @@ export class TriggerService {
   /** Initialize cron trigger */
   private initializeCronTrigger(node: Node) {
     if (node.config.cronExpression) {
-      // 驗證 cron 表達式
+      // validate cron expression
       if (!cron.validate(node.config.cronExpression)) {
         throw new Error('Invalid cron expression');
       }
 
-      // 創建並啟動 cron job
+      // create and start cron job
       const task = cron.schedule(node.config.cronExpression, () => this.executeTrigger(node.id), {
         scheduled: true,
         timezone: node.config.timezone,
@@ -170,7 +170,7 @@ export class TriggerService {
     const node = await this.getTriggerNode(nodeId);
     if (!node) throw new Error('Trigger node not found');
 
-    // 停止 cron job
+    // stop cron job
     if (node.config.triggerType === 'cron') {
       const task = this.cronJobs.get(nodeId);
       if (task) {
