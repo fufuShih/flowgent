@@ -96,6 +96,10 @@ export class TriggerService {
       case 'webhook':
         this.initializeWebhookTrigger(node);
         break;
+      // TODO: implement manual trigger
+      // case 'manual':
+      //   this.initializeManualTrigger(node);
+      //   break;
     }
   }
 
